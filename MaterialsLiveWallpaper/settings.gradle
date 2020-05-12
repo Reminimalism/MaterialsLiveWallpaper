@@ -1,0 +1,2 @@
+rootProject.name='Materials Live Wallpaper'
+include ':app'
