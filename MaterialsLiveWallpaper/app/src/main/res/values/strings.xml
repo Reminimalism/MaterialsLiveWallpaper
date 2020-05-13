@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">Materials Live Wallpaper</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Settings Categories -->
+    <string name="settings_category_material">Material</string>
+    <string name="settings_category_lights">Light Sources</string>
+    <string name="settings_category_performance">Performance</string>
+
+    <!-- Materials Settings -->
+    <string name="settings_material_use_custom">Use Custom Material</string>
+    <string name="settings_material_use_custom_summary_on">
+        Use custom textures as material
+    </string>
+    <string name="settings_material_use_custom_summary_off">
+        Use one of the samples as material
+    </string>
+    <string name="settings_material_sample">Material Sample</string>
+    <string name="settings_material_custom">Custom Material</string>
+
+    <!-- Lights Settings -->
+
+    <!-- Performance Settings -->
+    <string name="settings_performance_fps_limit">FPS Limit</string>
+    <string name="settings_performance_enable_parallax">Enable Parallax</string>
 </resources>
