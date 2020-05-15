@@ -2,6 +2,9 @@
     <string name="app_name">Materials Live Wallpaper</string>
     <string name="title_activity_settings">Settings</string>
 
+    <!-- MainActivity -->
+    <string name="set_wallpaper_button">Set Wallpaper</string>
+
     <!-- Settings Categories -->
     <string name="settings_category_material">Material</string>
     <string name="settings_category_lights">Light Sources</string>
