@@ -1,9 +1,20 @@
+uniform vec3 ScreenFrontDirection;
+uniform vec3 ScreenUpDirection;
+uniform vec3 ScreenRightDirection;
+
+uniform vec2 FOV;
+
 attribute vec4 Position;
 
-varying vec4 Color;
+varying vec2 UV;
+varying vec3 FOVNormal;
 
 void main()
 {
-    Color = (Position + vec4(1, 1, 1, 1)) / 2.0;
+    vec2 normal_diff = FOV * Position.xy;
+    FOVNormal = ScreenFrontDirection
+              + normal_diff.x * ScreenRightDirection
+              + normal_diff.y * ScreenUpDirection;
+    UV = (Position.xy + vec2(1, 1)) * 0.5;
     gl_Position = Position;
 }

@@ -2,6 +2,10 @@ package com.reminimalism.materialslivewallpaper;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.service.wallpaper.WallpaperService;
@@ -77,9 +81,40 @@ public class MaterialsWallpaperService extends WallpaperService
                     int PositionAttribute;
                     FloatBuffer TriangleStripPositionValues;
 
+                    float[] RotationVector = new float[4];
+                    float[] DeviceRotationMatrix = new float[9];
+                    float AspectRatio = 1;
+
+                    int ScreenFrontDirectionUniform;
+                    int ScreenUpDirectionUniform;
+                    int ScreenRightDirectionUniform;
+                    int FOVUniform;
+
+                    int LightDirectionsUniform;
+                    int LightReflectionDirectionsUniform;
+                    int LightColorsUniform;
+
+                    int PixelSizeUniform;
+
                     @Override
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
                     {
+                        // Sensors
+
+                        SensorManager SensorManagerInstance = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+                        Sensor RotationSensor = SensorManagerInstance.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+                        SensorManagerInstance.registerListener(new SensorEventListener() {
+                            @Override
+                            public void onSensorChanged(SensorEvent event)
+                            {
+                                if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
+                                    System.arraycopy(event.values, 0, RotationVector, 0, 4);
+                            }
+
+                            @Override
+                            public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+                        }, RotationSensor, SensorManager.SENSOR_DELAY_UI); // TODO: Destroy OnDestroy
+
                         // Data
 
                         float[] TriangleStripArray = {
@@ -157,6 +192,18 @@ public class MaterialsWallpaperService extends WallpaperService
                         else throw new RuntimeException("Program creation failed.");
 
                         PositionAttribute = GLES20.glGetAttribLocation(Program, "Position");
+
+                        ScreenFrontDirectionUniform = GLES20.glGetUniformLocation(Program, "ScreenFrontDirection");
+                        ScreenUpDirectionUniform = GLES20.glGetUniformLocation(Program, "ScreenUpDirection");
+                        ScreenRightDirectionUniform = GLES20.glGetUniformLocation(Program, "ScreenRightDirection");
+                        FOVUniform = GLES20.glGetUniformLocation(Program, "FOV");
+
+                        LightDirectionsUniform = GLES20.glGetUniformLocation(Program, "LightDirections");
+                        LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(Program, "LightReflectionDirections");
+                        LightColorsUniform = GLES20.glGetUniformLocation(Program, "LightColors");
+
+                        PixelSizeUniform = GLES20.glGetUniformLocation(Program, "PixelSize");
+
                         GLES20.glUseProgram(Program);
                     }
 
@@ -164,6 +211,7 @@ public class MaterialsWallpaperService extends WallpaperService
                     public void onSurfaceChanged(GL10 gl, int width, int height)
                     {
                         GLES20.glViewport(0, 0, width, height);
+                        AspectRatio = (float)width / (float)height;
                     }
 
                     @Override
@@ -180,6 +228,66 @@ public class MaterialsWallpaperService extends WallpaperService
                                 TriangleStripPositionValues
                         );
                         GLES20.glEnableVertexAttribArray(PositionAttribute);
+
+                        SensorManager.getRotationMatrixFromVector(DeviceRotationMatrix, RotationVector);
+                        GLES20.glUniform3f(
+                                ScreenFrontDirectionUniform,
+                                DeviceRotationMatrix[2],
+                                DeviceRotationMatrix[5],
+                                DeviceRotationMatrix[8]
+                        );
+                        GLES20.glUniform3f(
+                                ScreenUpDirectionUniform,
+                                DeviceRotationMatrix[1],
+                                DeviceRotationMatrix[4],
+                                DeviceRotationMatrix[5]
+                        );
+                        GLES20.glUniform3f(
+                                ScreenRightDirectionUniform,
+                                DeviceRotationMatrix[0],
+                                DeviceRotationMatrix[3],
+                                DeviceRotationMatrix[6]
+                        ); // TODO: Fix rotation
+
+                        GLES20.glUniform2f(FOVUniform, 0.25f * AspectRatio, 0.25f);
+
+                        float[] LightDirections = {
+                                0, 0, 1,
+                                1, 0, 0,
+                                0, 1, 0,
+                                -1, 0, 0,
+                                0, -1, 0,
+                                0, 0, -1
+                        };
+                        float[] LightColors = {
+                                1, 1, 1,
+                                1, 0, 0,
+                                0, 1, 0,
+                                0, 0, 1,
+                                0, 1, 1,
+                                1, 0, 1
+                        };
+                        GLES20.glUniform3fv(
+                                LightDirectionsUniform,
+                                6,
+                                LightDirections,
+                                0
+                        );
+                        GLES20.glUniform3fv(
+                                LightReflectionDirectionsUniform,
+                                6,
+                                LightDirections, // TODO: Calculate LightReflectionDirections (2x apart)
+                                0
+                        );
+                        GLES20.glUniform3fv(
+                                LightColorsUniform,
+                                6,
+                                LightColors,
+                                0
+                        );
+
+                        GLES20.glUniform2f(PixelSizeUniform, 0, 0);
+
                         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
                     }
 
