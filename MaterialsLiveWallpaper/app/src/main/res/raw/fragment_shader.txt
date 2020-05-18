@@ -17,7 +17,7 @@ void main()
 {
     // example values
     vec2 normal_map_value = vec2(0, 0);
-    vec3 base_color = vec3(1.0, 0.0, 0.5);
+    vec3 base_color = vec3(0.5, 0.5, 0.5);
     vec3 reflections_color = vec3(1.0, 1.0, 1.0);
 
     vec3 lights = vec3(0, 0, 0);
