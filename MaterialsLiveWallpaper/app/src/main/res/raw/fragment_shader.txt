@@ -1,12 +1,16 @@
+#ifndef MAX_LIGHTS_COUNT
+  #define MAX_LIGHTS_COUNT 6
+#endif
+
 precision highp float;
 
 uniform highp vec3 ScreenFrontDirection;
 uniform highp vec3 ScreenUpDirection;
 uniform highp vec3 ScreenRightDirection;
 
-uniform vec3 LightDirections[6];
-uniform vec3 LightReflectionDirections[6]; // 2x closer to each other
-uniform vec3 LightColors[6];
+uniform vec3 LightDirections[MAX_LIGHTS_COUNT];
+uniform vec3 LightReflectionDirections[MAX_LIGHTS_COUNT]; // 2x closer to each other
+uniform vec3 LightColors[MAX_LIGHTS_COUNT];
 
 uniform vec2 PixelSize;
 
@@ -29,7 +33,7 @@ void main()
     vec3 normal = normalize(ScreenFrontDirection + normal_map_diff);
     vec3 reflection_normal = normalize(FOVNormal + normal_map_diff);
 
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < MAX_LIGHTS_COUNT; i++)
     {
         lights += LightColors[i] * max(dot(normal, LightDirections[i]), 0.0);
         reflections += LightColors[i] * pow(max(dot(reflection_normal, LightReflectionDirections[i]), 0.0), 400.0);
