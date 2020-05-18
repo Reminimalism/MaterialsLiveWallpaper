@@ -5,7 +5,7 @@ uniform highp vec3 ScreenUpDirection;
 uniform highp vec3 ScreenRightDirection;
 
 uniform vec3 LightDirections[6];
-uniform vec3 LightReflectionDirections[6]; // 2x apart
+uniform vec3 LightReflectionDirections[6]; // 2x closer to each other
 uniform vec3 LightColors[6];
 
 uniform vec2 PixelSize;
@@ -25,12 +25,12 @@ void main()
     vec3 normal_map_diff = normal_map_value.x * ScreenRightDirection
                          + normal_map_value.y * ScreenUpDirection;
     vec3 normal = normalize(ScreenFrontDirection + normal_map_diff);
-    vec3 reflection_normal = normalize(FOVNormal + 2.0 * normal_map_diff);
+    vec3 reflection_normal = normalize(FOVNormal + normal_map_diff);
 
     for (int i = 0; i < 8; i++)
     {
         lights += LightColors[i] * max(dot(normal, LightDirections[i]), 0.0);
-        reflections += LightColors[i] * pow(max(dot(reflection_normal, LightReflectionDirections[i]), 0.0), 40.0);
+        reflections += LightColors[i] * pow(max(dot(reflection_normal, LightReflectionDirections[i]), 0.0), 400.0);
     }
 
     gl_FragColor = vec4(base_color * lights + reflections_color * reflections, 1.0);

@@ -276,7 +276,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glUniform3fv(
                                 LightReflectionDirectionsUniform,
                                 6,
-                                LightDirections, // TODO: Calculate LightReflectionDirections (2x apart)
+                                LightDirections, // TODO: Calculate LightReflectionDirections (2x closer)
                                 0
                         );
                         GLES20.glUniform3fv(
