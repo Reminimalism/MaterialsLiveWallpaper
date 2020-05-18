@@ -8,6 +8,8 @@ attribute vec4 Position;
 
 varying vec2 UV;
 varying vec3 FOVNormal;
+//varying vec3 FOVUp;    // May use it later
+//varying vec3 FOVRight; // May use it later
 
 void main()
 {
@@ -15,6 +17,12 @@ void main()
     FOVNormal = ScreenFrontDirection
               + normal_diff.x * ScreenRightDirection
               + normal_diff.y * ScreenUpDirection;
+    /*FOVUp = ScreenUpDirection
+          - normal_diff.x * normal_diff.y * ScreenRightDirection
+          - normal_diff.y * ScreenFrontDirection;
+    FOVRight = ScreenRightDirection
+             - normal_diff.x * ScreenFrontDirection
+             - normal_diff.y * normal_diff.x * ScreenUpDirection;*/
     UV = (Position.xy + vec2(1, 1)) * 0.5;
     gl_Position = Position;
 }

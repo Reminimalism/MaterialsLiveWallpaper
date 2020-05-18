@@ -12,6 +12,8 @@ uniform vec2 PixelSize;
 
 varying vec2 UV;
 varying vec3 FOVNormal;
+//varying vec3 FOVUp;    // May use it later
+//varying vec3 FOVRight; // May use it later
 
 void main()
 {

@@ -80,6 +80,7 @@ public class MaterialsWallpaperService extends WallpaperService
                 {
                     int PositionAttribute;
                     FloatBuffer TriangleStripPositionValues;
+                    //FloatBuffer TriangleFanPositionValues;
 
                     float[] RotationVector = new float[4];
                     float[] DeviceRotationMatrix = new float[9];
@@ -126,6 +127,18 @@ public class MaterialsWallpaperService extends WallpaperService
                         TriangleStripPositionValues = ByteBuffer.allocateDirect(TriangleStripArray.length * 4)
                                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
                         TriangleStripPositionValues.put(TriangleStripArray).position(0);
+
+                        /*float[] TriangleFanArray = {
+                                 0,  0, 0,
+                                -1, +1, 0,
+                                +1, +1, 0,
+                                +1, -1, 0,
+                                -1, -1, 0,
+                                -1, +1, 0
+                        };
+                        TriangleFanPositionValues = ByteBuffer.allocateDirect(TriangleFanArray.length * 4)
+                                .order(ByteOrder.nativeOrder()).asFloatBuffer();
+                        TriangleFanPositionValues.put(TriangleFanArray).position(0);*/
 
                         // GL setup
 
@@ -226,6 +239,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                 false,
                                 0,
                                 TriangleStripPositionValues
+                                //TriangleFanPositionValues
                         );
                         GLES20.glEnableVertexAttribArray(PositionAttribute);
 
