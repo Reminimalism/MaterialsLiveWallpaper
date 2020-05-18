@@ -240,14 +240,14 @@ public class MaterialsWallpaperService extends WallpaperService
                                 ScreenUpDirectionUniform,
                                 DeviceRotationMatrix[1],
                                 DeviceRotationMatrix[4],
-                                DeviceRotationMatrix[5]
+                                DeviceRotationMatrix[7]
                         );
                         GLES20.glUniform3f(
                                 ScreenRightDirectionUniform,
                                 DeviceRotationMatrix[0],
                                 DeviceRotationMatrix[3],
                                 DeviceRotationMatrix[6]
-                        ); // TODO: Fix rotation
+                        );
 
                         GLES20.glUniform2f(FOVUniform, 0.25f * AspectRatio, 0.25f);
 
