@@ -51,6 +51,10 @@ public class MaterialsWallpaperService extends WallpaperService
             }
         }
 
+        SensorManager SensorManagerInstance = null;
+        SensorEventListener RotationSensorEventListener = null;
+        float[] RotationVector = new float[4];
+
         WallpaperGLSurfaceView GLSurface = null;
 
         @Override
@@ -70,6 +74,34 @@ public class MaterialsWallpaperService extends WallpaperService
 
             if (SupportsGLES2)
             {
+                // Sensors
+
+                SensorManagerInstance = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+                if (SensorManagerInstance != null)
+                {
+                    RotationSensorEventListener = new SensorEventListener() {
+                        @Override
+                        public void onSensorChanged(SensorEvent event)
+                        {
+                            if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
+                                System.arraycopy(event.values, 0, RotationVector, 0, 4);
+                        }
+
+                        @Override
+                        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+                    };
+
+                    Sensor RotationSensor = SensorManagerInstance.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+                    SensorManagerInstance.registerListener(
+                            RotationSensorEventListener,
+                            RotationSensor,
+                            SensorManager.SENSOR_DELAY_UI
+                    );
+                }
+                // else do nothing
+
+                // Rendering
+
                 GLSurface.setEGLContextClientVersion(2);
                 GLSurface.setPreserveEGLContextOnPause(true);
 
@@ -82,7 +114,6 @@ public class MaterialsWallpaperService extends WallpaperService
                     FloatBuffer TriangleStripPositionValues;
                     //FloatBuffer TriangleFanPositionValues;
 
-                    float[] RotationVector = new float[4];
                     float[] DeviceRotationMatrix = new float[9];
                     float AspectRatio = 1;
 
@@ -100,22 +131,6 @@ public class MaterialsWallpaperService extends WallpaperService
                     @Override
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
                     {
-                        // Sensors
-
-                        SensorManager SensorManagerInstance = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-                        Sensor RotationSensor = SensorManagerInstance.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-                        SensorManagerInstance.registerListener(new SensorEventListener() {
-                            @Override
-                            public void onSensorChanged(SensorEvent event)
-                            {
-                                if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
-                                    System.arraycopy(event.values, 0, RotationVector, 0, 4);
-                            }
-
-                            @Override
-                            public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-                        }, RotationSensor, SensorManager.SENSOR_DELAY_UI); // TODO: Destroy OnDestroy
-
                         // Data
 
                         float[] TriangleStripArray = {
@@ -348,6 +363,8 @@ public class MaterialsWallpaperService extends WallpaperService
             super.onDestroy();
             if (GLSurface != null)
                 GLSurface.onDestroy();
+            if (SensorManagerInstance != null && RotationSensorEventListener != null)
+                SensorManagerInstance.unregisterListener(RotationSensorEventListener);
         }
     }
 }
