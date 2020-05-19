@@ -123,6 +123,31 @@ public class MaterialsWallpaperService extends WallpaperService
                     int FOVUniform;
                     int UVScaleUniform;
 
+                    float[] LightDirections = {
+                            0, 0, 1,
+                            1, 0, 0,
+                            0, 1, 0,
+                            -1, 0, 0,
+                            0, -1, 0,
+                            0, 0, -1
+                    };
+                    float[] LightReflectionDirections = {
+                            0, 0, 1,
+                            1, 0, 0,
+                            0, 1, 0,
+                            -1, 0, 0,
+                            0, -1, 0,
+                            0, 0, -1
+                    };
+                    float[] LightColors = {
+                            1, 1, 1,
+                            1, 0, 0,
+                            0, 1, 0,
+                            0, 0, 1,
+                            0, 1, 1,
+                            1, 0, 1
+                    };
+
                     int LightDirectionsUniform;
                     int LightReflectionDirectionsUniform;
                     int LightColorsUniform;
@@ -287,22 +312,29 @@ public class MaterialsWallpaperService extends WallpaperService
                         else { y = 1 / AspectRatio; x = 1; }
                         GLES20.glUniform2f(UVScaleUniform, x, y);
 
-                        float[] LightDirections = {
-                                0, 0, 1,
-                                1, 0, 0,
-                                0, 1, 0,
-                                -1, 0, 0,
-                                0, -1, 0,
-                                0, 0, -1
-                        };
-                        float[] LightColors = {
-                                1, 1, 1,
-                                1, 0, 0,
-                                0, 1, 0,
-                                0, 0, 1,
-                                0, 1, 1,
-                                1, 0, 1
-                        };
+                        // Make lights 2x closer to ScreenFrontDirection
+                        for (int i = 0; i < LightDirections.length; i++)
+                        {
+                            LightReflectionDirections[i]
+                                    = (
+                                            DeviceRotationMatrix[(i % 3) * 3 + 2]
+                                                    + LightDirections[i]
+                                    ) / 2.0f;
+                        }
+                        // Normalize
+                        for (int i = 0; i < LightReflectionDirections.length; i += 3)
+                        {
+                            float l = LightReflectionDirections[i] * LightReflectionDirections[i];
+                            l += LightReflectionDirections[i + 1] * LightReflectionDirections[i + 1];
+                            l += LightReflectionDirections[i + 2] * LightReflectionDirections[i + 2];
+                            l = (float) Math.sqrt(l);
+                            if (l != 0)
+                            {
+                                LightReflectionDirections[i] /= l;
+                                LightReflectionDirections[i + 1] /= l;
+                                LightReflectionDirections[i + 2] /= l;
+                            }
+                        }
                         GLES20.glUniform3fv(
                                 LightDirectionsUniform,
                                 6,
@@ -312,7 +344,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glUniform3fv(
                                 LightReflectionDirectionsUniform,
                                 6,
-                                LightDirections, // TODO: Calculate LightReflectionDirections (2x closer)
+                                LightReflectionDirections,
                                 0
                         );
                         GLES20.glUniform3fv(
