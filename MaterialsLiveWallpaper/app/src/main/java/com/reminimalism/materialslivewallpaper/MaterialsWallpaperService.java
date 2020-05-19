@@ -121,6 +121,7 @@ public class MaterialsWallpaperService extends WallpaperService
                     int ScreenUpDirectionUniform;
                     int ScreenRightDirectionUniform;
                     int FOVUniform;
+                    int UVScaleUniform;
 
                     int LightDirectionsUniform;
                     int LightReflectionDirectionsUniform;
@@ -225,6 +226,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         ScreenUpDirectionUniform = GLES20.glGetUniformLocation(Program, "ScreenUpDirection");
                         ScreenRightDirectionUniform = GLES20.glGetUniformLocation(Program, "ScreenRightDirection");
                         FOVUniform = GLES20.glGetUniformLocation(Program, "FOV");
+                        UVScaleUniform = GLES20.glGetUniformLocation(Program, "UVScale");
 
                         LightDirectionsUniform = GLES20.glGetUniformLocation(Program, "LightDirections");
                         LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(Program, "LightReflectionDirections");
@@ -279,6 +281,11 @@ public class MaterialsWallpaperService extends WallpaperService
                         );
 
                         GLES20.glUniform2f(FOVUniform, 0.25f * AspectRatio, 0.25f);
+
+                        float x, y;
+                        if (AspectRatio < 1) { x = AspectRatio; y = 1; }
+                        else { y = 1 / AspectRatio; x = 1; }
+                        GLES20.glUniform2f(UVScaleUniform, x, y);
 
                         float[] LightDirections = {
                                 0, 0, 1,

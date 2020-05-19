@@ -4,6 +4,8 @@ uniform vec3 ScreenRightDirection;
 
 uniform vec2 FOV;
 
+uniform vec2 UVScale;
+
 attribute vec4 Position;
 
 varying vec2 UV;
@@ -23,6 +25,6 @@ void main()
     FOVRight = ScreenRightDirection
              - normal_diff.x * ScreenFrontDirection
              - normal_diff.y * normal_diff.x * ScreenUpDirection;*/
-    UV = (Position.xy + vec2(1, 1)) * 0.5;
+    UV = (Position.xy * UVScale + vec2(1, 1)) * 0.5;
     gl_Position = Position;
 }
