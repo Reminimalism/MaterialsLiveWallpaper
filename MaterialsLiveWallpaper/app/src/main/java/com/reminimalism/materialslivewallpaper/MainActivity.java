@@ -124,7 +124,12 @@ public class MainActivity extends AppCompatActivity
                                     }
                                 }
                             }
-                            address_text.setText(result);
+                            boolean trim_end = result.endsWith("\n");
+                            address_text.setText(
+                                    trim_end ?
+                                            result.substring(0, result.length() - 1)
+                                            : result
+                            );
                         }
                     });
                     return null;

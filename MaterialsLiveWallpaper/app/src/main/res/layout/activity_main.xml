@@ -39,7 +39,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <GridLayout
+        <FrameLayout
             android:id="@+id/donation_address_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,7 +52,8 @@
                 android:id="@+id/donation_address_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/donation_address_text_loading" />
+                android:text="@string/donation_address_text_loading"
+                android:layout_gravity="center_vertical" />
 
             <Button
                 android:id="@+id/donation_address_copy_button"
@@ -61,9 +62,9 @@
                 android:enabled="false"
                 android:text="@string/donation_address_copy_button"
                 android:onClick="OnDonationAddressCopyClick"
-                android:layout_gravity="end"/>
+                android:layout_gravity="end" />
 
-        </GridLayout>
+        </FrameLayout>
 
         <Space
             android:id="@+id/donation_layout_space"
