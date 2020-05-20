@@ -4,6 +4,14 @@
 
     <!-- MainActivity -->
     <string name="set_wallpaper_button">Set Wallpaper</string>
+    <string name="donation_title">Donation</string>
+    <string name="donation_address_text_loading">Loading…</string>
+    <string name="donation_address_text_failed">Failed to load</string>
+    <string name="donation_address_copy_button">Copy</string>
+    <string name="donation_page_button">Donation Page</string>
+
+    <string name="copy_successful">Copied to clipboard</string>
+    <string name="copy_failed">Failed to copy</string>
 
     <!-- Settings Categories -->
     <string name="settings_category_material">Material</string>
