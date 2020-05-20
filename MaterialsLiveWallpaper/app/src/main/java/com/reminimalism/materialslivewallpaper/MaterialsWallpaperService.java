@@ -305,7 +305,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                 DeviceRotationMatrix[6]
                         );
 
-                        GLES20.glUniform2f(FOVUniform, 0.25f * AspectRatio, 0.25f);
+                        GLES20.glUniform2f(FOVUniform, 0.1f * AspectRatio, 0.1f);
 
                         float x, y;
                         if (AspectRatio < 1) { x = AspectRatio; y = 1; }
