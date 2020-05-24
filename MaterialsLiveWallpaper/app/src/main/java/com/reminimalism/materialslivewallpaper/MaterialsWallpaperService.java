@@ -2,12 +2,15 @@ package com.reminimalism.materialslivewallpaper;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.service.wallpaper.WallpaperService;
 import android.view.SurfaceHolder;
 
@@ -154,6 +157,18 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     int PixelSizeUniform;
 
+                    int BaseColorUniform;
+                    int ReflectionsColorUniform;
+                    int NormalUniform;
+                    int ShininessUniform;
+                    int BrushUniform;
+
+                    int BaseColorTexture;
+                    int ReflectionsColorTexture;
+                    int NormalTexture;
+                    int ShininessTexture;
+                    int BrushTexture;
+
                     @Override
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
                     {
@@ -259,6 +274,18 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         PixelSizeUniform = GLES20.glGetUniformLocation(Program, "PixelSize");
 
+                        BaseColorUniform = GLES20.glGetUniformLocation(Program, "BaseColor");
+                        ReflectionsColorUniform = GLES20.glGetUniformLocation(Program, "ReflectionsColor");
+                        NormalUniform = GLES20.glGetUniformLocation(Program, "Normal");
+                        ShininessUniform = GLES20.glGetUniformLocation(Program, "Shininess");
+                        BrushUniform = GLES20.glGetUniformLocation(Program, "Brush");
+
+                        BaseColorTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
+                        ReflectionsColorTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
+                        NormalTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
+                        ShininessTexture = LoadTextureFromResource(R.drawable.white_16x16, false);
+                        BrushTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
+
                         GLES20.glUseProgram(Program);
                     }
 
@@ -356,7 +383,68 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         GLES20.glUniform2f(PixelSizeUniform, 0, 0);
 
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BaseColorTexture);
+                        GLES20.glUniform1i(BaseColorUniform, 0);
+
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, ReflectionsColorTexture);
+                        GLES20.glUniform1i(ReflectionsColorUniform, 1);
+
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, NormalTexture);
+                        GLES20.glUniform1i(NormalUniform, 2);
+
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, ShininessTexture);
+                        GLES20.glUniform1i(ShininessUniform, 3);
+
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushTexture);
+                        GLES20.glUniform1i(BrushUniform, 4);
+
                         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+                    }
+
+                    int LoadTextureFromFile(String path, int default_texture_resource_id, boolean pixelated)
+                    {
+                        // TODO
+                        return LoadTextureFromResource(default_texture_resource_id, pixelated);
+                    }
+
+                    int LoadTextureFromResource(int id, boolean pixelated)
+                    {
+                        BitmapFactory.Options bitmap_options = new BitmapFactory.Options();
+                        bitmap_options.inScaled = false;
+                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), id, bitmap_options);
+                        try
+                        {
+                            int result = LoadTexture(bitmap, pixelated);
+                            bitmap.recycle();
+                            return result;
+                        }
+                        catch (Exception e)
+                        {
+                            bitmap.recycle();
+                            throw e;
+                        }
+                    }
+
+                    int LoadTexture(Bitmap bitmap, boolean pixelated)
+                    {
+                        int[] texture = { 0 };
+                        GLES20.glGenTextures(1, texture, 0);
+                        if (texture[0] != 0)
+                        {
+                            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
+                            int value = pixelated ? GLES20.GL_NEAREST : GLES20.GL_LINEAR;
+                            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, value);
+                            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, value);
+                            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+                        }
+                        if (texture[0] == 0)
+                            throw new RuntimeException("Texture load failed.");
+                        return texture[0];
                     }
 
                     String ReadRawTextResource(int id)
