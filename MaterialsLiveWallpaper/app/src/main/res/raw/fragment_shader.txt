@@ -2,6 +2,10 @@
   #define ENABLE_BRUSH 1
 #endif
 
+#ifndef ENABLE_CIRCULAR_BRUSH
+  #define ENABLE_CIRCULAR_BRUSH 0
+#endif
+
 #ifndef MAX_LIGHTS_COUNT
   #define MAX_LIGHTS_COUNT 6
 #endif
@@ -44,17 +48,16 @@ void main()
     float shininess = texture2D(Shininess, UV).x;
 
 #if ENABLE_BRUSH
+  #if !ENABLE_CIRCULAR_BRUSH
     vec2 brush = texture2D(Brush, UV).xy * 2.0 - 1.0;
     if (abs(brush.x) < 0.01) brush.x = 0.0;
     if (abs(brush.y) < 0.01) brush.y = 0.0;
+  #endif
 
-    // brush examples:
-    //vec2 c_uv = normalize(UV * 2.0 - 1.0); vec2 brush = vec2(c_uv.y, -c_uv.x) * 0.1;
-    //vec2 brush = (UV - 0.5) * 2.0;
-    //vec2 brush = UV;
-    //vec2 brush = vec2(1, 0);
-    //vec2 brush = vec2(0, 1);
-    //vec2 brush = vec2(0, 0);
+  #if ENABLE_CIRCULAR_BRUSH
+    vec2 c_uv = normalize(UV * 2.0 - 1.0);
+    vec2 brush = vec2(c_uv.y, -c_uv.x) * 0.1;
+  #endif
 #endif
 
     vec3 lights = vec3(0, 0, 0);

@@ -286,8 +286,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         BaseColorTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
                         ReflectionsColorTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
                         NormalTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
-                        ShininessTexture = LoadTextureFromResource(R.drawable.white_16x16, false);
-                        BrushTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
+                        ShininessTexture = LoadTextureFromResource(R.drawable.poly_shininess, false);
+                        BrushTexture = LoadTextureFromResource(R.drawable.poly_brush, false);
 
                         GLES20.glUseProgram(Program);
                     }
