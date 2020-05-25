@@ -4,6 +4,9 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -414,9 +417,42 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     int LoadTextureFromResource(int id, boolean pixelated)
                     {
-                        BitmapFactory.Options bitmap_options = new BitmapFactory.Options();
-                        bitmap_options.inScaled = false;
-                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), id, bitmap_options);
+                        Drawable drawable = getResources().getDrawable(id);
+
+                        Bitmap bitmap = null;
+                        if (drawable instanceof VectorDrawable) // Requires API 21 (5.0, Lollipop)
+                        {
+                            int width, height;
+                            int aspect_ratio = drawable.getIntrinsicWidth() / drawable.getIntrinsicHeight();
+                            if (aspect_ratio < 1)
+                            {
+                                height = 4096;
+                                width = 4096 * aspect_ratio;
+                            }
+                            else
+                            {
+                                width = 4096;
+                                height = 4096 / aspect_ratio;
+                            }
+                            bitmap = Bitmap.createBitmap(
+                                    width,
+                                    height,
+                                    Bitmap.Config.ARGB_8888
+                            );
+                            Canvas canvas = new Canvas(bitmap);
+                            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                            drawable.draw(canvas);
+                        }
+                        else
+                        {
+                            BitmapFactory.Options bitmap_options = new BitmapFactory.Options();
+                            bitmap_options.inScaled = false;
+                            bitmap = BitmapFactory.decodeResource(getResources(), id, bitmap_options);
+                        }
+
+                        if (bitmap == null)
+                            throw new RuntimeException("Drawable load failed.");
+
                         try
                         {
                             int result = LoadTexture(bitmap, pixelated);
