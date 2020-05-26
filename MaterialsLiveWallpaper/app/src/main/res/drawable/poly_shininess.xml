@@ -8,7 +8,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#080808"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -17,7 +17,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#101010"
       android:strokeColor="#000000"
       android:fillAlpha="1"
       android:strokeLineCap="butt"/>
@@ -26,7 +26,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#0c0c0c"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -35,7 +35,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#101010"
       android:strokeColor="#000000"
       android:fillAlpha="1"
       android:strokeLineCap="butt"/>
@@ -44,7 +44,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#101010"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -53,7 +53,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#101010"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -62,7 +62,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#101010"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -71,7 +71,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#101010"
       android:strokeColor="#000000"
       android:fillAlpha="1"
       android:strokeLineCap="butt"/>
@@ -80,7 +80,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#0c0c0c"
       android:strokeColor="#000000"
       android:fillAlpha="1"
       android:strokeLineCap="butt"/>
@@ -89,7 +89,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#080808"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -98,7 +98,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#0c0c0c"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -107,7 +107,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#101010"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -116,7 +116,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#101010"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -125,7 +125,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#101010"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
@@ -134,7 +134,7 @@
       android:strokeAlpha="1"
       android:strokeLineJoin="round"
       android:strokeWidth="0.25"
-      android:fillColor="#202020"
+      android:fillColor="#080808"
       android:fillAlpha="1"
       android:strokeColor="#000000"
       android:strokeLineCap="butt"/>
