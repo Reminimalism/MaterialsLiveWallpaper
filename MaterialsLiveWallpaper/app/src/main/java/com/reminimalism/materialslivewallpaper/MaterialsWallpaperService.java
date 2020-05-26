@@ -289,6 +289,21 @@ public class MaterialsWallpaperService extends WallpaperService
                         ShininessTexture = LoadTextureFromResource(R.drawable.poly_shininess, false);
                         BrushTexture = LoadTextureFromResource(R.drawable.poly_brush, false);
 
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BaseColorTexture);
+
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, ReflectionsColorTexture);
+
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, NormalTexture);
+
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, ShininessTexture);
+
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushTexture);
+
                         GLES20.glUseProgram(Program);
                     }
 
@@ -386,24 +401,10 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         GLES20.glUniform2f(PixelSizeUniform, 0, 0);
 
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BaseColorTexture);
                         GLES20.glUniform1i(BaseColorUniform, 0);
-
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, ReflectionsColorTexture);
                         GLES20.glUniform1i(ReflectionsColorUniform, 1);
-
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, NormalTexture);
                         GLES20.glUniform1i(NormalUniform, 2);
-
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, ShininessTexture);
                         GLES20.glUniform1i(ShininessUniform, 3);
-
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushTexture);
                         GLES20.glUniform1i(BrushUniform, 4);
 
                         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
