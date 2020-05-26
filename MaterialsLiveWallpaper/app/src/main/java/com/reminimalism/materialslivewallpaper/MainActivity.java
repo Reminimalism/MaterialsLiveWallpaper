@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity
 
     public String DonationAddressLabel = "";
     public String DonationAddress = "";
+    public String DonationAddressDisplay = "";
 
     public void OnDonationAddressCopyClick(View view)
     {
@@ -119,17 +120,22 @@ public class MainActivity extends AppCompatActivity
                                     {
                                         params[0].DonationAddress = result.substring(s, e);
                                         params[0].DonationAddressLabel = result.substring(0, c);
+                                        if (e - s > 28)
+                                            params[0].DonationAddressDisplay =
+                                                    result.substring(0, s + 16)
+                                                            + "..."
+                                                            + result.substring(e - 8, e);
+                                        else
+                                            params[0].DonationAddressDisplay = result.substring(0, e);
                                         TextView copy_button = params[0].findViewById(R.id.donation_address_copy_button);
                                         copy_button.setEnabled(true);
                                     }
                                 }
                             }
-                            boolean trim_end = result.endsWith("\n");
-                            address_text.setText(
-                                    trim_end ?
-                                            result.substring(0, result.length() - 1)
-                                            : result
-                            );
+                            if (params[0].DonationAddressDisplay.equals(""))
+                                address_text.setText(result);
+                            else
+                                address_text.setText(params[0].DonationAddressDisplay);
                         }
                     });
                     return null;
