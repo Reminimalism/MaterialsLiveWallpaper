@@ -283,8 +283,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         ShininessUniform = GLES20.glGetUniformLocation(Program, "Shininess");
                         BrushUniform = GLES20.glGetUniformLocation(Program, "Brush");
 
-                        BaseColorTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
-                        ReflectionsColorTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, false);
+                        BaseColorTexture = LoadTextureFromResource(R.drawable.poly_base, false);
+                        ReflectionsColorTexture = LoadTextureFromResource(R.drawable.poly_reflections, false);
                         NormalTexture = LoadTextureFromResource(R.drawable.poly_normal, false);
                         ShininessTexture = LoadTextureFromResource(R.drawable.poly_shininess, false);
                         BrushTexture = LoadTextureFromResource(R.drawable.poly_brush, false);
