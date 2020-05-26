@@ -25,6 +25,6 @@ void main()
     FOVRight = ScreenRightDirection
              - normal_diff.x * ScreenFrontDirection
              - normal_diff.y * normal_diff.x * ScreenUpDirection;*/
-    UV = (Position.xy * UVScale + vec2(1, 1)) * 0.5;
+    UV = (vec2(Position.x, -Position.y) * UVScale + vec2(1, 1)) * 0.5;
     gl_Position = Position;
 }
