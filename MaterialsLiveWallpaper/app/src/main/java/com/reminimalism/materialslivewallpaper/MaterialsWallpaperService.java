@@ -330,6 +330,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         );
                         GLES20.glEnableVertexAttribArray(PositionAttribute);
 
+                        // TODO: Fix for landscape orientation (or generally not the default orientation)
                         SensorManager.getRotationMatrixFromVector(DeviceRotationMatrix, RotationVector);
                         GLES20.glUniform3f(
                                 ScreenFrontDirectionUniform,
@@ -401,6 +402,7 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         GLES20.glUniform2f(PixelSizeUniform, 0, 0);
 
+                        // Textures
                         GLES20.glUniform1i(BaseColorUniform, 0);
                         GLES20.glUniform1i(ReflectionsColorUniform, 1);
                         GLES20.glUniform1i(NormalUniform, 2);
