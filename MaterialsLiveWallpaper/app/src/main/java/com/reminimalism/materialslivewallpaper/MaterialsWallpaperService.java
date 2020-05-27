@@ -414,8 +414,11 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     int LoadTextureFromFile(String path, int default_texture_resource_id, boolean pixelated)
                     {
-                        // TODO
-                        return LoadTextureFromResource(default_texture_resource_id, pixelated);
+                        Bitmap bitmap = BitmapFactory.decodeFile(path);
+                        if (bitmap == null)
+                            return LoadTextureFromResource(default_texture_resource_id, pixelated);
+                        else
+                            return LoadTexture(bitmap, pixelated);
                     }
 
                     int LoadTextureFromResource(int id, boolean pixelated)
