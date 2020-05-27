@@ -15,7 +15,9 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.service.wallpaper.WallpaperService;
+import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.WindowManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -330,8 +332,17 @@ public class MaterialsWallpaperService extends WallpaperService
                         );
                         GLES20.glEnableVertexAttribArray(PositionAttribute);
 
-                        // TODO: Fix for landscape orientation (or generally not the default orientation)
                         SensorManager.getRotationMatrixFromVector(DeviceRotationMatrix, RotationVector);
+                        int rotation = ((WindowManager)getSystemService(Context.WINDOW_SERVICE))
+                                .getDefaultDisplay()
+                                .getRotation();
+
+                        boolean SwapUpAndRight = rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270;
+                        int UpIndexOffset = SwapUpAndRight ? 0 : 1;
+                        int RightIndexOffset = SwapUpAndRight ? 1 : 0;
+                        float UpFinalCoefficient = rotation == Surface.ROTATION_270 || rotation == Surface.ROTATION_180 ? -1 : 1;
+                        float RightFinalCoefficient = rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_180 ? -1 : 1;
+
                         GLES20.glUniform3f(
                                 ScreenFrontDirectionUniform,
                                 DeviceRotationMatrix[2],
@@ -340,15 +351,15 @@ public class MaterialsWallpaperService extends WallpaperService
                         );
                         GLES20.glUniform3f(
                                 ScreenUpDirectionUniform,
-                                DeviceRotationMatrix[1],
-                                DeviceRotationMatrix[4],
-                                DeviceRotationMatrix[7]
+                                DeviceRotationMatrix[UpIndexOffset] * UpFinalCoefficient,
+                                DeviceRotationMatrix[3 + UpIndexOffset] * UpFinalCoefficient,
+                                DeviceRotationMatrix[6 + UpIndexOffset] * UpFinalCoefficient
                         );
                         GLES20.glUniform3f(
                                 ScreenRightDirectionUniform,
-                                DeviceRotationMatrix[0],
-                                DeviceRotationMatrix[3],
-                                DeviceRotationMatrix[6]
+                                DeviceRotationMatrix[RightIndexOffset] * RightFinalCoefficient,
+                                DeviceRotationMatrix[3 + RightIndexOffset] * RightFinalCoefficient,
+                                DeviceRotationMatrix[6 + RightIndexOffset] * RightFinalCoefficient
                         );
 
                         GLES20.glUniform2f(FOVUniform, 0.1f * AspectRatio, 0.1f);
