@@ -283,11 +283,11 @@ public class MaterialsWallpaperService extends WallpaperService
                         ShininessUniform = GLES20.glGetUniformLocation(Program, "Shininess");
                         BrushUniform = GLES20.glGetUniformLocation(Program, "Brush");
 
-                        BaseColorTexture = LoadTextureFromResource(R.drawable.poly_base, false);
-                        ReflectionsColorTexture = LoadTextureFromResource(R.drawable.poly_reflections, false);
-                        NormalTexture = LoadTextureFromResource(R.drawable.poly_normal, false);
-                        ShininessTexture = LoadTextureFromResource(R.drawable.poly_shininess, false);
-                        BrushTexture = LoadTextureFromResource(R.drawable.poly_brush, false);
+                        BaseColorTexture = LoadTextureFromResource(R.drawable.tiles_base, true);
+                        ReflectionsColorTexture = LoadTextureFromResource(R.drawable.tiles_reflections, true);
+                        NormalTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, true);
+                        ShininessTexture = LoadTextureFromResource(R.drawable.tiles_shininess, true);
+                        BrushTexture = LoadTextureFromResource(R.drawable.tiles_brush, true);
 
                         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
                         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BaseColorTexture);
@@ -432,13 +432,13 @@ public class MaterialsWallpaperService extends WallpaperService
                             int aspect_ratio = drawable.getIntrinsicWidth() / drawable.getIntrinsicHeight();
                             if (aspect_ratio < 1)
                             {
-                                height = 4096;
-                                width = 4096 * aspect_ratio;
+                                height = 2048;
+                                width = 2048 * aspect_ratio;
                             }
                             else
                             {
-                                width = 4096;
-                                height = 4096 / aspect_ratio;
+                                width = 2048;
+                                height = 2048 / aspect_ratio;
                             }
                             bitmap = Bitmap.createBitmap(
                                     width,

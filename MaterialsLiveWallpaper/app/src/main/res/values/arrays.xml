@@ -3,13 +3,13 @@
         <item>Flat Poly</item>
         <item>Poly</item>
         <item>Circular Brushed Metal</item>
-        <item>Brushed Metal Tiles</item>
+        <item>Brushed Tiles</item>
     </string-array>
     <string-array name="settings_material_samples_values">
         <item>flat_poly</item>
         <item>poly</item>
         <item>circular_brushed_metal</item>
-        <item>brushed_metal_tiles</item>
+        <item>brushed_tiles</item>
     </string-array>
 
     <string-array name="settings_performance_fps_limit_entries">
