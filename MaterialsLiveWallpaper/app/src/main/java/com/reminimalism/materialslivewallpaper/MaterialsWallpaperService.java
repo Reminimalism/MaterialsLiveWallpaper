@@ -133,20 +133,24 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     float[] LightDirections = {
                             0, 0, 1,
-                            1, 0, 0,
-                            0, 1, 0,
-                            -1, 0, 0,
-                            0, -1, 0,
-                            0, 0, -1
+
+                            0.8944271909999159f, 0, 0.4472135954999579f,
+                            0, 0.8944271909999159f, 0.4472135954999579f,
+                            -0.8944271909999159f, 0, 0.4472135954999579f,
+                            0, -0.8944271909999159f, 0.4472135954999579f,
+
+                            0, 0, -1,
                     };
-                    float[] LightReflectionDirections;
+                    float[] LightReflectionDirections; // Will be updated based on LightDirections
                     float[] LightColors = {
-                            1, 1, 1,
-                            1, 0, 0,
-                            0, 1, 0,
-                            0, 0, 1,
-                            0, 1, 1,
-                            1, 0, 1
+                            0.5f, 0.5f, 0.5f,
+
+                            0.50f, 0, 0.20f,
+                            0.5f, 0.2f, 0.1f,
+                            0, 0.43f, 0.39f,
+                            0.1f, 0.3f, 0.5f,
+
+                            1.0f, 1.0f, 1.0f,
                     };
 
                     int LightDirectionsUniform;
