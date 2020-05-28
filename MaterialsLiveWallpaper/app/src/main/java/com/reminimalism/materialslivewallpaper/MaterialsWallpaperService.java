@@ -139,14 +139,7 @@ public class MaterialsWallpaperService extends WallpaperService
                             0, -1, 0,
                             0, 0, -1
                     };
-                    float[] LightReflectionDirections = {
-                            0, 0, 1,
-                            1, 0, 0,
-                            0, 1, 0,
-                            -1, 0, 0,
-                            0, -1, 0,
-                            0, 0, -1
-                    };
+                    float[] LightReflectionDirections;
                     float[] LightColors = {
                             1, 1, 1,
                             1, 0, 0,
@@ -178,6 +171,8 @@ public class MaterialsWallpaperService extends WallpaperService
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
                     {
                         // Data
+
+                        LightReflectionDirections = new float[LightDirections.length];
 
                         float[] TriangleStripArray = {
                                 -1, -1, 0,
@@ -227,7 +222,11 @@ public class MaterialsWallpaperService extends WallpaperService
                         int FragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
                         if (FragmentShader != 0)
                         {
-                            GLES20.glShaderSource(FragmentShader, ReadRawTextResource(R.raw.fragment_shader));
+                            GLES20.glShaderSource(
+                                    FragmentShader,
+                                    "#define LIGHTS_COUNT " + (LightDirections.length / 3) + "\n"
+                                            + ReadRawTextResource(R.raw.fragment_shader)
+                            );
                             GLES20.glCompileShader(FragmentShader);
 
                             final int[] CompileStatus = new int[1];
@@ -394,19 +393,19 @@ public class MaterialsWallpaperService extends WallpaperService
                         }
                         GLES20.glUniform3fv(
                                 LightDirectionsUniform,
-                                6,
+                                LightDirections.length / 3,
                                 LightDirections,
                                 0
                         );
                         GLES20.glUniform3fv(
                                 LightReflectionDirectionsUniform,
-                                6,
+                                LightReflectionDirections.length / 3,
                                 LightReflectionDirections,
                                 0
                         );
                         GLES20.glUniform3fv(
                                 LightColorsUniform,
-                                6,
+                                LightColors.length / 3,
                                 LightColors,
                                 0
                         );
