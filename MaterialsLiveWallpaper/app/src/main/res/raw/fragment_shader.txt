@@ -89,12 +89,28 @@ void main()
     {
         int i = light_indexes[j];
         lights += LightColors[i] * light_dots[j];
+    }
+
+    facing_lights_count = 0;
+    for (int i = 0; i < MAX_LIGHTS_COUNT; i++)
+    {
+        light_dots[facing_lights_count] = max(dot(reflection_normal, LightReflectionDirections[i]), 0.0);
+        if (light_dots[facing_lights_count] > 0.707106781) // cos(45) = 0.707106781
+        {
+            light_indexes[facing_lights_count] = i;
+            facing_lights_count++;
+        }
+    }
+
+    for (int j = 0; j < facing_lights_count; j++)
+    {
+        int i = light_indexes[j];
 #if ENABLE_BRUSH
         vec3 light_diff = LightReflectionDirections[i] - reflection_normal;
         float brush_effect = abs(dot(light_diff, brush_reflection_direction)) * 100.0;
         brush_effect = max(1.0 - brush_effect * brush_effect, 0.0);
 #endif
-        reflections += LightColors[i] * pow(max(dot(reflection_normal, LightReflectionDirections[i]), 0.0)
+        reflections += LightColors[i] * pow(light_dots[j]
 #if ENABLE_BRUSH
                 * brush_effect
 #endif
