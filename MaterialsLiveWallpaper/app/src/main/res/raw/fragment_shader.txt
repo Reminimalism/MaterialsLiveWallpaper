@@ -72,9 +72,23 @@ void main()
                                     + brush.y * ScreenUpDirection;
 #endif
 
+    int facing_lights_count = 0;
+    float light_dots[MAX_LIGHTS_COUNT];
+    int light_indexes[MAX_LIGHTS_COUNT];
     for (int i = 0; i < MAX_LIGHTS_COUNT; i++)
     {
-        lights += LightColors[i] * max(dot(base_normal, LightDirections[i]), 0.0);
+        light_dots[facing_lights_count] = max(dot(base_normal, LightDirections[i]), 0.0);
+        if (light_dots[facing_lights_count] != 0.0)
+        {
+            light_indexes[facing_lights_count] = i;
+            facing_lights_count++;
+        }
+    }
+
+    for (int j = 0; j < facing_lights_count; j++)
+    {
+        int i = light_indexes[j];
+        lights += LightColors[i] * light_dots[j];
 #if ENABLE_BRUSH
         vec3 light_diff = LightReflectionDirections[i] - reflection_normal;
         float brush_effect = abs(dot(light_diff, brush_reflection_direction)) * 100.0;
