@@ -41,11 +41,6 @@
             app:useSimpleSummaryProvider="true"
             app:enabled="false"/>
 
-        <SwitchPreferenceCompat
-            app:key="enable_parallax"
-            app:title="@string/settings_performance_enable_parallax"
-            app:enabled="false" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>
