@@ -157,8 +157,6 @@ public class MaterialsWallpaperService extends WallpaperService
                     int LightReflectionDirectionsUniform;
                     int LightColorsUniform;
 
-                    int PixelSizeUniform;
-
                     int BaseColorUniform;
                     int ReflectionsColorUniform;
                     int NormalUniform;
@@ -279,8 +277,6 @@ public class MaterialsWallpaperService extends WallpaperService
                         LightDirectionsUniform = GLES20.glGetUniformLocation(Program, "LightDirections");
                         LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(Program, "LightReflectionDirections");
                         LightColorsUniform = GLES20.glGetUniformLocation(Program, "LightColors");
-
-                        PixelSizeUniform = GLES20.glGetUniformLocation(Program, "PixelSize");
 
                         BaseColorUniform = GLES20.glGetUniformLocation(Program, "BaseColor");
                         ReflectionsColorUniform = GLES20.glGetUniformLocation(Program, "ReflectionsColor");
@@ -413,8 +409,6 @@ public class MaterialsWallpaperService extends WallpaperService
                                 LightColors,
                                 0
                         );
-
-                        GLES20.glUniform2f(PixelSizeUniform, 0, 0);
 
                         // Textures
                         GLES20.glUniform1i(BaseColorUniform, 0);
