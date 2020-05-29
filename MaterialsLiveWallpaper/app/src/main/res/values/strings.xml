@@ -13,6 +13,9 @@
     <string name="copy_successful">Copied to clipboard</string>
     <string name="copy_failed">Failed to copy</string>
 
+    <string name="file_not_found">File not found</string>
+    <string name="unzip_failed">Unzip failed</string>
+
     <!-- Settings Categories -->
     <string name="settings_category_material">Material</string>
     <string name="settings_category_lights">Light Sources</string>
@@ -26,8 +29,8 @@
     <string name="settings_material_use_custom_summary_off">
         Use one of the samples as material
     </string>
-    <string name="settings_material_sample">Material Sample</string>
-    <string name="settings_material_custom">Custom Material</string>
+    <string name="settings_material_choose_sample">Choose Material Sample</string>
+    <string name="settings_material_import_custom">Import Custom Material</string>
 
     <!-- Lights Settings -->
 

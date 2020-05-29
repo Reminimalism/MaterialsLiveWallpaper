@@ -12,17 +12,17 @@
 
         <ListPreference
             app:key="material_sample"
-            app:title="@string/settings_material_sample"
-            app:defaultValue="poly"
+            app:title="@string/settings_material_choose_sample"
+            app:defaultValue="brushed_tiles"
             app:entries="@array/settings_material_samples_entries"
             app:entryValues="@array/settings_material_samples_values"
             app:useSimpleSummaryProvider="true"
             app:enabled="false"/>
 
         <Preference
-            app:key="custom_material_file_picker"
-            app:title="@string/settings_material_custom"
-            app:enabled="false" />
+            app:key="import_custom_material"
+            app:title="@string/settings_material_import_custom"
+            app:enabled="true" />
 
     </PreferenceCategory>
 
