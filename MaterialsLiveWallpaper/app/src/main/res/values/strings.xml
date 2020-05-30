@@ -13,6 +13,7 @@
     <string name="copy_successful">Copied to clipboard</string>
     <string name="copy_failed">Failed to copy</string>
 
+    <string name="custom_material_imported">Imported custom material</string>
     <string name="file_not_found">File not found</string>
     <string name="unzip_failed">Unzip failed</string>
 

@@ -54,6 +54,16 @@ public class SettingsActivity extends AppCompatActivity
         }
     }
 
+    static void Delete(File file)
+    {
+        if (!file.exists())
+            return;
+        if (file.isDirectory())
+            for (File f : file.listFiles())
+                Delete(f);
+        file.delete();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -61,13 +71,10 @@ public class SettingsActivity extends AppCompatActivity
 
         if (resultCode == -1)
         {
-            Toast.makeText(this, R.string.file_not_found, Toast.LENGTH_LONG).show();
             String CustomMaterialPath = getFilesDir().getAbsolutePath() + "/CustomMaterial/";
             File directory = new File(CustomMaterialPath);
-            if (!directory.exists())
-                directory.mkdir();
-
-            // TODO: Figure out file picking and unzipping
+            Delete(directory);
+            directory.mkdir();
 
             // Unzip
             try
@@ -89,6 +96,7 @@ public class SettingsActivity extends AppCompatActivity
                     }
                 }
                 zip.close();
+                Toast.makeText(this, R.string.custom_material_imported, Toast.LENGTH_LONG).show();
             }
             catch (FileNotFoundException ignored)
             {
