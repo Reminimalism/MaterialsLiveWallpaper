@@ -24,7 +24,7 @@ uniform sampler2D BaseColor;
 uniform sampler2D ReflectionsColor;
 uniform sampler2D Normal;
 uniform sampler2D Shininess;
-#if ENABLE_BRUSH
+#if ENABLE_BRUSH && !ENABLE_CIRCULAR_BRUSH
     uniform sampler2D Brush;
 #endif
 
@@ -53,7 +53,7 @@ void main()
   #endif
 
   #if ENABLE_CIRCULAR_BRUSH
-    vec2 c_uv = normalize(UV * 2.0 - 1.0);
+    vec2 c_uv = normalize(UV * vec2(2.0, -2.0) + vec2(-1.0, 1.0));
     vec2 brush = vec2(c_uv.y, -c_uv.x) * 0.1;
   #endif
 #endif

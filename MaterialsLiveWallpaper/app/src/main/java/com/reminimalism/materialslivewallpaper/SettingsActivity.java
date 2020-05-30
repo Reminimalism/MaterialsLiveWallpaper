@@ -1,5 +1,6 @@
 package com.reminimalism.materialslivewallpaper;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -54,6 +55,60 @@ public class SettingsActivity extends AppCompatActivity
         }
     }
 
+    public static String GetCustomMaterialPath(Context context)
+    {
+        return context.getFilesDir().getAbsolutePath() + "/CustomMaterial/";
+    }
+
+    public enum CustomMaterialAssetType
+    {
+        Base,
+        Reflections,
+        Shininess,
+        Normal,
+        Brush,
+        Config
+    }
+
+    public static String GetCustomMaterialAssetFilename(Context context, CustomMaterialAssetType asset_type)
+    {
+        String path = GetCustomMaterialPath(context);
+        String name;
+        switch (asset_type)
+        {
+            case Base:
+                name = "base";
+                break;
+            case Reflections:
+                name = "reflections";
+                break;
+            case Shininess:
+                name = "shininess";
+                break;
+            case Normal:
+                name = "normal";
+                break;
+            case Brush:
+                name = "brush";
+                break;
+            case Config:
+                return path + "config.txt";
+            default:
+                return null;
+        }
+        for (String extension : SupportedImageExtensions)
+            if (new File(path + name + extension).exists())
+                return path + name + extension;
+        if (asset_type == CustomMaterialAssetType.Reflections)
+        {
+            name = "reflection";
+            for (String extension : SupportedImageExtensions)
+                if (new File(path + name + extension).exists())
+                    return path + name + extension;
+        }
+        return null;
+    }
+
     static void Delete(File file)
     {
         if (!file.exists())
@@ -71,7 +126,7 @@ public class SettingsActivity extends AppCompatActivity
 
         if (resultCode == -1)
         {
-            String CustomMaterialPath = getFilesDir().getAbsolutePath() + "/CustomMaterial/";
+            String CustomMaterialPath = GetCustomMaterialPath(this);
             File directory = new File(CustomMaterialPath);
             Delete(directory);
             directory.mkdir();
@@ -111,14 +166,14 @@ public class SettingsActivity extends AppCompatActivity
 
     static final String[] SupportedImageFilenames = {
             "base",
-            "reflection",
             "reflections",
+            "reflection",
             "shininess",
             "normal",
             "brush"
     };
 
-    static final String[] SupportedImageFormats = {
+    static final String[] SupportedImageExtensions = {
             ".bmp",
             ".gif",
             ".jpg",
@@ -131,18 +186,18 @@ public class SettingsActivity extends AppCompatActivity
         if (Filename.equals("config.txt"))
             return true;
 
-        String file_format = null;
-        for (String format : SupportedImageFormats)
+        String file_extension = null;
+        for (String extension : SupportedImageExtensions)
         {
-            if (Filename.endsWith(format))
+            if (Filename.endsWith(extension))
             {
-                file_format = format;
+                file_extension = extension;
                 break;
             }
         }
-        if (file_format != null)
+        if (file_extension != null)
             for (String name : SupportedImageFilenames)
-                if (Filename.equals(name + file_format))
+                if (Filename.equals(name + file_extension))
                     return true;
 
         return false;

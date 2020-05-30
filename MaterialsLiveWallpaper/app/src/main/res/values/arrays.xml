@@ -2,14 +2,14 @@
     <string-array name="settings_material_samples_entries">
         <item>Flat Poly</item>
         <item>Poly</item>
-        <item>Circular Brushed Metal</item>
         <item>Brushed Tiles</item>
+        <item>Circular Brushed Metal</item>
     </string-array>
     <string-array name="settings_material_samples_values">
         <item>flat_poly</item>
         <item>poly</item>
-        <item>circular_brushed_metal</item>
         <item>brushed_tiles</item>
+        <item>circular_brushed_metal</item>
     </string-array>
 
     <string-array name="settings_performance_fps_limit_entries">

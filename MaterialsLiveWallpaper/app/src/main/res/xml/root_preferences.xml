@@ -8,16 +8,16 @@
             app:title="@string/settings_material_use_custom"
             app:summaryOn="@string/settings_material_use_custom_summary_on"
             app:summaryOff="@string/settings_material_use_custom_summary_off"
-            app:enabled="false" />
+            app:enabled="true" />
 
         <ListPreference
             app:key="material_sample"
             app:title="@string/settings_material_choose_sample"
-            app:defaultValue="brushed_tiles"
+            app:defaultValue="flat_poly"
             app:entries="@array/settings_material_samples_entries"
             app:entryValues="@array/settings_material_samples_values"
             app:useSimpleSummaryProvider="true"
-            app:enabled="false"/>
+            app:enabled="true"/>
 
         <Preference
             app:key="import_custom_material"

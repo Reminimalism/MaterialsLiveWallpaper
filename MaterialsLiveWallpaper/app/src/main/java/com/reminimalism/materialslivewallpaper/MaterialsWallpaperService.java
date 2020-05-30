@@ -2,6 +2,7 @@ package com.reminimalism.materialslivewallpaper;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -18,6 +19,8 @@ import android.service.wallpaper.WallpaperService;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
+
+import androidx.preference.PreferenceManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -59,6 +62,9 @@ public class MaterialsWallpaperService extends WallpaperService
             }
         }
 
+        SharedPreferences Preferences = null;
+        SharedPreferences.OnSharedPreferenceChangeListener PreferenceChangeListener = null;
+
         SensorManager SensorManagerInstance = null;
         SensorEventListener RotationSensorEventListener = null;
         float[] RotationVector = new float[4];
@@ -66,7 +72,7 @@ public class MaterialsWallpaperService extends WallpaperService
         WallpaperGLSurfaceView GLSurface = null;
 
         @Override
-        public void onCreate(SurfaceHolder surface_holder)
+        public void onCreate(final SurfaceHolder surface_holder)
         {
             super.onCreate(surface_holder);
             GLSurface = new WallpaperGLSurfaceView(MaterialsWallpaperService.this);
@@ -87,7 +93,8 @@ public class MaterialsWallpaperService extends WallpaperService
                 SensorManagerInstance = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
                 if (SensorManagerInstance != null)
                 {
-                    RotationSensorEventListener = new SensorEventListener() {
+                    RotationSensorEventListener = new SensorEventListener()
+                    {
                         @Override
                         public void onSensorChanged(SensorEvent event)
                         {
@@ -109,6 +116,17 @@ public class MaterialsWallpaperService extends WallpaperService
                 // else do nothing
 
                 // Rendering
+
+                Preferences = PreferenceManager.getDefaultSharedPreferences(MaterialsWallpaperService.this);
+                PreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener()
+                {
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
+                    {
+                        // TODO: Reinitialize on resume
+                    }
+                };
+                Preferences.registerOnSharedPreferenceChangeListener(PreferenceChangeListener);
 
                 GLSurface.setEGLContextClientVersion(2);
                 GLSurface.setPreserveEGLContextOnPause(true);
@@ -143,12 +161,12 @@ public class MaterialsWallpaperService extends WallpaperService
                     };
                     float[] LightReflectionDirections; // Will be updated based on LightDirections
                     float[] LightColors = {
-                            0.5f, 0.5f, 0.5f,
+                            0.6f, 0.6f, 0.6f,
 
-                            0.50f, 0, 0.20f,
-                            0.5f, 0.2f, 0.1f,
-                            0, 0.43f, 0.39f,
-                            0.1f, 0.3f, 0.5f,
+                            1.00f * 0.6f, 0.00f * 0.6f, 0.39f * 0.6f,
+                            0.6f, 0.2f, 0.1f,
+                            0.00f * 0.6f, 0.86f * 0.6f, 0.78f * 0.6f,
+                            0.1f, 0.3f, 0.6f,
 
                             1.0f, 1.0f, 1.0f,
                     };
@@ -172,6 +190,10 @@ public class MaterialsWallpaperService extends WallpaperService
                     @Override
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
                     {
+                        boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
+                        String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
+                        boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brushed_metal");
+
                         // Data
 
                         LightReflectionDirections = new float[LightDirections.length];
@@ -227,6 +249,7 @@ public class MaterialsWallpaperService extends WallpaperService
                             GLES20.glShaderSource(
                                     FragmentShader,
                                     "#define LIGHTS_COUNT " + (LightDirections.length / 3) + "\n"
+                                            + (EnableCircularBrush ? "#define ENABLE_CIRCULAR_BRUSH 1\n" : "")
                                             + ReadRawTextResource(R.raw.fragment_shader)
                             );
                             GLES20.glCompileShader(FragmentShader);
@@ -282,13 +305,85 @@ public class MaterialsWallpaperService extends WallpaperService
                         ReflectionsColorUniform = GLES20.glGetUniformLocation(Program, "ReflectionsColor");
                         NormalUniform = GLES20.glGetUniformLocation(Program, "Normal");
                         ShininessUniform = GLES20.glGetUniformLocation(Program, "Shininess");
-                        BrushUniform = GLES20.glGetUniformLocation(Program, "Brush");
+                        if (!EnableCircularBrush)
+                            BrushUniform = GLES20.glGetUniformLocation(Program, "Brush");
 
-                        BaseColorTexture = LoadTextureFromResource(R.drawable.tiles_base, true);
-                        ReflectionsColorTexture = LoadTextureFromResource(R.drawable.tiles_reflections, true);
-                        NormalTexture = LoadTextureFromResource(R.drawable.gray_80_128_16x16, true);
-                        ShininessTexture = LoadTextureFromResource(R.drawable.tiles_shininess, true);
-                        BrushTexture = LoadTextureFromResource(R.drawable.tiles_brush, true);
+                        if (UseCustomMaterial)
+                        {
+                            boolean BasePixelated = false;
+                            boolean ReflectionsPixelated = false;
+                            boolean NormalPixelated = false;
+                            boolean ShininessPixelated = false;
+                            boolean BrushPixelated = false;
+
+                            // TODO: set these by reading the config file
+
+                            BaseColorTexture = LoadTextureFromFile(
+                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Base),
+                                    R.drawable.gray_80_128_16x16,
+                                    BasePixelated
+                            );
+                            ReflectionsColorTexture = LoadTextureFromFile(
+                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Reflections),
+                                    R.drawable.gray_80_128_16x16,
+                                    ReflectionsPixelated
+                            );
+                            NormalTexture = LoadTextureFromFile(
+                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Normal),
+                                    R.drawable.gray_80_128_16x16,
+                                    NormalPixelated
+                            );
+                            ShininessTexture = LoadTextureFromFile(
+                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Shininess),
+                                    R.drawable.black_16x16,
+                                    ShininessPixelated
+                            );
+                            BrushTexture = LoadTextureFromFile(
+                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Brush),
+                                    R.drawable.gray_80_128_16x16,
+                                    BrushPixelated
+                            );
+                        }
+                        else
+                        {
+                            int BaseR        = R.drawable.gray_80_128_16x16;
+                            int ReflectionsR = R.drawable.gray_80_128_16x16;
+                            int NormalR      = R.drawable.gray_80_128_16x16;
+                            int ShininessR   = R.drawable.black_16x16;
+                            int BrushR       = R.drawable.gray_80_128_16x16;
+                            switch (MaterialSample)
+                            {
+                                case "circular_brushed_metal":
+                                    ShininessR = R.drawable.black_16x16;
+                                    break;
+                                case "brushed_tiles":
+                                    BaseR = R.drawable.tiles_base;
+                                    ReflectionsR = R.drawable.tiles_reflections;
+                                    ShininessR = R.drawable.tiles_shininess;
+                                    BrushR = R.drawable.tiles_brush;
+                                    break;
+                                case "flat_poly":
+                                    BaseR = R.drawable.flat_poly_base;
+                                    ReflectionsR = R.drawable.poly_reflections;
+                                    ShininessR = R.drawable.poly_shininess;
+                                    BrushR = R.drawable.poly_brush;
+                                    break;
+                                case "poly":
+                                    BaseR = R.drawable.poly_base;
+                                    ReflectionsR = R.drawable.poly_reflections;
+                                    NormalR = R.drawable.poly_normal;
+                                    ShininessR = R.drawable.poly_shininess;
+                                    BrushR = R.drawable.poly_brush;
+                                    break;
+                            }
+
+                            BaseColorTexture = LoadTextureFromResource(BaseR, true);
+                            ReflectionsColorTexture = LoadTextureFromResource(ReflectionsR, true);
+                            NormalTexture = LoadTextureFromResource(NormalR, true);
+                            ShininessTexture = LoadTextureFromResource(ShininessR, true);
+                            if (!EnableCircularBrush)
+                                BrushTexture = LoadTextureFromResource(BrushR, true);
+                        }
 
                         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
                         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BaseColorTexture);
@@ -542,6 +637,8 @@ public class MaterialsWallpaperService extends WallpaperService
                 GLSurface.onDestroy();
             if (SensorManagerInstance != null && RotationSensorEventListener != null)
                 SensorManagerInstance.unregisterListener(RotationSensorEventListener);
+            if (Preferences != null && PreferenceChangeListener != null)
+                Preferences.unregisterOnSharedPreferenceChangeListener(PreferenceChangeListener);
         }
     }
 }
