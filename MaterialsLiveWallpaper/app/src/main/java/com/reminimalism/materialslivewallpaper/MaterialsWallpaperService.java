@@ -414,6 +414,8 @@ public class MaterialsWallpaperService extends WallpaperService
                             ShininessTexture = LoadTextureFromResource(ShininessR, true);
                             if (!EnableCircularBrush)
                                 BrushTexture = LoadTextureFromResource(BrushR, true);
+                            else
+                                BrushTexture = 0;
                         }
 
                         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -446,8 +448,14 @@ public class MaterialsWallpaperService extends WallpaperService
                                 ShininessTexture,
                                 BrushTexture
                         };
-                        GLES20.glDeleteTextures(Textures.length, Textures, 0);
+                        GLES20.glDeleteTextures(
+                                BrushTexture == 0 ? Textures.length - 1 : Textures.length,
+                                Textures,
+                                0
+                        );
                         Initialize();
+
+                        // TODO: Fix the slow down on preference changes (on Reinitialize)
                     }
 
                     @Override
