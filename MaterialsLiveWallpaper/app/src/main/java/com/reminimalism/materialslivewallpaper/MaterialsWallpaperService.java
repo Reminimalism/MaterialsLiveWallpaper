@@ -70,6 +70,7 @@ public class MaterialsWallpaperService extends WallpaperService
         float[] RotationVector = new float[4];
 
         WallpaperGLSurfaceView GLSurface = null;
+        boolean SettingsChanged = false;
 
         @Override
         public void onCreate(final SurfaceHolder surface_holder)
@@ -115,18 +116,21 @@ public class MaterialsWallpaperService extends WallpaperService
                 }
                 // else do nothing
 
-                // Rendering
+                // Preferences
 
+                SettingsChanged = false;
                 Preferences = PreferenceManager.getDefaultSharedPreferences(MaterialsWallpaperService.this);
                 PreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener()
                 {
                     @Override
                     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
                     {
-                        // TODO: Reinitialize on resume
+                        SettingsChanged = true;
                     }
                 };
                 Preferences.registerOnSharedPreferenceChangeListener(PreferenceChangeListener);
+
+                // Rendering
 
                 GLSurface.setEGLContextClientVersion(2);
                 GLSurface.setPreserveEGLContextOnPause(true);
@@ -142,6 +146,8 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     float[] DeviceRotationMatrix = new float[9];
                     float AspectRatio = 1;
+
+                    int Program;
 
                     int ScreenFrontDirectionUniform;
                     int ScreenUpDirectionUniform;
@@ -189,6 +195,11 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     @Override
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
+                    {
+                        Initialize();
+                    }
+
+                    void Initialize()
                     {
                         boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
                         String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
@@ -268,7 +279,7 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         // Program setup
 
-                        int Program = GLES20.glCreateProgram();
+                        Program = GLES20.glCreateProgram();
                         if (Program != 0)
                         {
                             GLES20.glAttachShader(Program, VertexShader);
@@ -403,6 +414,20 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glUseProgram(Program);
                     }
 
+                    void Reinitialize()
+                    {
+                        GLES20.glDeleteProgram(Program);
+                        int[] Textures = {
+                                BaseColorTexture,
+                                ReflectionsColorTexture,
+                                NormalTexture,
+                                ShininessTexture,
+                                BrushTexture
+                        };
+                        GLES20.glDeleteTextures(Textures.length, Textures, 0);
+                        Initialize();
+                    }
+
                     @Override
                     public void onSurfaceChanged(GL10 gl, int width, int height)
                     {
@@ -413,6 +438,8 @@ public class MaterialsWallpaperService extends WallpaperService
                     @Override
                     public void onDrawFrame(GL10 gl)
                     {
+                        if (SettingsChanged)
+                            Reinitialize();
                         // No need to clear
                         //GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
                         GLES20.glVertexAttribPointer(
