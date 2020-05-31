@@ -39,7 +39,7 @@
             app:entries="@array/settings_performance_fps_limit_entries"
             app:entryValues="@array/settings_performance_fps_limit_values"
             app:useSimpleSummaryProvider="true"
-            app:enabled="false"/>
+            app:enabled="true"/>
 
     </PreferenceCategory>
 

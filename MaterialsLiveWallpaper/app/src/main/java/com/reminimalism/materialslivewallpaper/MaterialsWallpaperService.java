@@ -147,6 +147,10 @@ public class MaterialsWallpaperService extends WallpaperService
                     float[] DeviceRotationMatrix = new float[9];
                     float AspectRatio = 1;
 
+                    boolean LimitFPS = false;
+                    int FrameMinDuration_ms;
+                    long Time;
+
                     int Program;
 
                     int ScreenFrontDirectionUniform;
@@ -230,6 +234,20 @@ public class MaterialsWallpaperService extends WallpaperService
                         boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
                         String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
                         boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brushed_metal");
+
+                        String FPSLimit = Preferences.getString("fps_limit", "none");
+
+                        if (FPSLimit.equals("none"))
+                            LimitFPS = false;
+                        else try
+                        {
+                            FrameMinDuration_ms = 1000 / Integer.parseInt(FPSLimit);
+                            LimitFPS = true;
+                        }
+                        catch (NumberFormatException ignored)
+                        {
+                            LimitFPS = false;
+                        }
 
                         // GL setup
 
@@ -414,6 +432,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushTexture);
 
                         GLES20.glUseProgram(Program);
+
+                        GetTimeDiff_ms(); // Update Time
                     }
 
                     void Reinitialize()
@@ -437,11 +457,37 @@ public class MaterialsWallpaperService extends WallpaperService
                         AspectRatio = (float)width / (float)height;
                     }
 
+                    int GetTimeDiff_ms()
+                    {
+                        long CurrentTime = System.currentTimeMillis();
+                        long Diff = CurrentTime - Time;
+                        Time = CurrentTime;
+                        if (Diff > 0)
+                            return (int)Diff;
+                        else
+                            return 0;
+                    }
+
                     @Override
                     public void onDrawFrame(GL10 gl)
                     {
                         if (SettingsChanged)
                             Reinitialize();
+
+                        if (LimitFPS)
+                        {
+                            int remaining = FrameMinDuration_ms - GetTimeDiff_ms();
+                            if (remaining > 0) try
+                            {
+                                Thread.sleep(remaining);
+                            }
+                            catch (InterruptedException e)
+                            {
+                                Thread.currentThread().interrupt();
+                            }
+                            GetTimeDiff_ms(); // Update Time
+                        }
+
                         // No need to clear
                         //GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
                         GLES20.glVertexAttribPointer(
