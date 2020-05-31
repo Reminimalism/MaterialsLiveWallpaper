@@ -118,7 +118,6 @@ public class MaterialsWallpaperService extends WallpaperService
 
                 // Preferences
 
-                SettingsChanged = false;
                 Preferences = PreferenceManager.getDefaultSharedPreferences(MaterialsWallpaperService.this);
                 PreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener()
                 {
@@ -231,6 +230,8 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     void Initialize()
                     {
+                        SettingsChanged = false;
+
                         boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
                         String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
                         boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brushed_metal");
@@ -454,8 +455,6 @@ public class MaterialsWallpaperService extends WallpaperService
                                 0
                         );
                         Initialize();
-
-                        // TODO: Fix the slow down on preference changes (on Reinitialize)
                     }
 
                     @Override
