@@ -196,16 +196,7 @@ public class MaterialsWallpaperService extends WallpaperService
                     @Override
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
                     {
-                        Initialize();
-                    }
-
-                    void Initialize()
-                    {
-                        boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
-                        String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
-                        boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brushed_metal");
-
-                        // Data
+                        // Constant one-time data initializations
 
                         LightReflectionDirections = new float[LightDirections.length];
 
@@ -230,6 +221,15 @@ public class MaterialsWallpaperService extends WallpaperService
                         TriangleFanPositionValues = ByteBuffer.allocateDirect(TriangleFanArray.length * 4)
                                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
                         TriangleFanPositionValues.put(TriangleFanArray).position(0);*/
+
+                        Initialize();
+                    }
+
+                    void Initialize()
+                    {
+                        boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
+                        String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
+                        boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brushed_metal");
 
                         // GL setup
 
@@ -318,6 +318,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         ShininessUniform = GLES20.glGetUniformLocation(Program, "Shininess");
                         if (!EnableCircularBrush)
                             BrushUniform = GLES20.glGetUniformLocation(Program, "Brush");
+
+                        // Textures
 
                         if (UseCustomMaterial)
                         {
