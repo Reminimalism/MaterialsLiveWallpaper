@@ -412,10 +412,10 @@ public class MaterialsWallpaperService extends WallpaperService
                             ReflectionsColorTexture = LoadTextureFromResource(ReflectionsR, true);
                             NormalTexture = LoadTextureFromResource(NormalR, true);
                             ShininessTexture = LoadTextureFromResource(ShininessR, true);
-                            if (!EnableCircularBrush)
-                                BrushTexture = LoadTextureFromResource(BrushR, true);
-                            else
+                            if (EnableCircularBrush)
                                 BrushTexture = 0;
+                            else
+                                BrushTexture = LoadTextureFromResource(BrushR, true);
                         }
 
                         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
