@@ -33,8 +33,13 @@
     <string name="settings_material_choose_sample">Choose Material Sample</string>
     <string name="settings_material_import_custom">Import Custom Material</string>
 
-    <!-- Lights Settings -->
-
     <!-- Performance Settings -->
     <string name="settings_performance_fps_limit">Frame Rate Limit</string>
+
+    <!-- Lights Settings -->
+
+    <!-- Light Source Preference -->
+    <string name="light_source_preference_color_hue">Hue</string>
+    <string name="light_source_preference_color_saturation">Saturation</string>
+    <string name="light_source_preference_intensity">Light Intensity</string>
 </resources>
