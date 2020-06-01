@@ -36,5 +36,5 @@
     <!-- Lights Settings -->
 
     <!-- Performance Settings -->
-    <string name="settings_performance_fps_limit">FPS Limit</string>
+    <string name="settings_performance_fps_limit">Frame Rate Limit</string>
 </resources>
