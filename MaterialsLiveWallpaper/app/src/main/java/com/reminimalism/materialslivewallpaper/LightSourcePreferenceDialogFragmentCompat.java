@@ -102,8 +102,8 @@ public class LightSourcePreferenceDialogFragmentCompat extends PreferenceDialogF
         }
 
         HRed   = 1 - (1 - SRed)   / Saturation;
-        HGreen = 1 - (1 - HGreen) / Saturation;
-        HBlue  = 1 - (1 - HBlue)  / Saturation;
+        HGreen = 1 - (1 - SGreen) / Saturation;
+        HBlue  = 1 - (1 - SBlue)  / Saturation;
 
         if      (HRed   >= HGreen && HGreen >= HBlue)  Hue = HGreen;
         else if (HGreen >= HRed   && HRed   >= HBlue)  Hue = 2 - HRed;
@@ -197,6 +197,7 @@ public class LightSourcePreferenceDialogFragmentCompat extends PreferenceDialogF
         HueSeekBar = view.findViewById(R.id.color_hue);
         SaturationSeekBar = view.findViewById(R.id.color_saturation);
         IntensitySeekBar = view.findViewById(R.id.intensity);
+        // TODO: Add a reset button
 
         DialogPreference preference = getPreference();
         if (preference instanceof LightSourcePreference)

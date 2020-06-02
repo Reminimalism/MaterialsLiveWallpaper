@@ -52,12 +52,12 @@ public class LightSourcePreference extends DialogPreference
         return R.layout.light_source_preference;
     }
 
-    public String GetValue()
+    String GetValue()
     {
         return Value;
     }
 
-    public void SetValue(String Value)
+    void SetValue(String Value)
     {
         this.Value = Value;
         persistString(Value);
