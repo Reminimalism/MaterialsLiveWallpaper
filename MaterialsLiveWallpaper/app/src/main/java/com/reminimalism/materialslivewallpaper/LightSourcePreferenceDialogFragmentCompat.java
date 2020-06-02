@@ -27,7 +27,7 @@ public class LightSourcePreferenceDialogFragmentCompat extends PreferenceDialogF
     private float SGreen;
     private float SBlue;
 
-    void UpdateBasedOnHSI()
+    private void UpdateBasedOnHSI()
     {
         // Apply Hue
 
@@ -75,7 +75,7 @@ public class LightSourcePreferenceDialogFragmentCompat extends PreferenceDialogF
         Blue  = SBlue  * Intensity;
     }
 
-    void UpdateBasedOnRGB()
+    private void UpdateBasedOnRGB()
     {
         Intensity = Math.max(Math.max(Red, Blue), Green);
 
@@ -148,9 +148,9 @@ public class LightSourcePreferenceDialogFragmentCompat extends PreferenceDialogF
         SaturationSeekBar.setMax(SEEKBAR_MAX);
         IntensitySeekBar.setMax(SEEKBAR_MAX);
 
-        HueSeekBar.setProgress((int)(Hue / SEEKBAR_MAX));
-        SaturationSeekBar.setProgress((int)(Saturation / SEEKBAR_MAX));
-        IntensitySeekBar.setProgress((int)(Intensity / SEEKBAR_MAX));
+        HueSeekBar.setProgress((int)(Hue * SEEKBAR_MAX));
+        SaturationSeekBar.setProgress((int)(Saturation * SEEKBAR_MAX));
+        IntensitySeekBar.setProgress((int)(Intensity * SEEKBAR_MAX));
     }
 
     private void UpdateUIColors()
@@ -175,7 +175,7 @@ public class LightSourcePreferenceDialogFragmentCompat extends PreferenceDialogF
         ), PorterDuff.Mode.SRC_IN);
     }
 
-    public static LightSourcePreferenceDialogFragmentCompat newInstance(String key)
+    static LightSourcePreferenceDialogFragmentCompat newInstance(String key)
     {
         final LightSourcePreferenceDialogFragmentCompat fragment = new LightSourcePreferenceDialogFragmentCompat();
         final Bundle b = new Bundle(1);
@@ -188,8 +188,6 @@ public class LightSourcePreferenceDialogFragmentCompat extends PreferenceDialogF
     private SeekBar HueSeekBar = null;
     private SeekBar SaturationSeekBar = null;
     private SeekBar IntensitySeekBar = null;
-
-    private SeekBar.OnSeekBarChangeListener SeekBarListener = null;
 
     @Override
     protected void onBindDialogView(View view)
@@ -206,7 +204,7 @@ public class LightSourcePreferenceDialogFragmentCompat extends PreferenceDialogF
         UpdateUIPositions();
         UpdateUIColors();
 
-        SeekBarListener = new SeekBar.OnSeekBarChangeListener()
+        SeekBar.OnSeekBarChangeListener SeekBarListener = new SeekBar.OnSeekBarChangeListener()
         {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
