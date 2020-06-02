@@ -37,6 +37,18 @@
     <string name="settings_performance_fps_limit">Frame Rate Limit</string>
 
     <!-- Lights Settings -->
+    <string name="settings_lights_positions">Light Positions</string>
+
+    <string name="settings_lights_color_1">Light Color 1</string>
+    <string name="settings_lights_color_2">Light Color 2</string>
+    <string name="settings_lights_color_3">Light Color 3</string>
+    <string name="settings_lights_color_4">Light Color 4</string>
+    <string name="settings_lights_color_5">Light Color 5</string>
+    <string name="settings_lights_color_6">Light Color 6</string>
+    <string name="settings_lights_color_7">Light Color 7</string>
+    <string name="settings_lights_color_8">Light Color 8</string>
+    <string name="settings_lights_color_9">Light Color 9</string>
+    <string name="settings_lights_color_10">Light Color 10</string>
 
     <!-- Light Source Preference -->
     <string name="light_source_preference_color_hue">Hue</string>

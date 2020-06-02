@@ -40,4 +40,37 @@
         <item>90</item>
         <item>none</item>
     </string-array>
+
+    <string-array name="settings_lights_position_entries">
+        <item>Top</item>
+        <item>Upper East</item>
+        <item>Upper North</item>
+        <item>Upper West</item>
+        <item>Upper South</item>
+        <item>Lower East</item>
+        <item>Lower North</item>
+        <item>Lower West</item>
+        <item>Lower South</item>
+        <item>Bottom</item>
+    </string-array>
+    <string-array name="settings_lights_position_values">
+        <item>0,0,1</item>
+        <item>0.8944271909999159,0,0.4472135954999579</item>
+        <item>0,0.8944271909999159,0.4472135954999579</item>
+        <item>-0.8944271909999159,0,0.4472135954999579</item>
+        <item>0,-0.8944271909999159,0.4472135954999579</item>
+        <item>0.8944271909999159,0,-0.4472135954999579</item>
+        <item>0,0.8944271909999159,-0.4472135954999579</item>
+        <item>-0.8944271909999159,0,-0.4472135954999579</item>
+        <item>0,-0.8944271909999159,-0.4472135954999579</item>
+        <item>0,0,-1</item>
+    </string-array>
+    <string-array name="settings_lights_position_default_values">
+        <item>0,0,1</item>
+        <item>0.8944271909999159,0,0.4472135954999579</item>
+        <item>0,0.8944271909999159,0.4472135954999579</item>
+        <item>-0.8944271909999159,0,0.4472135954999579</item>
+        <item>0,-0.8944271909999159,0.4472135954999579</item>
+        <item>0,0,-1</item>
+    </string-array>
 </resources>

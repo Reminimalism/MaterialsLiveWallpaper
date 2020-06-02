@@ -172,10 +172,10 @@ public class MaterialsWallpaperService extends WallpaperService
                     float[] LightColors = {
                             0.6f, 0.6f, 0.6f,
 
-                            1.00f * 0.6f, 0.00f * 0.6f, 0.39f * 0.6f,
-                            0.6f, 0.2f, 0.1f,
-                            0.00f * 0.6f, 0.86f * 0.6f, 0.78f * 0.6f,
-                            0.1f, 0.3f, 0.6f,
+                            1.00f * 0.6f, 0.00f * 0.6f, 0.39f * 0.6f, // 0.6,0,0.234
+                            0.6f, 0.2f, 0.1f,                         // 0.6,0.2,0.1
+                            0.00f * 0.6f, 0.86f * 0.6f, 0.78f * 0.6f, // 0,0.516,0.468
+                            0.1f, 0.3f, 0.6f,                         // 0.1,0.3,0.6
 
                             1.0f, 1.0f, 1.0f,
                     };
