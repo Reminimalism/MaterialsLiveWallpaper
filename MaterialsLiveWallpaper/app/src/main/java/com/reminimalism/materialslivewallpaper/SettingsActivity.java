@@ -105,7 +105,7 @@ public class SettingsActivity extends AppCompatActivity
                 name = "brush";
                 break;
             case Config:
-                return path + "config.txt";
+                return path + "config.json";
             default:
                 return null;
         }
@@ -196,7 +196,7 @@ public class SettingsActivity extends AppCompatActivity
 
     static boolean IsZipContentSupported(String Filename)
     {
-        if (Filename.equals("config.txt"))
+        if (Filename.equals("config.json"))
             return true;
 
         String file_extension = null;

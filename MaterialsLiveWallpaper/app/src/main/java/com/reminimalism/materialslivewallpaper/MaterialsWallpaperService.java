@@ -23,6 +23,8 @@ import android.view.WindowManager;
 import androidx.preference.PreferenceManager;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -238,6 +240,17 @@ public class MaterialsWallpaperService extends WallpaperService
                         String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
                         boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brushed_metal");
 
+                        Config Config = null;
+                        if (UseCustomMaterial)
+                            Config = new Config(ReadTextFile( // Filename:
+                                    SettingsActivity.GetCustomMaterialAssetFilename(
+                                            MaterialsWallpaperService.this,
+                                            SettingsActivity.CustomMaterialAssetType.Config
+                                    )
+                            ));
+                        else
+                            Config = new Config();
+
                         String FPSLimit = Preferences.getString("fps_limit", "none");
 
                         if (FPSLimit.equals("none"))
@@ -282,6 +295,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                     FragmentShader,
                                     "#define LIGHTS_COUNT " + (LightDirections.length / 3) + "\n"
                                             + (EnableCircularBrush ? "#define ENABLE_CIRCULAR_BRUSH 1\n" : "")
+                                            + "#define ENABLE_NORMAL_NORMALIZATION " + (Config.NormalizeNormal ? "1\n" : "0\n")
                                             + ReadRawTextResource(R.raw.fragment_shader)
                             );
                             GLES20.glCompileShader(FragmentShader);
@@ -344,11 +358,11 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         if (UseCustomMaterial)
                         {
-                            boolean BasePixelated = false;
-                            boolean ReflectionsPixelated = false;
-                            boolean NormalPixelated = false;
-                            boolean ShininessPixelated = false;
-                            boolean BrushPixelated = false;
+                            boolean BasePixelated = Config.PixelatedBase;
+                            boolean ReflectionsPixelated = Config.PixelatedReflections;
+                            boolean NormalPixelated = Config.PixelatedNormal;
+                            boolean ShininessPixelated = Config.PixelatedShininess;
+                            boolean BrushPixelated = Config.PixelatedBrush;
 
                             // TODO: set these by reading the config file
 
@@ -411,14 +425,14 @@ public class MaterialsWallpaperService extends WallpaperService
                                     break;
                             }
 
-                            BaseColorTexture = LoadTextureFromResource(BaseR, true);
-                            ReflectionsColorTexture = LoadTextureFromResource(ReflectionsR, true);
-                            NormalTexture = LoadTextureFromResource(NormalR, true);
-                            ShininessTexture = LoadTextureFromResource(ShininessR, true);
+                            BaseColorTexture = LoadTextureFromResource(BaseR, false);
+                            ReflectionsColorTexture = LoadTextureFromResource(ReflectionsR, false);
+                            NormalTexture = LoadTextureFromResource(NormalR, false);
+                            ShininessTexture = LoadTextureFromResource(ShininessR, false);
                             if (EnableCircularBrush)
                                 BrushTexture = 0;
                             else
-                                BrushTexture = LoadTextureFromResource(BrushR, true);
+                                BrushTexture = LoadTextureFromResource(BrushR, false);
                         }
 
                         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -694,6 +708,29 @@ public class MaterialsWallpaperService extends WallpaperService
                         } catch (IOException e) { return null; }
 
                         return builder.toString();
+                    }
+
+                    String ReadTextFile(String Filename)
+                    {
+                        try
+                        {
+                            InputStream stream = new FileInputStream(Filename);
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                            String line;
+                            StringBuilder builder = new StringBuilder();
+
+                            try
+                            {
+                                while ((line = reader.readLine()) != null)
+                                {
+                                    builder.append(line);
+                                    builder.append('\n');
+                                }
+                            } catch (IOException e) { return null; }
+
+                            return builder.toString();
+                        }
+                        catch (FileNotFoundException ignored) { return null; }
                     }
                 });  // -------- RENDERER END -------- //
 
