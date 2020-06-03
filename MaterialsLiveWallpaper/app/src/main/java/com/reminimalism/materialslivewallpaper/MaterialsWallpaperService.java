@@ -140,8 +140,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         new GLSurfaceView.Renderer() // -------- RENDERER BEGIN -------- //
                 {
                     int PositionAttribute;
-                    FloatBuffer TriangleStripPositionValues;
-                    //FloatBuffer TriangleFanPositionValues;
+                    //FloatBuffer TriangleStripPositionValues;
+                    FloatBuffer TriangleFanPositionValues;
 
                     float[] DeviceRotationMatrix = new float[9];
                     float AspectRatio = 1;
@@ -203,7 +203,9 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         LightReflectionDirections = new float[LightDirections.length];
 
-                        float[] TriangleStripArray = {
+                        // Vertices
+
+                        /*float[] TriangleStripArray = {
                                 -1, -1, 0,
                                 -1, +1, 0,
                                 +1, -1, 0,
@@ -211,9 +213,9 @@ public class MaterialsWallpaperService extends WallpaperService
                         };
                         TriangleStripPositionValues = ByteBuffer.allocateDirect(TriangleStripArray.length * 4)
                                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-                        TriangleStripPositionValues.put(TriangleStripArray).position(0);
+                        TriangleStripPositionValues.put(TriangleStripArray).position(0);*/
 
-                        /*float[] TriangleFanArray = {
+                        float[] TriangleFanArray = {
                                  0,  0, 0,
                                 -1, +1, 0,
                                 +1, +1, 0,
@@ -223,7 +225,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         };
                         TriangleFanPositionValues = ByteBuffer.allocateDirect(TriangleFanArray.length * 4)
                                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-                        TriangleFanPositionValues.put(TriangleFanArray).position(0);*/
+                        TriangleFanPositionValues.put(TriangleFanArray).position(0);
 
                         Initialize();
                     }
@@ -503,8 +505,8 @@ public class MaterialsWallpaperService extends WallpaperService
                                 GLES20.GL_FLOAT,
                                 false,
                                 0,
-                                TriangleStripPositionValues
-                                //TriangleFanPositionValues
+                                //TriangleStripPositionValues
+                                TriangleFanPositionValues
                         );
                         GLES20.glEnableVertexAttribArray(PositionAttribute);
 
@@ -594,7 +596,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glUniform1i(ShininessUniform, 3);
                         GLES20.glUniform1i(BrushUniform, 4);
 
-                        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+                        //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+                        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
                     }
 
                     int LoadTextureFromFile(String path, int default_texture_resource_id, boolean pixelated)
