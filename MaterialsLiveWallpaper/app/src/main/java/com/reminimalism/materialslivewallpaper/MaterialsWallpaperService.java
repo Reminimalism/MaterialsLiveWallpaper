@@ -693,7 +693,20 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     String ReadRawTextResource(int id)
                     {
-                        InputStream stream = getResources().openRawResource(id);
+                        return ReadInputStream(getResources().openRawResource(id));
+                    }
+
+                    String ReadTextFile(String Filename)
+                    {
+                        try
+                        {
+                            return ReadInputStream(new FileInputStream(Filename));
+                        }
+                        catch (FileNotFoundException ignored) { return null; }
+                    }
+
+                    String ReadInputStream(InputStream stream)
+                    {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
                         String line;
                         StringBuilder builder = new StringBuilder();
@@ -708,29 +721,6 @@ public class MaterialsWallpaperService extends WallpaperService
                         } catch (IOException e) { return null; }
 
                         return builder.toString();
-                    }
-
-                    String ReadTextFile(String Filename)
-                    {
-                        try
-                        {
-                            InputStream stream = new FileInputStream(Filename);
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                            String line;
-                            StringBuilder builder = new StringBuilder();
-
-                            try
-                            {
-                                while ((line = reader.readLine()) != null)
-                                {
-                                    builder.append(line);
-                                    builder.append('\n');
-                                }
-                            } catch (IOException e) { return null; }
-
-                            return builder.toString();
-                        }
-                        catch (FileNotFoundException ignored) { return null; }
                     }
                 });  // -------- RENDERER END -------- //
 
