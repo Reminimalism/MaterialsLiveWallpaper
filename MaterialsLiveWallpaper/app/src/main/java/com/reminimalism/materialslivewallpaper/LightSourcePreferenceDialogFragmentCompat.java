@@ -197,7 +197,6 @@ public class LightSourcePreferenceDialogFragmentCompat extends PreferenceDialogF
         HueSeekBar = view.findViewById(R.id.color_hue);
         SaturationSeekBar = view.findViewById(R.id.color_saturation);
         IntensitySeekBar = view.findViewById(R.id.intensity);
-        // TODO: Add a reset button
 
         DialogPreference preference = getPreference();
         if (preference instanceof LightSourcePreference)
