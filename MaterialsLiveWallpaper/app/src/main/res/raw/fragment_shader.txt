@@ -1,3 +1,7 @@
+#ifndef ENABLE_NORMAL_NORMALIZATION
+  #define ENABLE_NORMAL_NORMALIZATION 1
+#endif
+
 #ifndef ENABLE_BRUSH
   #define ENABLE_BRUSH 1
 #endif
@@ -41,6 +45,9 @@ void main()
     if (abs(normal.x) < 0.01) normal.x = 0.0;
     if (abs(normal.y) < 0.01) normal.y = 0.0;
     if (abs(normal.z) < 0.01) normal.z = 0.0;
+#if ENABLE_NORMAL_NORMALIZATION
+    normal = normalize(normal);
+#endif
 
     float shininess = texture2D(Shininess, UV).x;
 
