@@ -364,7 +364,7 @@ public class MaterialsWallpaperService extends WallpaperService
                             );
                             NormalTexture = LoadTextureFromFile(
                                     SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Normal),
-                                    R.drawable.gray_80_128_16x16,
+                                    R.drawable.flat_normal_16x16,
                                     NormalPixelated
                             );
                             ShininessTexture = LoadTextureFromFile(
@@ -382,7 +382,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         {
                             int BaseR        = R.drawable.gray_80_128_16x16;
                             int ReflectionsR = R.drawable.gray_80_128_16x16;
-                            int NormalR      = R.drawable.gray_80_128_16x16;
+                            int NormalR      = R.drawable.flat_normal_16x16;
                             int ShininessR   = R.drawable.black_16x16;
                             int BrushR       = R.drawable.gray_80_128_16x16;
                             switch (MaterialSample)
