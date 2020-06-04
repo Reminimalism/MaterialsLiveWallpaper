@@ -168,8 +168,9 @@ public class SettingsActivity extends AppCompatActivity
                         if (IsZipContentSupported(entry.getName()))
                         {
                             FileOutputStream file = new FileOutputStream(CustomMaterialPath + entry.getName());
-                            for (int b = zip.read(); b != -1; b = zip.read())
-                                file.write(b);
+                            byte[] bytes = new byte[1024];
+                            for (int length = zip.read(bytes); length != -1; length = zip.read(bytes))
+                                file.write(bytes, 0, length);
                             file.close();
                             zip.closeEntry();
                         }
