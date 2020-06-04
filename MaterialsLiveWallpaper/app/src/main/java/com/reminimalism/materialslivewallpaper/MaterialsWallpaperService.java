@@ -31,6 +31,9 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -160,26 +163,29 @@ public class MaterialsWallpaperService extends WallpaperService
                     int FOVUniform;
                     int UVScaleUniform;
 
-                    float[] LightDirections = {
-                            0, 0, 1,
+                    float[] LightDirections;
+                    float[] LightReflectionDirections;
+                    float[] LightColors;
 
-                            0.8944271909999159f, 0, 0.4472135954999579f,
-                            0, 0.8944271909999159f, 0.4472135954999579f,
-                            -0.8944271909999159f, 0, 0.4472135954999579f,
-                            0, -0.8944271909999159f, 0.4472135954999579f,
-
-                            0, 0, -1,
+                    final String[] DefaultLightDirections = {
+                            "0,0,1",
+                            "0.8944271909999159,0,0.4472135954999579",
+                            "0,0.8944271909999159,0.4472135954999579",
+                            "-0.8944271909999159,0,0.4472135954999579",
+                            "0,-0.8944271909999159,0.4472135954999579",
+                            "0,0,-1",
                     };
-                    float[] LightReflectionDirections; // Will be updated based on LightDirections
-                    float[] LightColors = {
-                            0.6f, 0.6f, 0.6f,
-
-                            1.00f * 0.6f, 0.00f * 0.6f, 0.39f * 0.6f, // 0.6,0,0.234
-                            0.6f, 0.2f, 0.1f,                         // 0.6,0.2,0.1
-                            0.00f * 0.6f, 0.86f * 0.6f, 0.78f * 0.6f, // 0,0.516,0.468
-                            0.1f, 0.3f, 0.6f,                         // 0.1,0.3,0.6
-
-                            1.0f, 1.0f, 1.0f,
+                    final String[] DefaultLightColors = {
+                            "0.6,0.6,0.6",
+                            "0.6,0,0.234",   // 1.00f * 0.6f, 0.00f * 0.6f, 0.39f * 0.6f
+                            "0.6,0.2,0.1",
+                            "0,0.516,0.468", // 0.00f * 0.6f, 0.86f * 0.6f, 0.78f * 0.6f
+                            "0.1,0.3,0.6",
+                            "0.6,0.6,0.6",
+                            "0.6,0.6,0.6",
+                            "0.6,0.6,0.6",
+                            "0.6,0.6,0.6",
+                            "0.6,0.6,0.6",
                     };
 
                     int LightDirectionsUniform;
@@ -202,8 +208,6 @@ public class MaterialsWallpaperService extends WallpaperService
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
                     {
                         // Constant one-time data initializations
-
-                        LightReflectionDirections = new float[LightDirections.length];
 
                         // Vertices
 
@@ -251,6 +255,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         else
                             Config = new Config();
 
+                        // Frame Rate Limit
+
                         String FPSLimit = Preferences.getString("fps_limit", "none");
 
                         if (FPSLimit.equals("none"))
@@ -264,6 +270,50 @@ public class MaterialsWallpaperService extends WallpaperService
                         {
                             LimitFPS = false;
                         }
+
+                        // Lights
+
+                        Set<String> set = Preferences.getStringSet("light_directions", new HashSet<>(Arrays.asList(DefaultLightDirections)));
+                        LightDirections = new float[set.size() * 3];
+                        int count = 0;
+                        for (String str : set)
+                        {
+                            try
+                            {
+                                String[] coord = str.split(",");
+                                LightDirections[count * 3] = Float.parseFloat(coord[0]);
+                                LightDirections[count * 3 + 1] = Float.parseFloat(coord[1]);
+                                LightDirections[count * 3 + 2] = Float.parseFloat(coord[2]);
+                            }
+                            catch (Exception ignored)
+                            {
+                                LightDirections[count * 3] = 0;
+                                LightDirections[count * 3 + 1] = 0;
+                                LightDirections[count * 3 + 2] = 1;
+                            }
+                            count++;
+                        }
+
+                        LightColors = new float[count * 3];
+                        for (int i = 0; i < count; i++)
+                        {
+                            String str = Preferences.getString("light_color_" + i, DefaultLightColors[i]);
+                            try
+                            {
+                                String[] color = str.split(",");
+                                LightColors[i * 3] = Float.parseFloat(color[0]);
+                                LightColors[i * 3 + 1] = Float.parseFloat(color[1]);
+                                LightColors[i * 3 + 2] = Float.parseFloat(color[2]);
+                            }
+                            catch (Exception ignored)
+                            {
+                                LightDirections[i * 3] = 0.6f;
+                                LightDirections[i * 3 + 1] = 0.6f;
+                                LightDirections[i * 3 + 2] = 0.6f;
+                            }
+                        }
+
+                        LightReflectionDirections = new float[LightDirections.length]; // Will be updated based on LightDirections & device rotation
 
                         // GL setup
 

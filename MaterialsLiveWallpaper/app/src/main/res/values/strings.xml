@@ -3,12 +3,15 @@
     <string name="title_activity_settings">Settings</string>
 
     <!-- MainActivity -->
+
     <string name="set_wallpaper_button">Set Wallpaper</string>
     <string name="donation_title">Donation</string>
     <string name="donation_address_text_loading">Loading…</string>
     <string name="donation_address_text_failed">Failed to load</string>
     <string name="donation_address_copy_button">Copy</string>
     <string name="donation_page_button">Donation Page</string>
+
+    <!-- Toasts -->
 
     <string name="copy_successful">Copied to clipboard</string>
     <string name="copy_failed">Failed to copy</string>
@@ -18,11 +21,13 @@
     <string name="unzip_failed">Unzip failed</string>
 
     <!-- Settings Categories -->
+
     <string name="settings_category_material">Material</string>
     <string name="settings_category_lights">Light Sources</string>
     <string name="settings_category_performance">Performance</string>
 
     <!-- Materials Settings -->
+
     <string name="settings_material_use_custom">Use Custom Material</string>
     <string name="settings_material_use_custom_summary_on">
         Use custom textures as material
@@ -34,9 +39,11 @@
     <string name="settings_material_import_custom">Import Custom Material</string>
 
     <!-- Performance Settings -->
+
     <string name="settings_performance_fps_limit">Frame Rate Limit</string>
 
     <!-- Lights Settings -->
+
     <string name="settings_lights_positions">Light Positions</string>
 
     <string name="settings_lights_color_1">Light Color 1</string>
@@ -51,6 +58,7 @@
     <string name="settings_lights_color_10">Light Color 10</string>
 
     <!-- Light Source Preference -->
+
     <string name="light_source_preference_color_hue">Hue</string>
     <string name="light_source_preference_color_saturation">Saturation</string>
     <string name="light_source_preference_intensity">Light Intensity</string>
