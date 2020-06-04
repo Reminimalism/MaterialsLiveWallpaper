@@ -54,9 +54,13 @@ void main()
 #if ENABLE_BRUSH
   #if !ENABLE_CIRCULAR_BRUSH
     vec3 brush = texture2D(Brush, UV).xyz * 2.0 - 1.0;
-    if (abs(brush.x) < 0.01) brush.x = 0.0;
-    if (abs(brush.y) < 0.01) brush.y = 0.0;
-    if (abs(brush.z) < 0.01) brush.z = 0.0;
+    // 128 => 0
+    // 0   => less than -1
+    // 255 => less than 1 // bound doesn't really matter for brush
+    // 0.5 / 127.5 = 0.003921569
+    brush.x = brush.x - 0.003921569;
+    brush.y = brush.y - 0.003921569;
+    brush.z = brush.z - 0.003921569;
   #endif
 
   #if ENABLE_CIRCULAR_BRUSH
