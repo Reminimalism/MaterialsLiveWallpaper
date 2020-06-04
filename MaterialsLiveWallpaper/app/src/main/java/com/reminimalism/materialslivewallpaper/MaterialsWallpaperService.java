@@ -197,12 +197,14 @@ public class MaterialsWallpaperService extends WallpaperService
                     int NormalUniform;
                     int ShininessUniform;
                     int BrushUniform;
+                    int BrushIntensityUniform;
 
                     int BaseColorTexture;
                     int ReflectionsColorTexture;
                     int NormalTexture;
                     int ShininessTexture;
                     int BrushTexture;
+                    int BrushIntensityTexture;
 
                     @Override
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
@@ -245,13 +247,20 @@ public class MaterialsWallpaperService extends WallpaperService
                         boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brushed_metal");
 
                         Config Config = null;
+                        boolean EnableBrushIntensity = false;
                         if (UseCustomMaterial)
+                        {
                             Config = new Config(ReadTextFile( // Filename:
                                     SettingsActivity.GetCustomMaterialAssetFilename(
                                             MaterialsWallpaperService.this,
                                             SettingsActivity.CustomMaterialAssetType.Config
                                     )
                             ));
+                            if (SettingsActivity.GetCustomMaterialAssetFilename(
+                                    MaterialsWallpaperService.this,
+                                    SettingsActivity.CustomMaterialAssetType.BrushIntensity) != null)
+                                EnableBrushIntensity = true;
+                        }
                         else
                             Config = new Config();
 
@@ -346,6 +355,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                     "#define LIGHTS_COUNT " + (LightDirections.length / 3) + "\n"
                                             + (EnableCircularBrush ? "#define ENABLE_CIRCULAR_BRUSH 1\n" : "")
                                             + "#define ENABLE_NORMAL_NORMALIZATION " + (Config.NormalizeNormal ? "1\n" : "0\n")
+                                            + "#define ENABLE_BRUSH_INTENSITY " + (EnableBrushIntensity ? "1\n" : "0\n")
                                             + ReadRawTextResource(R.raw.fragment_shader)
                             );
                             GLES20.glCompileShader(FragmentShader);
@@ -413,6 +423,7 @@ public class MaterialsWallpaperService extends WallpaperService
                             boolean NormalPixelated = Config.PixelatedNormal;
                             boolean ShininessPixelated = Config.PixelatedShininess;
                             boolean BrushPixelated = Config.PixelatedBrush;
+                            boolean BrushIntensityPixelated = Config.PixelatedBrushIntensity;
 
                             // TODO: set these by reading the config file
 
@@ -441,6 +452,14 @@ public class MaterialsWallpaperService extends WallpaperService
                                     R.drawable.gray_80_128_16x16,
                                     BrushPixelated
                             );
+                            if (EnableBrushIntensity)
+                                BrushIntensityTexture = LoadTextureFromFile(
+                                        SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.BrushIntensity),
+                                        R.drawable.white_16x16,
+                                        BrushIntensityPixelated
+                                );
+                            else
+                                BrushIntensityTexture = 0;
                         }
                         else
                         {
@@ -483,6 +502,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                 BrushTexture = 0;
                             else
                                 BrushTexture = LoadTextureFromResource(BrushR, false);
+                            BrushIntensityTexture = 0;
                         }
 
                         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -500,6 +520,9 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
                         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushTexture);
 
+                        GLES20.glActiveTexture(GLES20.GL_TEXTURE5);
+                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushIntensityTexture);
+
                         GLES20.glUseProgram(Program);
 
                         GetTimeDiff_ms(); // Update Time
@@ -513,13 +536,26 @@ public class MaterialsWallpaperService extends WallpaperService
                                 ReflectionsColorTexture,
                                 NormalTexture,
                                 ShininessTexture,
-                                BrushTexture
+                                BrushTexture,
+                                BrushIntensityTexture
                         };
                         GLES20.glDeleteTextures(
-                                BrushTexture == 0 ? Textures.length - 1 : Textures.length,
+                                4,
                                 Textures,
                                 0
                         );
+                        if (BrushTexture != 0)
+                            GLES20.glDeleteTextures(
+                                    1,
+                                    Textures,
+                                    4
+                            );
+                        if (BrushIntensityTexture != 0)
+                            GLES20.glDeleteTextures(
+                                    1,
+                                    Textures,
+                                    5
+                            );
                         Initialize();
                     }
 
@@ -659,6 +695,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glUniform1i(NormalUniform, 2);
                         GLES20.glUniform1i(ShininessUniform, 3);
                         GLES20.glUniform1i(BrushUniform, 4);
+                        GLES20.glUniform1i(BrushIntensityUniform, 5);
 
                         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
                         //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);

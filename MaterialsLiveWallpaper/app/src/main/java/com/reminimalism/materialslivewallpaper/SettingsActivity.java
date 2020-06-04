@@ -80,6 +80,7 @@ public class SettingsActivity extends AppCompatActivity
         Shininess,
         Normal,
         Brush,
+        BrushIntensity,
         Config
     }
 
@@ -103,6 +104,9 @@ public class SettingsActivity extends AppCompatActivity
                 break;
             case Brush:
                 name = "brush";
+                break;
+            case BrushIntensity:
+                name = "brush_intensity";
                 break;
             case Config:
                 return path + "config.json";
@@ -183,7 +187,8 @@ public class SettingsActivity extends AppCompatActivity
             "reflection",
             "shininess",
             "normal",
-            "brush"
+            "brush",
+            "brush_intensity"
     };
 
     static final String[] SupportedImageExtensions = {

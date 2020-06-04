@@ -12,6 +12,7 @@ public class Config
     public boolean PixelatedNormal = false;
     public boolean PixelatedShininess = false;
     public boolean PixelatedBrush = false;
+    public boolean PixelatedBrushIntensity = false;
 
     public boolean NormalizeNormal = true;
 
@@ -32,12 +33,13 @@ public class Config
 
     private void ReadJSON(JSONObject json)
     {
-        try { TargetVersion        = json.getString("TargetVersion");         } catch (JSONException ignored) {}
-        try { PixelatedBase        = json.getBoolean("PixelatedBase");        } catch (JSONException ignored) {}
-        try { PixelatedReflections = json.getBoolean("PixelatedReflections"); } catch (JSONException ignored) {}
-        try { PixelatedNormal      = json.getBoolean("PixelatedNormal");      } catch (JSONException ignored) {}
-        try { PixelatedShininess   = json.getBoolean("PixelatedShininess");   } catch (JSONException ignored) {}
-        try { PixelatedBrush       = json.getBoolean("PixelatedBrush");       } catch (JSONException ignored) {}
-        try { NormalizeNormal      = json.getBoolean("NormalizeNormal");      } catch (JSONException ignored) {}
+        try { TargetVersion           = json.getString("TargetVersion");            } catch (JSONException ignored) {}
+        try { PixelatedBase           = json.getBoolean("PixelatedBase");           } catch (JSONException ignored) {}
+        try { PixelatedReflections    = json.getBoolean("PixelatedReflections");    } catch (JSONException ignored) {}
+        try { PixelatedNormal         = json.getBoolean("PixelatedNormal");         } catch (JSONException ignored) {}
+        try { PixelatedShininess      = json.getBoolean("PixelatedShininess");      } catch (JSONException ignored) {}
+        try { PixelatedBrush          = json.getBoolean("PixelatedBrush");          } catch (JSONException ignored) {}
+        try { PixelatedBrushIntensity = json.getBoolean("PixelatedBrushIntensity"); } catch (JSONException ignored) {}
+        try { NormalizeNormal         = json.getBoolean("NormalizeNormal");         } catch (JSONException ignored) {}
     }
 }
