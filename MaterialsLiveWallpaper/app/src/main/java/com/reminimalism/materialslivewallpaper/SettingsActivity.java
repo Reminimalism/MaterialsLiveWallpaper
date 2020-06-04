@@ -2,6 +2,7 @@ package com.reminimalism.materialslivewallpaper;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -10,11 +11,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -143,6 +146,11 @@ public class SettingsActivity extends AppCompatActivity
 
         if (resultCode == -1)
         {
+            // Trick to reinitialize wallpaper
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            editor.putInt("import_custom_material", new Random().nextInt());
+            editor.apply();
+
             String CustomMaterialPath = GetCustomMaterialPath(this);
             File directory = new File(CustomMaterialPath);
             Delete(directory);
