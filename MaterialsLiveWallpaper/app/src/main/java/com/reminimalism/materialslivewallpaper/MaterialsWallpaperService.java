@@ -519,11 +519,17 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
                         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, ShininessTexture);
 
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushTexture);
+                        if (BrushTexture != 0)
+                        {
+                            GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
+                            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushTexture);
+                        }
 
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE5);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushIntensityTexture);
+                        if (BrushIntensityTexture != 0)
+                        {
+                            GLES20.glActiveTexture(GLES20.GL_TEXTURE5);
+                            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushIntensityTexture);
+                        }
 
                         GLES20.glUseProgram(Program);
 
@@ -696,8 +702,10 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glUniform1i(ReflectionsColorUniform, 1);
                         GLES20.glUniform1i(NormalUniform, 2);
                         GLES20.glUniform1i(ShininessUniform, 3);
-                        GLES20.glUniform1i(BrushUniform, 4);
-                        GLES20.glUniform1i(BrushIntensityUniform, 5);
+                        if (BrushTexture != 0)
+                            GLES20.glUniform1i(BrushUniform, 4);
+                        if (BrushIntensityTexture != 0)
+                            GLES20.glUniform1i(BrushIntensityUniform, 5);
 
                         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
                         //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
