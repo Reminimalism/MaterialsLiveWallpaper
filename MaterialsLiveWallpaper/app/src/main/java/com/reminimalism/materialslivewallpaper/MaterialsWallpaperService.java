@@ -244,7 +244,7 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
                         String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
-                        boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brushed_metal");
+                        boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brush");
 
                         Config Config = null;
                         boolean EnableBrushIntensity = false;
@@ -472,7 +472,7 @@ public class MaterialsWallpaperService extends WallpaperService
                             int BrushR       = R.drawable.gray_80_128_16x16;
                             switch (MaterialSample)
                             {
-                                case "circular_brushed_metal":
+                                case "circular_brush":
                                     ShininessR = R.drawable.black_16x16;
                                     break;
                                 case "brushed_tiles":
