@@ -413,6 +413,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         ShininessUniform = GLES20.glGetUniformLocation(Program, "Shininess");
                         if (!EnableCircularBrush)
                             BrushUniform = GLES20.glGetUniformLocation(Program, "Brush");
+                        if (EnableBrushIntensity)
+                            BrushIntensityUniform = GLES20.glGetUniformLocation(Program, "BrushIntensity");
 
                         // Textures
 
