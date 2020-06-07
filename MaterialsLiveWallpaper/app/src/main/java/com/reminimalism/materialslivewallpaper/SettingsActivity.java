@@ -3,6 +3,7 @@ package com.reminimalism.materialslivewallpaper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -53,6 +54,17 @@ public class SettingsActivity extends AppCompatActivity
                     intent.setType("application/zip");
                     intent = Intent.createChooser(intent, "Choose a zip file");
                     startActivityForResult(intent, 0);
+                    return true;
+                }
+            });
+            findPreference("donate_button").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference)
+                {
+                    startActivity(new Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://pragma-once.github.io/materialslivewallpaper/donation-page.html")
+                    ));
                     return true;
                 }
             });

@@ -5,11 +5,8 @@
     <!-- MainActivity -->
 
     <string name="set_wallpaper_button">Set Wallpaper</string>
-    <string name="donation_title">Donation</string>
-    <string name="donation_address_text_loading">Loading…</string>
-    <string name="donation_address_text_failed">Failed to load</string>
-    <string name="donation_address_copy_button">Copy</string>
-    <string name="donation_page_button">Donation Page</string>
+    <string name="donation_title">Like this app?</string>
+    <string name="donate_button">Donate</string>
 
     <!-- Toasts -->
 
