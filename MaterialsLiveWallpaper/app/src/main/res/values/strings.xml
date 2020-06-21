@@ -5,11 +5,6 @@
     <!-- MainActivity -->
 
     <string name="set_wallpaper_button">Set Wallpaper</string>
-    <string name="more_title">More</string>
-    <string name="donate_button">Donate</string>
-    <string name="more_materials_button">More Materials</string>
-    <string name="app_version_title">App Version</string>
-    <string name="app_version_loading">Getting version name…</string>
 
     <!-- Toasts -->
 
@@ -23,8 +18,9 @@
     <!-- Settings Categories -->
 
     <string name="settings_category_material">Material</string>
-    <string name="settings_category_lights">Light Sources</string>
     <string name="settings_category_performance">Performance</string>
+    <string name="settings_category_lights">Light Sources</string>
+    <string name="settings_category_more">More</string>
 
     <!-- Materials Settings -->
 
@@ -56,6 +52,13 @@
     <string name="settings_lights_color_8">Light Color 8</string>
     <string name="settings_lights_color_9">Light Color 9</string>
     <string name="settings_lights_color_10">Light Color 10</string>
+
+    <!-- More -->
+
+    <string name="donate_button">Donate</string>
+    <string name="more_materials_button">More Materials</string>
+    <string name="app_version_title">App Version</string>
+    <string name="app_version_loading">Getting version name…</string>
 
     <!-- Light Source Preference -->
 

@@ -102,7 +102,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/more_title">
+    <PreferenceCategory app:title="@string/settings_category_more">
 
         <Preference
             app:key="donate_button"
