@@ -60,9 +60,12 @@ public class Config
     // public boolean Is<Feature>Supported();
 
     // Version name => Version code
-    private final Hashtable<String, Integer> SupportedTargetVersions = new Hashtable<>();
-    private void InitializeSupportedTargetVersions()
+    private static Hashtable<String, Integer> SupportedTargetVersions = null;
+    private static void InitializeSupportedTargetVersions()
     {
+        if (SupportedTargetVersions != null)
+            return;
+        SupportedTargetVersions = new Hashtable<>();
         SupportedTargetVersions.put("0.1", 1);
     }
 }
