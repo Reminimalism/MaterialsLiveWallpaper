@@ -14,10 +14,14 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -211,7 +215,17 @@ public class SettingsActivity extends AppCompatActivity
                     }
                 }
                 zip.close();
-                Toast.makeText(this, R.string.custom_material_imported, Toast.LENGTH_LONG).show();
+
+                Config Config = new Config(ReadTextFile( // Filename:
+                        SettingsActivity.GetCustomMaterialAssetFilename(
+                                this,
+                                SettingsActivity.CustomMaterialAssetType.Config
+                        )
+                ));
+                if (Config.IsTargetVersionSupported())
+                    Toast.makeText(this, R.string.custom_material_imported, Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(this, R.string.custom_material_imported_target_version_not_supported, Toast.LENGTH_LONG).show();
             }
             catch (FileNotFoundException ignored)
             {
@@ -262,5 +276,34 @@ public class SettingsActivity extends AppCompatActivity
                     return true;
 
         return false;
+    }
+
+    // Basic operations
+
+    String ReadTextFile(String Filename)
+    {
+        try
+        {
+            return ReadInputStream(new FileInputStream(Filename));
+        }
+        catch (FileNotFoundException ignored) { return null; }
+    }
+
+    String ReadInputStream(InputStream stream)
+    {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        String line;
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            while ((line = reader.readLine()) != null)
+            {
+                builder.append(line);
+                builder.append('\n');
+            }
+        } catch (IOException e) { return null; }
+
+        return builder.toString();
     }
 }

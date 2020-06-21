@@ -3,6 +3,8 @@ package com.reminimalism.materialslivewallpaper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Hashtable;
+
 public class Config
 {
     public String TargetVersion = null;
@@ -16,10 +18,15 @@ public class Config
 
     public boolean NormalizeNormal = true;
 
-    public Config() {}
+    public Config()
+    {
+        InitializeSupportedTargetVersions();
+    }
 
     public Config(String Text)
     {
+        InitializeSupportedTargetVersions();
+
         if (Text == null)
             return;
 
@@ -41,5 +48,21 @@ public class Config
         try { PixelatedBrush          = json.getBoolean("PixelatedBrush");          } catch (JSONException ignored) {}
         try { PixelatedBrushIntensity = json.getBoolean("PixelatedBrushIntensity"); } catch (JSONException ignored) {}
         try { NormalizeNormal         = json.getBoolean("NormalizeNormal");         } catch (JSONException ignored) {}
+    }
+
+    public boolean IsTargetVersionSupported()
+    {
+        if (TargetVersion == null)
+            return true;
+        return SupportedTargetVersions.containsKey(TargetVersion);
+    }
+
+    // public boolean Is<Feature>Supported();
+
+    // Version name => Version code
+    private final Hashtable<String, Integer> SupportedTargetVersions = new Hashtable<>();
+    private void InitializeSupportedTargetVersions()
+    {
+        SupportedTargetVersions.put("0.1", 1);
     }
 }
