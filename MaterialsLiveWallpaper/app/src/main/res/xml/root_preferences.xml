@@ -102,11 +102,22 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/donation_title">
+    <PreferenceCategory app:title="@string/more_title">
 
         <Preference
             app:key="donate_button"
             app:title="@string/donate_button"
+            app:enabled="true" />
+
+        <Preference
+            app:key="more_materials_button"
+            app:title="@string/more_materials_button"
+            app:enabled="true" />
+
+        <Preference
+            app:key="app_version"
+            app:title="@string/app_version_title"
+            app:summary="@string/app_version_loading"
             app:enabled="true" />
 
     </PreferenceCategory>

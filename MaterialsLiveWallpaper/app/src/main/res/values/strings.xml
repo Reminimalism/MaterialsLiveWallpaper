@@ -5,8 +5,11 @@
     <!-- MainActivity -->
 
     <string name="set_wallpaper_button">Set Wallpaper</string>
-    <string name="donation_title">Like this app?</string>
+    <string name="more_title">More</string>
     <string name="donate_button">Donate</string>
+    <string name="more_materials_button">More Materials</string>
+    <string name="app_version_title">App Version</string>
+    <string name="app_version_loading">Getting version name…</string>
 
     <!-- Toasts -->
 

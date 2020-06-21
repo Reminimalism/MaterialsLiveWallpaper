@@ -57,6 +57,7 @@ public class SettingsActivity extends AppCompatActivity
                     return true;
                 }
             });
+
             findPreference("donate_button").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference)
@@ -68,6 +69,27 @@ public class SettingsActivity extends AppCompatActivity
                     return true;
                 }
             });
+
+            findPreference("more_materials_button").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference)
+                {
+                    startActivity(new Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://github.com/Reminimalism/MaterialsLiveWallpaperMaterialSamples")
+                    ));
+                    return true;
+                }
+            });
+
+            try
+            {
+                findPreference("app_version").setSummary(getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName);
+            }
+            catch (Exception ignored)
+            {
+                findPreference("app_version").setSummary("Error getting version name");
+            }
         }
 
         @Override
