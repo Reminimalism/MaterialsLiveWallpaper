@@ -427,8 +427,6 @@ public class MaterialsWallpaperService extends WallpaperService
                             boolean BrushPixelated = Config.PixelatedBrush;
                             boolean BrushIntensityPixelated = Config.PixelatedBrushIntensity;
 
-                            // TODO: set these by reading the config file
-
                             BaseColorTexture = LoadTextureFromFile(
                                     SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Base),
                                     R.drawable.gray_80_128_16x16,
