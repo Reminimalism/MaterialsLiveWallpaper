@@ -2,6 +2,22 @@
   #define ENABLE_NORMAL_NORMALIZATION 1
 #endif
 
+#ifndef ENABLE_BASE
+  #define ENABLE_BASE 1
+#endif
+
+#ifndef ENABLE_REFLECTIONS
+  #define ENABLE_REFLECTIONS 1
+#endif
+
+#ifndef ENABLE_NORMAL
+  #define ENABLE_NORMAL 1
+#endif
+
+#ifndef ENABLE_SHININESS
+  #define ENABLE_SHININESS 1
+#endif
+
 #ifndef ENABLE_BRUSH
   #define ENABLE_BRUSH 1
 #endif
@@ -28,13 +44,26 @@ uniform vec3 LightDirections[LIGHTS_COUNT];
 uniform vec3 LightReflectionDirections[LIGHTS_COUNT]; // 2x closer to each other
 uniform vec3 LightColors[LIGHTS_COUNT];
 
-uniform sampler2D BaseColor;
-uniform sampler2D ReflectionsColor;
-uniform sampler2D Normal;
-uniform sampler2D Shininess;
+#if ENABLE_BASE
+  uniform sampler2D BaseColor;
+#endif
+
+#if ENABLE_REFLECTIONS
+  uniform sampler2D ReflectionsColor;
+#endif
+
+#if ENABLE_NORMAL
+  uniform sampler2D Normal;
+#endif
+
+#if ENABLE_SHININESS
+  uniform sampler2D Shininess;
+#endif
+
 #if ENABLE_BRUSH && !ENABLE_CIRCULAR_BRUSH
   uniform sampler2D Brush;
 #endif
+
 #if ENABLE_BRUSH_INTENSITY
   uniform sampler2D BrushIntensity;
 #endif
@@ -45,18 +74,29 @@ varying vec3 FOVNormal;
 void main()
 {
     // tex values
-    vec3 base_color = texture2D(BaseColor, UV).xyz;
-    vec3 reflections_color = texture2D(ReflectionsColor, UV).xyz;
 
+#if ENABLE_BASE
+    vec3 base_color = texture2D(BaseColor, UV).xyz;
+#endif
+
+#if ENABLE_REFLECTIONS
+    vec3 reflections_color = texture2D(ReflectionsColor, UV).xyz;
+#endif
+
+#if ENABLE_NORMAL
     vec3 normal = texture2D(Normal, UV).xyz * 2.0 - 1.0;
     if (abs(normal.x) < 0.01) normal.x = 0.0;
     if (abs(normal.y) < 0.01) normal.y = 0.0;
     if (abs(normal.z) < 0.01) normal.z = 0.0;
-#if ENABLE_NORMAL_NORMALIZATION
+
+  #if ENABLE_NORMAL_NORMALIZATION
     normal = normalize(normal);
+  #endif
 #endif
 
+#if ENABLE_SHININESS
     float shininess = texture2D(Shininess, UV).x;
+#endif
 
 #if ENABLE_BRUSH
   #if !ENABLE_CIRCULAR_BRUSH
@@ -80,12 +120,23 @@ void main()
     brush *= texture2D(BrushIntensity, UV).x;
 #endif
 
+#if ENABLE_BASE
     vec3 lights = vec3(0, 0, 0);
+#endif
+
+#if ENABLE_REFLECTIONS
     vec3 reflections = vec3(0, 0, 0);
+#endif
+
+#if ENABLE_NORMAL
     vec3 shared_xy_normal_map_diff = normal.x * ScreenRightDirection
                                    + normal.y * ScreenUpDirection;
     vec3 base_normal = ScreenFrontDirection * normal.z + shared_xy_normal_map_diff;
     vec3 reflection_normal = normalize(normalize(FOVNormal) * normal.z + shared_xy_normal_map_diff);
+#else
+    vec3 base_normal = ScreenFrontDirection;
+    vec3 reflection_normal = normalize(FOVNormal);
+#endif
 
 #if ENABLE_BRUSH
     vec3 brush_reflection_direction = brush.x * ScreenRightDirection
@@ -95,20 +146,35 @@ void main()
 
     for (int i = 0; i < LIGHTS_COUNT; i++)
     {
+#if ENABLE_BASE
         lights += LightColors[i] * max(dot(base_normal, LightDirections[i]), 0.0);
+#endif
 #if ENABLE_BRUSH
         vec3 light_diff = LightReflectionDirections[i] - reflection_normal;
         float brush_effect = abs(dot(light_diff, brush_reflection_direction)) * 100.0;
         brush_effect = max(1.0 - brush_effect * brush_effect, 0.0);
 #endif
+#if ENABLE_REFLECTIONS
         reflections += LightColors[i] * pow(max(dot(reflection_normal, LightReflectionDirections[i]), 0.0)
-#if ENABLE_BRUSH
+  #if ENABLE_BRUSH
                 * brush_effect
+  #endif
+            , 20.0
+  #if ENABLE_SHININESS
+                + shininess * 10000.0
+  #endif
+        ); // Degrees more than 45 (90 actual degree) will be almost invisible at 0 shininess.
+           // cos(45) ^ 20 = 0.000976562
 #endif
-                , 20.0 + shininess * 10000.0); // Degrees more than 45 (90 actual degree)
-                                               // will be almost invisible at 0 shininess.
-                                               // cos(45) ^ 20 = 0.000976562
     }
 
+#if ENABLE_BASE && ENABLE_REFLECTIONS
     gl_FragColor = vec4(base_color * lights + reflections_color * reflections, 1.0);
+#elif ENABLE_BASE && !ENABLE_REFLECTIONS
+    gl_FragColor = vec4(base_color * lights, 1.0);
+#elif !ENABLE_BASE && ENABLE_REFLECTIONS
+    gl_FragColor = vec4(reflections_color * reflections, 1.0);
+#else
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+#endif
 }
