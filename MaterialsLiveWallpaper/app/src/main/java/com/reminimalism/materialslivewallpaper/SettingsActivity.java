@@ -103,6 +103,8 @@ public class SettingsActivity extends AppCompatActivity
             {
                 findPreference("app_version").setSummary("Error getting version name");
             }
+
+            findPreference("materials_version").setSummary(Config.GetLatestSupportedCustomMaterialTargetVersion());
         }
 
         @Override

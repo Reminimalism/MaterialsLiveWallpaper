@@ -73,7 +73,7 @@ public class Config
 
     // public boolean Is<Feature>Supported();
 
-    public static String GetLatestSupportedTargetVersion()
+    public static String GetLatestSupportedCustomMaterialTargetVersion()
     {
         return "0.2"; // Shouldn't be updated until the material file format gets an update.
     }

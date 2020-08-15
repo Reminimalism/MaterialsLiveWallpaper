@@ -124,6 +124,12 @@
             app:enabled="true" />
 
         <Preference
+            app:key="materials_version"
+            app:title="@string/materials_version_title"
+            app:summary="@string/materials_version_loading"
+            app:enabled="true" />
+
+        <Preference
             app:key="app_version"
             app:title="@string/app_version_title"
             app:summary="@string/app_version_loading"
