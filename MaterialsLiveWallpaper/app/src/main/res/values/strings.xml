@@ -40,6 +40,7 @@
     <!-- Performance Settings -->
 
     <string name="settings_performance_fps_limit">Frame Rate Limit</string>
+    <string name="settings_performance_max_additional_layers">Max Allowed Additional Layers</string>
 
     <!-- Lights Settings -->
 

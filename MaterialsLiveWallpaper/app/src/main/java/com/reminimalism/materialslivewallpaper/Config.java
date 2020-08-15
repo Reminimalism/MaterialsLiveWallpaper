@@ -57,7 +57,26 @@ public class Config
         return SupportedTargetVersions.containsKey(TargetVersion);
     }
 
+    public class Behavior
+    {
+        boolean DefaultBaseAndReflectionsToGray80 = false;
+    }
+
+    public Behavior GetBehavior()
+    {
+        Behavior result = new Behavior();
+        if (TargetVersion == null || !SupportedTargetVersions.containsKey(TargetVersion))
+            return result;
+        result.DefaultBaseAndReflectionsToGray80 = SupportedTargetVersions.get(TargetVersion) == 1;
+        return result;
+    }
+
     // public boolean Is<Feature>Supported();
+
+    public static String GetLatestSupportedTargetVersion()
+    {
+        return "0.2"; // Shouldn't be updated until the material file format gets an update.
+    }
 
     // Version name => Version code
     private static Hashtable<String, Integer> SupportedTargetVersions = null;
@@ -67,5 +86,6 @@ public class Config
             return;
         SupportedTargetVersions = new Hashtable<>();
         SupportedTargetVersions.put("0.1", 1);
+        SupportedTargetVersions.put("0.2", 2);
     }
 }

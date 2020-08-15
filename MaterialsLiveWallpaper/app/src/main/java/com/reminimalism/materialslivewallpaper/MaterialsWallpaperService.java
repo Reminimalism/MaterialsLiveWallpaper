@@ -144,7 +144,6 @@ public class MaterialsWallpaperService extends WallpaperService
                 GLSurface.setRenderer(
                         new GLSurfaceView.Renderer() // -------- RENDERER BEGIN -------- //
                 {
-                    int PositionAttribute;
                     FloatBuffer TriangleStripPositionValues;
                     //FloatBuffer TriangleFanPositionValues;
 
@@ -154,14 +153,6 @@ public class MaterialsWallpaperService extends WallpaperService
                     boolean LimitFPS = false;
                     int FrameMinDuration_ms;
                     long Time;
-
-                    int Program;
-
-                    int ScreenFrontDirectionUniform;
-                    int ScreenUpDirectionUniform;
-                    int ScreenRightDirectionUniform;
-                    int FOVUniform;
-                    int UVScaleUniform;
 
                     float[] LightDirections;
                     float[] LightReflectionDirections;
@@ -188,23 +179,63 @@ public class MaterialsWallpaperService extends WallpaperService
                             "0.6,0.6,0.6",
                     };
 
-                    int LightDirectionsUniform;
-                    int LightReflectionDirectionsUniform;
-                    int LightColorsUniform;
+                    class Layer
+                    {
+                        public boolean EnableBase = false;
+                        public boolean EnableReflections = false;
+                        public boolean EnableNormal = false;
+                        public boolean EnableShininess = false;
+                        public boolean EnableBrush = false;
+                        public boolean EnableBrushIntensity = false;
 
-                    int BaseColorUniform;
-                    int ReflectionsColorUniform;
-                    int NormalUniform;
-                    int ShininessUniform;
-                    int BrushUniform;
-                    int BrushIntensityUniform;
+                        public boolean EnableCircularBrush = false;
 
-                    int BaseColorTexture;
-                    int ReflectionsColorTexture;
-                    int NormalTexture;
-                    int ShininessTexture;
-                    int BrushTexture;
-                    int BrushIntensityTexture;
+                        public int Program;
+
+                        public int PositionAttribute;
+
+                        public int ScreenFrontDirectionUniform;
+                        public int ScreenUpDirectionUniform;
+                        public int ScreenRightDirectionUniform;
+                        public int FOVUniform;
+                        public int UVScaleUniform;
+
+                        public int LightDirectionsUniform;
+                        public int LightReflectionDirectionsUniform;
+                        public int LightColorsUniform;
+
+                        public int BaseUniform;
+                        public int ReflectionsUniform;
+                        public int NormalUniform;
+                        public int ShininessUniform;
+                        public int BrushUniform;
+                        public int BrushIntensityUniform;
+
+                        public int BaseTexture;
+                        public int ReflectionsTexture;
+                        public int NormalTexture;
+                        public int ShininessTexture;
+                        public int BrushTexture;
+                        public int BrushIntensityTexture;
+
+                        public int BaseTextureID;
+                        public int ReflectionsTextureID;
+                        public int NormalTextureID;
+                        public int ShininessTextureID;
+                        public int BrushTextureID;
+                        public int BrushIntensityTextureID;
+                    }
+
+                    Layer[] Layers;
+                    int[] AllTextures = new int[30];
+                    int AllTexturesCount = 0;
+
+                    int GetTextureIDValue(int ID)
+                    {
+                        if (ID >= 0 && ID < 30)
+                            return GLES20.GL_TEXTURE0 + ID;
+                        throw new RuntimeException("Invalid texture ID");
+                    }
 
                     @Override
                     public void onSurfaceCreated(GL10 gl, EGLConfig config)
@@ -243,11 +274,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         SettingsChanged = false;
 
                         boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
-                        String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
-                        boolean EnableCircularBrush = !UseCustomMaterial && MaterialSample.equals("circular_brush");
 
                         Config Config = null;
-                        boolean EnableBrushIntensity = false;
                         if (UseCustomMaterial)
                         {
                             Config = new Config(ReadTextFile( // Filename:
@@ -256,13 +284,11 @@ public class MaterialsWallpaperService extends WallpaperService
                                             SettingsActivity.CustomMaterialAssetType.Config
                                     )
                             ));
-                            if (SettingsActivity.GetCustomMaterialAssetFilename(
-                                    MaterialsWallpaperService.this,
-                                    SettingsActivity.CustomMaterialAssetType.BrushIntensity) != null)
-                                EnableBrushIntensity = true;
                         }
                         else
                             Config = new Config();
+
+                        Config.Behavior Behavior = Config.GetBehavior();
 
                         // Frame Rate Limit
 
@@ -328,7 +354,7 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         GLES20.glClearColor(0, 0, 0, 1);
 
-                        // Shaders setup
+                        // Vertex shader setup
 
                         int VertexShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
                         if (VertexShader != 0)
@@ -347,221 +373,334 @@ public class MaterialsWallpaperService extends WallpaperService
                         }
                         else throw new RuntimeException("Vertex shader creation failed.");
 
-                        int FragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
-                        if (FragmentShader != 0)
-                        {
-                            GLES20.glShaderSource(
-                                    FragmentShader,
-                                    "#define LIGHTS_COUNT " + (LightDirections.length / 3) + "\n"
-                                            + (EnableCircularBrush ? "#define ENABLE_CIRCULAR_BRUSH 1\n" : "")
-                                            + "#define ENABLE_NORMAL_NORMALIZATION " + (Config.NormalizeNormal ? "1\n" : "0\n")
-                                            + "#define ENABLE_BRUSH_INTENSITY " + (EnableBrushIntensity ? "1\n" : "0\n")
-                                            + ReadRawTextResource(R.raw.fragment_shader)
-                            );
-                            GLES20.glCompileShader(FragmentShader);
+                        // Layers
 
-                            final int[] CompileStatus = new int[1];
-                            GLES20.glGetShaderiv(FragmentShader, GLES20.GL_COMPILE_STATUS, CompileStatus, 0);
-
-                            if (CompileStatus[0] == 0)
-                            {
-                                String log = GLES20.glGetShaderInfoLog(FragmentShader);
-                                GLES20.glDeleteShader(FragmentShader);
-                                throw new RuntimeException("Fragment shader compilation failed. " + log);
-                            }
-                        }
-                        else throw new RuntimeException("Fragment shader creation failed.");
-
-                        // Program setup
-
-                        Program = GLES20.glCreateProgram();
-                        if (Program != 0)
-                        {
-                            GLES20.glAttachShader(Program, VertexShader);
-                            GLES20.glAttachShader(Program, FragmentShader);
-
-                            GLES20.glBindAttribLocation(Program, 0, "Position");
-
-                            GLES20.glLinkProgram(Program);
-
-                            final int[] LinkStatus = new int[1];
-                            GLES20.glGetProgramiv(Program, GLES20.GL_LINK_STATUS, LinkStatus, 0);
-
-                            if (LinkStatus[0] == 0)
-                            {
-                                GLES20.glDeleteProgram(Program);
-                                throw new RuntimeException("Program link failed.");
-                            }
-                        }
-                        else throw new RuntimeException("Program creation failed.");
-
-                        PositionAttribute = GLES20.glGetAttribLocation(Program, "Position");
-
-                        ScreenFrontDirectionUniform = GLES20.glGetUniformLocation(Program, "ScreenFrontDirection");
-                        ScreenUpDirectionUniform = GLES20.glGetUniformLocation(Program, "ScreenUpDirection");
-                        ScreenRightDirectionUniform = GLES20.glGetUniformLocation(Program, "ScreenRightDirection");
-                        FOVUniform = GLES20.glGetUniformLocation(Program, "FOV");
-                        UVScaleUniform = GLES20.glGetUniformLocation(Program, "UVScale");
-
-                        LightDirectionsUniform = GLES20.glGetUniformLocation(Program, "LightDirections");
-                        LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(Program, "LightReflectionDirections");
-                        LightColorsUniform = GLES20.glGetUniformLocation(Program, "LightColors");
-
-                        BaseColorUniform = GLES20.glGetUniformLocation(Program, "BaseColor");
-                        ReflectionsColorUniform = GLES20.glGetUniformLocation(Program, "ReflectionsColor");
-                        NormalUniform = GLES20.glGetUniformLocation(Program, "Normal");
-                        ShininessUniform = GLES20.glGetUniformLocation(Program, "Shininess");
-                        if (!EnableCircularBrush)
-                            BrushUniform = GLES20.glGetUniformLocation(Program, "Brush");
-                        if (EnableBrushIntensity)
-                            BrushIntensityUniform = GLES20.glGetUniformLocation(Program, "BrushIntensity");
-
-                        // Textures
-
+                        LayerFilenames[] layers_f;
                         if (UseCustomMaterial)
-                        {
-                            boolean BasePixelated = Config.PixelatedBase;
-                            boolean ReflectionsPixelated = Config.PixelatedReflections;
-                            boolean NormalPixelated = Config.PixelatedNormal;
-                            boolean ShininessPixelated = Config.PixelatedShininess;
-                            boolean BrushPixelated = Config.PixelatedBrush;
-                            boolean BrushIntensityPixelated = Config.PixelatedBrushIntensity;
-
-                            BaseColorTexture = LoadTextureFromFile(
-                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Base),
-                                    R.drawable.gray_80_128_16x16,
-                                    BasePixelated
-                            );
-                            ReflectionsColorTexture = LoadTextureFromFile(
-                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Reflections),
-                                    R.drawable.gray_80_128_16x16,
-                                    ReflectionsPixelated
-                            );
-                            NormalTexture = LoadTextureFromFile(
-                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Normal),
-                                    R.drawable.flat_normal_16x16,
-                                    NormalPixelated
-                            );
-                            ShininessTexture = LoadTextureFromFile(
-                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Shininess),
-                                    R.drawable.black_16x16,
-                                    ShininessPixelated
-                            );
-                            BrushTexture = LoadTextureFromFile(
-                                    SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.Brush),
-                                    R.drawable.gray_80_128_16x16,
-                                    BrushPixelated
-                            );
-                            if (EnableBrushIntensity)
-                                BrushIntensityTexture = LoadTextureFromFile(
-                                        SettingsActivity.GetCustomMaterialAssetFilename(MaterialsWallpaperService.this, SettingsActivity.CustomMaterialAssetType.BrushIntensity),
-                                        R.drawable.white_16x16,
-                                        BrushIntensityPixelated
-                                );
-                            else
-                                BrushIntensityTexture = 0;
-                        }
+                            layers_f = SettingsActivity.GetCustomMaterialAdditionalLayers(MaterialsWallpaperService.this);
                         else
+                            layers_f = new LayerFilenames[0];
+                        Layers = new Layer[1 + layers_f.length];
+                        AllTexturesCount = 0;
+                        for (int i = -1; i < layers_f.length; i++)
                         {
-                            int BaseR        = R.drawable.gray_80_128_16x16;
-                            int ReflectionsR = R.drawable.gray_80_128_16x16;
-                            int NormalR      = R.drawable.flat_normal_16x16;
-                            int ShininessR   = R.drawable.black_16x16;
-                            int BrushR       = R.drawable.gray_80_128_16x16;
-                            switch (MaterialSample)
+                            boolean load_from_resources = false;
+                            LayerFilenames layer_f;
+                            Layer current_layer = new Layer();
+
+                            if (i == -1)
                             {
-                                case "circular_brush":
-                                    ShininessR = R.drawable.black_16x16;
-                                    break;
-                                case "brushed_tiles":
-                                    BaseR = R.drawable.tiles_base;
-                                    ReflectionsR = R.drawable.tiles_reflections;
-                                    ShininessR = R.drawable.tiles_shininess;
-                                    BrushR = R.drawable.tiles_brush;
-                                    break;
-                                case "flat_poly":
-                                    BaseR = R.drawable.flat_poly_base;
-                                    ReflectionsR = R.drawable.poly_reflections;
-                                    ShininessR = R.drawable.poly_shininess;
-                                    BrushR = R.drawable.poly_brush;
-                                    break;
-                                case "poly":
-                                    BaseR = R.drawable.poly_base;
-                                    ReflectionsR = R.drawable.poly_reflections;
-                                    NormalR = R.drawable.poly_normal;
-                                    ShininessR = R.drawable.poly_shininess;
-                                    BrushR = R.drawable.poly_brush;
-                                    break;
+                                layer_f = new LayerFilenames();
+                                if (UseCustomMaterial)
+                                {
+                                    layer_f.Base = SettingsActivity.GetCustomMaterialAssetFilename(
+                                            MaterialsWallpaperService.this,
+                                            SettingsActivity.CustomMaterialAssetType.Base
+                                    );
+                                    layer_f.Reflections = SettingsActivity.GetCustomMaterialAssetFilename(
+                                            MaterialsWallpaperService.this,
+                                            SettingsActivity.CustomMaterialAssetType.Reflections
+                                    );
+                                    layer_f.Normal = SettingsActivity.GetCustomMaterialAssetFilename(
+                                            MaterialsWallpaperService.this,
+                                            SettingsActivity.CustomMaterialAssetType.Normal
+                                    );
+                                    layer_f.Shininess = SettingsActivity.GetCustomMaterialAssetFilename(
+                                            MaterialsWallpaperService.this,
+                                            SettingsActivity.CustomMaterialAssetType.Shininess
+                                    );
+                                    layer_f.Brush = SettingsActivity.GetCustomMaterialAssetFilename(
+                                            MaterialsWallpaperService.this,
+                                            SettingsActivity.CustomMaterialAssetType.Brush
+                                    );
+                                    layer_f.BrushIntensity = SettingsActivity.GetCustomMaterialAssetFilename(
+                                            MaterialsWallpaperService.this,
+                                            SettingsActivity.CustomMaterialAssetType.BrushIntensity
+                                    );
+                                    current_layer.EnableBase =
+                                            Behavior.DefaultBaseAndReflectionsToGray80 // Backward compatibility
+                                            || layer_f.Base != null;
+                                    current_layer.EnableReflections =
+                                            Behavior.DefaultBaseAndReflectionsToGray80 // Backward compatibility
+                                            || layer_f.Reflections != null;
+                                    current_layer.EnableNormal         = layer_f.Normal         != null;
+                                    current_layer.EnableShininess      = layer_f.Shininess      != null;
+                                    current_layer.EnableBrush          = layer_f.Brush          != null;
+                                    current_layer.EnableBrushIntensity = layer_f.BrushIntensity != null;
+                                }
+                                else
+                                {
+                                    String  MaterialSample = Preferences.getString("material_sample", "flat_poly");
+                                    current_layer.EnableCircularBrush = MaterialSample.equals("circular_brush");
+
+                                    load_from_resources = true;
+                                    int BaseR        = R.drawable.gray_80_128_16x16;
+                                    int ReflectionsR = R.drawable.gray_80_128_16x16;
+                                    int NormalR      = R.drawable.flat_normal_16x16;
+                                    int ShininessR   = R.drawable.black_16x16;
+                                    int BrushR       = R.drawable.gray_80_128_16x16;
+                                    switch (MaterialSample)
+                                    {
+                                        case "circular_brush":
+                                            ShininessR = R.drawable.black_16x16;
+                                            break;
+                                        case "brushed_tiles":
+                                            BaseR = R.drawable.tiles_base;
+                                            ReflectionsR = R.drawable.tiles_reflections;
+                                            ShininessR = R.drawable.tiles_shininess;
+                                            BrushR = R.drawable.tiles_brush;
+                                            break;
+                                        case "flat_poly":
+                                            BaseR = R.drawable.flat_poly_base;
+                                            ReflectionsR = R.drawable.poly_reflections;
+                                            ShininessR = R.drawable.poly_shininess;
+                                            BrushR = R.drawable.poly_brush;
+                                            break;
+                                        case "poly":
+                                            BaseR = R.drawable.poly_base;
+                                            ReflectionsR = R.drawable.poly_reflections;
+                                            NormalR = R.drawable.poly_normal;
+                                            ShininessR = R.drawable.poly_shininess;
+                                            BrushR = R.drawable.poly_brush;
+                                            break;
+                                    }
+
+                                    layer_f.Base        = Integer.toString(BaseR);
+                                    layer_f.Reflections = Integer.toString(ReflectionsR);
+                                    layer_f.Normal      = Integer.toString(NormalR);
+                                    layer_f.Shininess   = Integer.toString(ShininessR);
+                                    layer_f.Brush       = Integer.toString(BrushR);
+                                    current_layer.EnableBase        = true;
+                                    current_layer.EnableReflections = true;
+                                    current_layer.EnableNormal      = true;
+                                    current_layer.EnableShininess   = true;
+                                    current_layer.EnableBrush       = true;
+                                    current_layer.EnableBrushIntensity = false;
+                                }
+                            }
+                            else
+                            {
+                                layer_f = layers_f[i];
+                                current_layer.EnableBase           = layer_f.Base           != null;
+                                current_layer.EnableReflections    = layer_f.Reflections    != null;
+                                current_layer.EnableNormal         = layer_f.Normal         != null;
+                                current_layer.EnableShininess      = layer_f.Shininess      != null;
+                                current_layer.EnableBrush          = layer_f.Brush          != null;
+                                current_layer.EnableBrushIntensity = layer_f.BrushIntensity != null;
                             }
 
-                            BaseColorTexture = LoadTextureFromResource(BaseR, false);
-                            ReflectionsColorTexture = LoadTextureFromResource(ReflectionsR, false);
-                            NormalTexture = LoadTextureFromResource(NormalR, false);
-                            ShininessTexture = LoadTextureFromResource(ShininessR, false);
-                            if (EnableCircularBrush)
-                                BrushTexture = 0;
+                            // Fragment shader setup
+
+                            int FragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
+                            if (FragmentShader != 0)
+                            {
+                                GLES20.glShaderSource(
+                                        FragmentShader,
+                                        "#define LIGHTS_COUNT " + (LightDirections.length / 3) + "\n"
+                                                + (current_layer.EnableCircularBrush ? "#define ENABLE_CIRCULAR_BRUSH 1\n" : "")
+                                                + "#define ENABLE_NORMAL_NORMALIZATION " + (Config.NormalizeNormal ? "1\n" : "0\n")
+                                                + "#define ENABLE_BASE "            + (current_layer.EnableBase ? "1\n" : "0\n")
+                                                + "#define ENABLE_REFLECTIONS "     + (current_layer.EnableReflections ? "1\n" : "0\n")
+                                                + "#define ENABLE_NORMAL "          + (current_layer.EnableNormal ? "1\n" : "0\n")
+                                                + "#define ENABLE_SHININESS "       + (current_layer.EnableShininess ? "1\n" : "0\n")
+                                                + "#define ENABLE_BRUSH "           + (current_layer.EnableBrush ? "1\n" : "0\n")
+                                                + "#define ENABLE_BRUSH_INTENSITY " + (current_layer.EnableBrushIntensity ? "1\n" : "0\n")
+                                                + ReadRawTextResource(R.raw.fragment_shader)
+                                );
+                                GLES20.glCompileShader(FragmentShader);
+
+                                final int[] CompileStatus = new int[1];
+                                GLES20.glGetShaderiv(FragmentShader, GLES20.GL_COMPILE_STATUS, CompileStatus, 0);
+
+                                if (CompileStatus[0] == 0)
+                                {
+                                    String log = GLES20.glGetShaderInfoLog(FragmentShader);
+                                    GLES20.glDeleteShader(FragmentShader);
+                                    throw new RuntimeException("Fragment shader compilation failed. " + log);
+                                }
+                            }
+                            else throw new RuntimeException("Fragment shader creation failed.");
+
+                            // Program setup
+
+                            current_layer.Program = GLES20.glCreateProgram();
+                            if (current_layer.Program != 0)
+                            {
+                                GLES20.glAttachShader(current_layer.Program, VertexShader);
+                                GLES20.glAttachShader(current_layer.Program, FragmentShader);
+
+                                GLES20.glBindAttribLocation(current_layer.Program, 0, "Position");
+
+                                GLES20.glLinkProgram(current_layer.Program);
+
+                                final int[] LinkStatus = new int[1];
+                                GLES20.glGetProgramiv(current_layer.Program, GLES20.GL_LINK_STATUS, LinkStatus, 0);
+
+                                if (LinkStatus[0] == 0)
+                                {
+                                    GLES20.glDeleteProgram(current_layer.Program);
+                                    throw new RuntimeException("Program link failed.");
+                                }
+                            }
+                            else throw new RuntimeException("Program creation failed.");
+
+                            current_layer.PositionAttribute = GLES20.glGetAttribLocation(current_layer.Program, "Position");
+
+                            current_layer.ScreenFrontDirectionUniform = GLES20.glGetUniformLocation(current_layer.Program, "ScreenFrontDirection");
+                            current_layer.ScreenUpDirectionUniform = GLES20.glGetUniformLocation(current_layer.Program, "ScreenUpDirection");
+                            current_layer.ScreenRightDirectionUniform = GLES20.glGetUniformLocation(current_layer.Program, "ScreenRightDirection");
+                            current_layer.FOVUniform = GLES20.glGetUniformLocation(current_layer.Program, "FOV");
+                            current_layer.UVScaleUniform = GLES20.glGetUniformLocation(current_layer.Program, "UVScale");
+
+                            current_layer.LightDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightDirections");
+                            current_layer.LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightReflectionDirections");
+                            current_layer.LightColorsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightColors");
+
+                            if (current_layer.EnableBase)
+                                current_layer.BaseUniform = GLES20.glGetUniformLocation(current_layer.Program, "BaseColor");
+                            if (current_layer.EnableReflections)
+                                current_layer.ReflectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "ReflectionsColor");
+                            if (current_layer.EnableNormal)
+                                current_layer.NormalUniform = GLES20.glGetUniformLocation(current_layer.Program, "Normal");
+                            if (current_layer.EnableShininess)
+                                current_layer.ShininessUniform = GLES20.glGetUniformLocation(current_layer.Program, "Shininess");
+                            if (current_layer.EnableBrush && !current_layer.EnableCircularBrush)
+                                current_layer.BrushUniform = GLES20.glGetUniformLocation(current_layer.Program, "Brush");
+                            if (current_layer.EnableBrushIntensity)
+                                current_layer.BrushIntensityUniform = GLES20.glGetUniformLocation(current_layer.Program, "BrushIntensity");
+
+                            // Textures
+
+                            if (load_from_resources)
+                            {
+                                if (current_layer.EnableBase)
+                                    current_layer.BaseTexture = LoadTextureFromResource(Integer.parseInt(layer_f.Base), false);
+                                if (current_layer.EnableReflections)
+                                    current_layer.ReflectionsTexture = LoadTextureFromResource(Integer.parseInt(layer_f.Reflections), false);
+                                if (current_layer.EnableNormal)
+                                    current_layer.NormalTexture = LoadTextureFromResource(Integer.parseInt(layer_f.Normal), false);
+                                if (current_layer.EnableShininess)
+                                    current_layer.ShininessTexture = LoadTextureFromResource(Integer.parseInt(layer_f.Shininess), false);
+                                if (current_layer.EnableBrush)
+                                    current_layer.BrushTexture = LoadTextureFromResource(Integer.parseInt(layer_f.Brush), false);
+                                if (current_layer.EnableBrushIntensity)
+                                    current_layer.BrushIntensityTexture = LoadTextureFromResource(Integer.parseInt(layer_f.BrushIntensity), false);
+                            }
                             else
-                                BrushTexture = LoadTextureFromResource(BrushR, false);
-                            BrushIntensityTexture = 0;
+                            {
+                                boolean BasePixelated = Config.PixelatedBase;
+                                boolean ReflectionsPixelated = Config.PixelatedReflections;
+                                boolean NormalPixelated = Config.PixelatedNormal;
+                                boolean ShininessPixelated = Config.PixelatedShininess;
+                                boolean BrushPixelated = Config.PixelatedBrush;
+                                boolean BrushIntensityPixelated = Config.PixelatedBrushIntensity;
+
+                                if (current_layer.EnableBase)
+                                    current_layer.BaseTexture = LoadTextureFromFile(
+                                            layer_f.Base,
+                                            R.drawable.gray_80_128_16x16, // Backward compatibility
+                                            BasePixelated
+                                    );
+                                if (current_layer.EnableReflections)
+                                    current_layer.ReflectionsTexture = LoadTextureFromFile(
+                                            layer_f.Reflections,
+                                            R.drawable.gray_80_128_16x16, // Backward compatibility
+                                            ReflectionsPixelated
+                                    );
+                                if (current_layer.EnableNormal)
+                                    current_layer.NormalTexture = LoadTextureFromFile(
+                                            layer_f.Normal,
+                                            R.drawable.flat_normal_16x16,
+                                            NormalPixelated
+                                    );
+                                if (current_layer.EnableShininess)
+                                    current_layer.ShininessTexture = LoadTextureFromFile(
+                                            layer_f.Shininess,
+                                            R.drawable.black_16x16,
+                                            ShininessPixelated
+                                    );
+                                if (current_layer.EnableBrush)
+                                    current_layer.BrushTexture = LoadTextureFromFile(
+                                            layer_f.Brush,
+                                            R.drawable.gray_80_128_16x16,
+                                            BrushPixelated
+                                    );
+                                if (current_layer.EnableBrushIntensity)
+                                    current_layer.BrushIntensityTexture = LoadTextureFromFile(
+                                            layer_f.BrushIntensity,
+                                            R.drawable.white_16x16,
+                                            BrushIntensityPixelated
+                                    );
+                            }
+
+                            if (current_layer.EnableBase)
+                            {
+                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
+                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.BaseTexture);
+                                current_layer.BaseTextureID = AllTexturesCount;
+                                AllTextures[AllTexturesCount] = current_layer.BaseTexture;
+                                AllTexturesCount++;
+                            }
+
+                            if (current_layer.EnableReflections)
+                            {
+                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
+                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.ReflectionsTexture);
+                                current_layer.ReflectionsTextureID = AllTexturesCount;
+                                AllTextures[AllTexturesCount] = current_layer.ReflectionsTexture;
+                                AllTexturesCount++;
+                            }
+
+                            if (current_layer.EnableNormal)
+                            {
+                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
+                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.NormalTexture);
+                                current_layer.NormalTextureID = AllTexturesCount;
+                                AllTextures[AllTexturesCount] = current_layer.NormalTexture;
+                                AllTexturesCount++;
+                            }
+
+                            if (current_layer.EnableShininess)
+                            {
+                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
+                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.ShininessTexture);
+                                current_layer.ShininessTextureID = AllTexturesCount;
+                                AllTextures[AllTexturesCount] = current_layer.ShininessTexture;
+                                AllTexturesCount++;
+                            }
+
+                            if (current_layer.EnableBrush)
+                            {
+                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
+                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.BrushTexture);
+                                current_layer.BrushTextureID = AllTexturesCount;
+                                AllTextures[AllTexturesCount] = current_layer.BrushTexture;
+                                AllTexturesCount++;
+                            }
+
+                            if (current_layer.EnableBrushIntensity)
+                            {
+                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
+                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.BrushIntensityTexture);
+                                current_layer.BrushIntensityTextureID = AllTexturesCount;
+                                AllTextures[AllTexturesCount] = current_layer.BrushIntensityTexture;
+                                AllTexturesCount++;
+                            }
+
+                            Layers[i + 1] = current_layer; // i starts from -1
                         }
 
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BaseColorTexture);
-
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, ReflectionsColorTexture);
-
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, NormalTexture);
-
-                        GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
-                        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, ShininessTexture);
-
-                        if (BrushTexture != 0)
-                        {
-                            GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
-                            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushTexture);
-                        }
-
-                        if (BrushIntensityTexture != 0)
-                        {
-                            GLES20.glActiveTexture(GLES20.GL_TEXTURE5);
-                            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, BrushIntensityTexture);
-                        }
-
-                        GLES20.glUseProgram(Program);
+                        GLES20.glEnable(GLES20.GL_BLEND);
+                        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE);
 
                         GetTimeDiff_ms(); // Update Time
                     }
 
                     void Reinitialize()
                     {
-                        GLES20.glDeleteProgram(Program);
-                        int[] Textures = {
-                                BaseColorTexture,
-                                ReflectionsColorTexture,
-                                NormalTexture,
-                                ShininessTexture,
-                                BrushTexture,
-                                BrushIntensityTexture
-                        };
-                        GLES20.glDeleteTextures(
-                                4,
-                                Textures,
-                                0
-                        );
-                        if (BrushTexture != 0)
-                            GLES20.glDeleteTextures(
-                                    1,
-                                    Textures,
-                                    4
-                            );
-                        if (BrushIntensityTexture != 0)
-                            GLES20.glDeleteTextures(
-                                    1,
-                                    Textures,
-                                    5
-                            );
+                        for (Layer layer : Layers)
+                            GLES20.glDeleteProgram(layer.Program);
+                        GLES20.glDeleteTextures(AllTexturesCount, AllTextures, 0);
                         Initialize();
                     }
 
@@ -603,64 +742,30 @@ public class MaterialsWallpaperService extends WallpaperService
                             GetTimeDiff_ms(); // Update Time
                         }
 
-                        // No need to clear
-                        //GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
-                        GLES20.glVertexAttribPointer(
-                                PositionAttribute,
-                                3,
-                                GLES20.GL_FLOAT,
-                                false,
-                                0,
-                                TriangleStripPositionValues
-                                //TriangleFanPositionValues
-                        );
-                        GLES20.glEnableVertexAttribArray(PositionAttribute);
+                        // Calculations
 
                         SensorManager.getRotationMatrixFromVector(DeviceRotationMatrix, RotationVector);
                         int rotation = ((WindowManager)getSystemService(Context.WINDOW_SERVICE))
                                 .getDefaultDisplay()
                                 .getRotation();
-
                         boolean SwapUpAndRight = rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270;
                         int UpIndexOffset = SwapUpAndRight ? 0 : 1;
                         int RightIndexOffset = SwapUpAndRight ? 1 : 0;
                         float UpFinalCoefficient = rotation == Surface.ROTATION_270 || rotation == Surface.ROTATION_180 ? -1 : 1;
                         float RightFinalCoefficient = rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_180 ? -1 : 1;
 
-                        GLES20.glUniform3f(
-                                ScreenFrontDirectionUniform,
-                                DeviceRotationMatrix[2],
-                                DeviceRotationMatrix[5],
-                                DeviceRotationMatrix[8]
-                        );
-                        GLES20.glUniform3f(
-                                ScreenUpDirectionUniform,
-                                DeviceRotationMatrix[UpIndexOffset] * UpFinalCoefficient,
-                                DeviceRotationMatrix[3 + UpIndexOffset] * UpFinalCoefficient,
-                                DeviceRotationMatrix[6 + UpIndexOffset] * UpFinalCoefficient
-                        );
-                        GLES20.glUniform3f(
-                                ScreenRightDirectionUniform,
-                                DeviceRotationMatrix[RightIndexOffset] * RightFinalCoefficient,
-                                DeviceRotationMatrix[3 + RightIndexOffset] * RightFinalCoefficient,
-                                DeviceRotationMatrix[6 + RightIndexOffset] * RightFinalCoefficient
-                        );
-
-                        GLES20.glUniform2f(FOVUniform, 0.1f * AspectRatio, 0.1f);
-
-                        float x, y;
-                        if (AspectRatio < 1) { x = AspectRatio; y = 1; }
-                        else { y = 1 / AspectRatio; x = 1; }
-                        GLES20.glUniform2f(UVScaleUniform, x, y);
+                        float UVScaleX, UVSCaleY;
+                        if (AspectRatio < 1) { UVScaleX = AspectRatio; UVSCaleY = 1; }
+                        else { UVSCaleY = 1 / AspectRatio; UVScaleX = 1; }
 
                         // Make lights 2x closer to ScreenFrontDirection
                         for (int i = 0; i < LightDirections.length; i++)
                         {
                             LightReflectionDirections[i]
                                     = (
-                                            DeviceRotationMatrix[(i % 3) * 3 + 2]
-                                                    + LightDirections[i]
-                                    ) / 2.0f;
+                                    DeviceRotationMatrix[(i % 3) * 3 + 2]
+                                            + LightDirections[i]
+                            ) / 2.0f;
                         }
                         // Normalize
                         for (int i = 0; i < LightReflectionDirections.length; i += 3)
@@ -676,37 +781,85 @@ public class MaterialsWallpaperService extends WallpaperService
                                 LightReflectionDirections[i + 2] /= l;
                             }
                         }
-                        GLES20.glUniform3fv(
-                                LightDirectionsUniform,
-                                LightDirections.length / 3,
-                                LightDirections,
-                                0
-                        );
-                        GLES20.glUniform3fv(
-                                LightReflectionDirectionsUniform,
-                                LightReflectionDirections.length / 3,
-                                LightReflectionDirections,
-                                0
-                        );
-                        GLES20.glUniform3fv(
-                                LightColorsUniform,
-                                LightColors.length / 3,
-                                LightColors,
-                                0
-                        );
 
-                        // Textures
-                        GLES20.glUniform1i(BaseColorUniform, 0);
-                        GLES20.glUniform1i(ReflectionsColorUniform, 1);
-                        GLES20.glUniform1i(NormalUniform, 2);
-                        GLES20.glUniform1i(ShininessUniform, 3);
-                        if (BrushTexture != 0)
-                            GLES20.glUniform1i(BrushUniform, 4);
-                        if (BrushIntensityTexture != 0)
-                            GLES20.glUniform1i(BrushIntensityUniform, 5);
+                        // GL
 
-                        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-                        //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
+                        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
+
+                        for (Layer layer : Layers)
+                        {
+                            GLES20.glUseProgram(layer.Program);
+
+                            GLES20.glVertexAttribPointer(
+                                    layer.PositionAttribute,
+                                    3,
+                                    GLES20.GL_FLOAT,
+                                    false,
+                                    0,
+                                    TriangleStripPositionValues
+                                    //TriangleFanPositionValues
+                            );
+                            GLES20.glEnableVertexAttribArray(layer.PositionAttribute);
+
+                            GLES20.glUniform3f(
+                                    layer.ScreenFrontDirectionUniform,
+                                    DeviceRotationMatrix[2],
+                                    DeviceRotationMatrix[5],
+                                    DeviceRotationMatrix[8]
+                            );
+                            GLES20.glUniform3f(
+                                    layer.ScreenUpDirectionUniform,
+                                    DeviceRotationMatrix[UpIndexOffset] * UpFinalCoefficient,
+                                    DeviceRotationMatrix[3 + UpIndexOffset] * UpFinalCoefficient,
+                                    DeviceRotationMatrix[6 + UpIndexOffset] * UpFinalCoefficient
+                            );
+                            GLES20.glUniform3f(
+                                    layer.ScreenRightDirectionUniform,
+                                    DeviceRotationMatrix[RightIndexOffset] * RightFinalCoefficient,
+                                    DeviceRotationMatrix[3 + RightIndexOffset] * RightFinalCoefficient,
+                                    DeviceRotationMatrix[6 + RightIndexOffset] * RightFinalCoefficient
+                            );
+
+                            GLES20.glUniform2f(layer.FOVUniform, 0.1f * AspectRatio, 0.1f);
+
+                            GLES20.glUniform2f(layer.UVScaleUniform, UVScaleX, UVSCaleY);
+
+                            GLES20.glUniform3fv(
+                                    layer.LightDirectionsUniform,
+                                    LightDirections.length / 3,
+                                    LightDirections,
+                                    0
+                            );
+                            GLES20.glUniform3fv(
+                                    layer.LightReflectionDirectionsUniform,
+                                    LightReflectionDirections.length / 3,
+                                    LightReflectionDirections,
+                                    0
+                            );
+                            GLES20.glUniform3fv(
+                                    layer.LightColorsUniform,
+                                    LightColors.length / 3,
+                                    LightColors,
+                                    0
+                            );
+
+                            // Textures
+                            if (layer.EnableBase)
+                                GLES20.glUniform1i(layer.BaseUniform, layer.BaseTextureID);
+                            if (layer.EnableReflections)
+                                GLES20.glUniform1i(layer.ReflectionsUniform, layer.ReflectionsTextureID);
+                            if (layer.EnableNormal)
+                                GLES20.glUniform1i(layer.NormalUniform, layer.NormalTextureID);
+                            if (layer.EnableShininess)
+                                GLES20.glUniform1i(layer.ShininessUniform, layer.ShininessTextureID);
+                            if (layer.EnableBrush)
+                                GLES20.glUniform1i(layer.BrushUniform, layer.BrushTextureID);
+                            if (layer.EnableBrushIntensity)
+                                GLES20.glUniform1i(layer.BrushIntensityUniform, layer.BrushIntensityTextureID);
+
+                            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+                            //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
+                        }
                     }
 
                     int LoadTextureFromFile(String path, int default_texture_resource_id, boolean pixelated)

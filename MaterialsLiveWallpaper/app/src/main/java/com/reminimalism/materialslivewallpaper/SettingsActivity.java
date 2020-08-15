@@ -176,6 +176,103 @@ public class SettingsActivity extends AppCompatActivity
         return null;
     }
 
+    public static int MAX_POSSIBLE_ADDITIONAL_LAYERS = 4;
+
+    public static LayerFilenames[] GetCustomMaterialAdditionalLayers(Context context)
+    {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        int max_layers;
+        try
+        {
+            max_layers = Integer.parseInt(preferences.getString(
+                    "max_additional_layers",
+                    Integer.toString(MAX_POSSIBLE_ADDITIONAL_LAYERS)
+            ));
+        }
+        catch (NumberFormatException ignored)
+        {
+            max_layers = MAX_POSSIBLE_ADDITIONAL_LAYERS;
+        }
+        String path = GetCustomMaterialPath(context);
+        String name = "";
+        LayerFilenames[] temp = new LayerFilenames[max_layers];
+        int count = 0;
+        LayerFilenames next = null;
+        for (int i = 1; i <= max_layers; i++)
+        {
+            for (String extension : SupportedImageExtensions)
+            {
+                name = "base";
+                if (new File(path + name + i + extension).exists())
+                {
+                    if (next == null)
+                        next = new LayerFilenames();
+                    if (next.Base == null)
+                        next.Base = path + name + i + extension;
+                }
+                name = "reflections";
+                if (new File(path + name + i + extension).exists())
+                {
+                    if (next == null)
+                        next = new LayerFilenames();
+                    if (next.Reflections == null)
+                        next.Reflections = path + name + i + extension;
+                }
+                name = "reflection";
+                if (new File(path + name + i + extension).exists())
+                {
+                    if (next == null)
+                        next = new LayerFilenames();
+                    if (next.Reflections == null)
+                        next.Reflections = path + name + i + extension;
+                }
+                name = "normal";
+                if (new File(path + name + i + extension).exists())
+                {
+                    if (next == null)
+                        next = new LayerFilenames();
+                    if (next.Normal == null)
+                        next.Normal = path + name + i + extension;
+                }
+                name = "shininess";
+                if (new File(path + name + i + extension).exists())
+                {
+                    if (next == null)
+                        next = new LayerFilenames();
+                    if (next.Shininess == null)
+                        next.Shininess = path + name + i + extension;
+                }
+                name = "brush";
+                if (new File(path + name + i + extension).exists())
+                {
+                    if (next == null)
+                        next = new LayerFilenames();
+                    if (next.Brush == null)
+                        next.Brush = path + name + i + extension;
+                }
+                name = "brush_intensity";
+                if (new File(path + name + i + extension).exists())
+                {
+                    if (next == null)
+                        next = new LayerFilenames();
+                    if (next.BrushIntensity == null)
+                        next.BrushIntensity = path + name + i + extension;
+                }
+            }
+
+            if (next != null)
+            {
+                temp[count] = next;
+                next = null;
+                count++;
+            }
+        }
+
+        LayerFilenames[] result = new LayerFilenames[count];
+        System.arraycopy(temp, 0, result, 0, count);
+        return result;
+    }
+
     static void Delete(File file)
     {
         if (!file.exists())
@@ -259,9 +356,9 @@ public class SettingsActivity extends AppCompatActivity
 
     static final String[] SupportedImageExtensions = {
             ".bmp",
-            ".gif",
-            ".jpg",
             ".png",
+            ".jpg",
+            ".gif",
             ".webp"
     };
 
@@ -281,8 +378,13 @@ public class SettingsActivity extends AppCompatActivity
         }
         if (file_extension != null)
             for (String name : SupportedImageFilenames)
+            {
                 if (Filename.equals(name + file_extension))
                     return true;
+                for (int i = 1; i <= MAX_POSSIBLE_ADDITIONAL_LAYERS; i++)
+                    if (Filename.equals(name + i + file_extension))
+                        return true;
+            }
 
         return false;
     }
