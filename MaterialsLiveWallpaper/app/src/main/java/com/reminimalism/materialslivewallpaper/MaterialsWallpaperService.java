@@ -218,12 +218,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         public int BrushTexture;
                         public int BrushIntensityTexture;
 
-                        public int BaseTextureID;
-                        public int ReflectionsTextureID;
-                        public int NormalTextureID;
-                        public int ShininessTextureID;
-                        public int BrushTextureID;
-                        public int BrushIntensityTextureID;
+                        public int[] SamplerUniforms = null;
+                        public int[] Textures = null;
                     }
 
                     Layer[] Layers;
@@ -491,6 +487,14 @@ public class MaterialsWallpaperService extends WallpaperService
 
                             current_layer.EnableBrush = current_layer.EnableBrush && !current_layer.EnableCircularBrush;
 
+                            int current_layer_textures_count = 0;
+                            if (current_layer.EnableBase) current_layer_textures_count++;
+                            if (current_layer.EnableReflections) current_layer_textures_count++;
+                            if (current_layer.EnableNormal) current_layer_textures_count++;
+                            if (current_layer.EnableShininess) current_layer_textures_count++;
+                            if (current_layer.EnableBrush) current_layer_textures_count++;
+                            if (current_layer.EnableBrushIntensity) current_layer_textures_count++;
+
                             // Fragment shader setup
 
                             int FragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
@@ -558,18 +562,32 @@ public class MaterialsWallpaperService extends WallpaperService
                             current_layer.LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightReflectionDirections");
                             current_layer.LightColorsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightColors");
 
+                            current_layer.SamplerUniforms = new int[current_layer_textures_count];
+                            int tex_arr_index = 0;
                             if (current_layer.EnableBase)
-                                current_layer.BaseUniform = GLES20.glGetUniformLocation(current_layer.Program, "BaseColor");
+                                current_layer.SamplerUniforms[tex_arr_index++]
+                                        = current_layer.BaseUniform
+                                        = GLES20.glGetUniformLocation(current_layer.Program, "BaseColor");
                             if (current_layer.EnableReflections)
-                                current_layer.ReflectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "ReflectionsColor");
+                                current_layer.SamplerUniforms[tex_arr_index++]
+                                        = current_layer.ReflectionsUniform
+                                        = GLES20.glGetUniformLocation(current_layer.Program, "ReflectionsColor");
                             if (current_layer.EnableNormal)
-                                current_layer.NormalUniform = GLES20.glGetUniformLocation(current_layer.Program, "Normal");
+                                current_layer.SamplerUniforms[tex_arr_index++]
+                                        = current_layer.NormalUniform
+                                        = GLES20.glGetUniformLocation(current_layer.Program, "Normal");
                             if (current_layer.EnableShininess)
-                                current_layer.ShininessUniform = GLES20.glGetUniformLocation(current_layer.Program, "Shininess");
+                                current_layer.SamplerUniforms[tex_arr_index++]
+                                        = current_layer.ShininessUniform
+                                        = GLES20.glGetUniformLocation(current_layer.Program, "Shininess");
                             if (current_layer.EnableBrush)
-                                current_layer.BrushUniform = GLES20.glGetUniformLocation(current_layer.Program, "Brush");
+                                current_layer.SamplerUniforms[tex_arr_index++]
+                                        = current_layer.BrushUniform
+                                        = GLES20.glGetUniformLocation(current_layer.Program, "Brush");
                             if (current_layer.EnableBrushIntensity)
-                                current_layer.BrushIntensityUniform = GLES20.glGetUniformLocation(current_layer.Program, "BrushIntensity");
+                                current_layer.SamplerUniforms[tex_arr_index++]
+                                        = current_layer.BrushIntensityUniform
+                                        = GLES20.glGetUniformLocation(current_layer.Program, "BrushIntensity");
 
                             // Textures
 
@@ -635,56 +653,47 @@ public class MaterialsWallpaperService extends WallpaperService
                                     );
                             }
 
+                            current_layer.Textures = new int[current_layer_textures_count];
+                            tex_arr_index = 0;
+
                             if (current_layer.EnableBase)
                             {
-                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
-                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.BaseTexture);
-                                current_layer.BaseTextureID = AllTexturesCount;
+                                current_layer.Textures[tex_arr_index++] = current_layer.BaseTexture;
                                 AllTextures[AllTexturesCount] = current_layer.BaseTexture;
                                 AllTexturesCount++;
                             }
 
                             if (current_layer.EnableReflections)
                             {
-                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
-                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.ReflectionsTexture);
-                                current_layer.ReflectionsTextureID = AllTexturesCount;
+                                current_layer.Textures[tex_arr_index++] = current_layer.ReflectionsTexture;
                                 AllTextures[AllTexturesCount] = current_layer.ReflectionsTexture;
                                 AllTexturesCount++;
                             }
 
                             if (current_layer.EnableNormal)
                             {
-                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
-                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.NormalTexture);
-                                current_layer.NormalTextureID = AllTexturesCount;
+                                current_layer.Textures[tex_arr_index++] = current_layer.NormalTexture;
                                 AllTextures[AllTexturesCount] = current_layer.NormalTexture;
                                 AllTexturesCount++;
                             }
 
                             if (current_layer.EnableShininess)
                             {
-                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
-                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.ShininessTexture);
-                                current_layer.ShininessTextureID = AllTexturesCount;
+                                current_layer.Textures[tex_arr_index++] = current_layer.ShininessTexture;
                                 AllTextures[AllTexturesCount] = current_layer.ShininessTexture;
                                 AllTexturesCount++;
                             }
 
                             if (current_layer.EnableBrush)
                             {
-                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
-                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.BrushTexture);
-                                current_layer.BrushTextureID = AllTexturesCount;
+                                current_layer.Textures[tex_arr_index++] = current_layer.BrushTexture;
                                 AllTextures[AllTexturesCount] = current_layer.BrushTexture;
                                 AllTexturesCount++;
                             }
 
                             if (current_layer.EnableBrushIntensity)
                             {
-                                GLES20.glActiveTexture(GetTextureIDValue(AllTexturesCount));
-                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, current_layer.BrushIntensityTexture);
-                                current_layer.BrushIntensityTextureID = AllTexturesCount;
+                                current_layer.Textures[tex_arr_index++] = current_layer.BrushIntensityTexture;
                                 AllTextures[AllTexturesCount] = current_layer.BrushIntensityTexture;
                                 AllTexturesCount++;
                             }
@@ -846,18 +855,12 @@ public class MaterialsWallpaperService extends WallpaperService
                             );
 
                             // Textures
-                            if (layer.EnableBase)
-                                GLES20.glUniform1i(layer.BaseUniform, layer.BaseTextureID);
-                            if (layer.EnableReflections)
-                                GLES20.glUniform1i(layer.ReflectionsUniform, layer.ReflectionsTextureID);
-                            if (layer.EnableNormal)
-                                GLES20.glUniform1i(layer.NormalUniform, layer.NormalTextureID);
-                            if (layer.EnableShininess)
-                                GLES20.glUniform1i(layer.ShininessUniform, layer.ShininessTextureID);
-                            if (layer.EnableBrush)
-                                GLES20.glUniform1i(layer.BrushUniform, layer.BrushTextureID);
-                            if (layer.EnableBrushIntensity)
-                                GLES20.glUniform1i(layer.BrushIntensityUniform, layer.BrushIntensityTextureID);
+                            for (int i = 0; i < layer.SamplerUniforms.length; i++)
+                            {
+                                GLES20.glActiveTexture(GetTextureIDValue(i));
+                                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, layer.Textures[i]);
+                                GLES20.glUniform1i(layer.SamplerUniforms[i], i);
+                            }
 
                             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
                             //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
