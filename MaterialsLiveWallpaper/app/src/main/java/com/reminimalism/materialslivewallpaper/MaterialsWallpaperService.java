@@ -489,6 +489,8 @@ public class MaterialsWallpaperService extends WallpaperService
                                 current_layer.EnableBrushIntensity = layer_f.BrushIntensity != null;
                             }
 
+                            current_layer.EnableBrush = current_layer.EnableBrush && !current_layer.EnableCircularBrush;
+
                             // Fragment shader setup
 
                             int FragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
@@ -564,7 +566,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                 current_layer.NormalUniform = GLES20.glGetUniformLocation(current_layer.Program, "Normal");
                             if (current_layer.EnableShininess)
                                 current_layer.ShininessUniform = GLES20.glGetUniformLocation(current_layer.Program, "Shininess");
-                            if (current_layer.EnableBrush && !current_layer.EnableCircularBrush)
+                            if (current_layer.EnableBrush)
                                 current_layer.BrushUniform = GLES20.glGetUniformLocation(current_layer.Program, "Brush");
                             if (current_layer.EnableBrushIntensity)
                                 current_layer.BrushIntensityUniform = GLES20.glGetUniformLocation(current_layer.Program, "BrushIntensity");

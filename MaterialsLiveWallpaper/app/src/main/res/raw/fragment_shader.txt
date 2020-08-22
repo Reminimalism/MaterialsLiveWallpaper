@@ -60,7 +60,7 @@ uniform vec3 LightColors[LIGHTS_COUNT];
   uniform sampler2D Shininess;
 #endif
 
-#if ENABLE_BRUSH && !ENABLE_CIRCULAR_BRUSH
+#if ENABLE_BRUSH
   uniform sampler2D Brush;
 #endif
 
