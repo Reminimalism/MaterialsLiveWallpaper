@@ -5,8 +5,11 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.SeekBar;
 
 public class LightColorDialog extends Dialog
@@ -43,17 +46,18 @@ public class LightColorDialog extends Dialog
         HueSeekBar = findViewById(R.id.color_hue);
         SaturationSeekBar = findViewById(R.id.color_saturation);
         IntensitySeekBar = findViewById(R.id.intensity);
+        ColorCodeEditText = findViewById(R.id.color_code);
         HuePreview = findViewById(R.id.color_hue_preview);
         SaturationPreview = findViewById(R.id.color_saturation_preview);
         IntensityPreview = findViewById(R.id.intensity_preview);
-        SeekBar.OnSeekBarChangeListener SeekBarListener = new SeekBar.OnSeekBarChangeListener()
-        {
+        SeekBar.OnSeekBarChangeListener SeekBarListener = new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
             {
                 if (fromUser)
                 {
                     UpdateBasedOnUI();
+                    UpdateEditText();
                     UpdateUIColors();
                 }
             }
@@ -71,6 +75,27 @@ public class LightColorDialog extends Dialog
         HueSeekBar.setOnSeekBarChangeListener(SeekBarListener);
         SaturationSeekBar.setOnSeekBarChangeListener(SeekBarListener);
         IntensitySeekBar.setOnSeekBarChangeListener(SeekBarListener);
+        ColorCodeEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+                if (ModifyingColorCode)
+                    return;
+                Decode(s.toString());
+                UpdateSeekBars();
+                UpdateUIColors();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+            }
+        });
         Load();
     }
 
@@ -80,7 +105,8 @@ public class LightColorDialog extends Dialog
     {
         // For now
         Decode("0.6,0.2,0.4");
-        UpdateUIPositions();
+        UpdateSeekBars();
+        UpdateEditText();
         UpdateUIColors();
     }
 
@@ -93,15 +119,19 @@ public class LightColorDialog extends Dialog
 
     private final int SEEKBAR_MAX = 1024;
 
+    private boolean ModifyingColorCode = false;
+
     private SeekBar HueSeekBar = null;
     private SeekBar SaturationSeekBar = null;
     private SeekBar IntensitySeekBar = null;
+
+    private EditText ColorCodeEditText = null;
 
     private View HuePreview = null;
     private View SaturationPreview = null;
     private View IntensityPreview = null;
 
-    private void UpdateUIPositions()
+    private void UpdateSeekBars()
     {
         HueSeekBar.setMax(SEEKBAR_MAX);
         SaturationSeekBar.setMax(SEEKBAR_MAX);
@@ -112,11 +142,19 @@ public class LightColorDialog extends Dialog
         IntensitySeekBar.setProgress((int)(Intensity * SEEKBAR_MAX));
     }
 
+    private void UpdateEditText()
+    {
+        ModifyingColorCode = true;
+        ColorCodeEditText.setText(Encode());
+        ModifyingColorCode = false;
+    }
+
     private void UpdateUIColors()
     {
         SetSeekBarColor(HueSeekBar, HRed, HGreen, HBlue);
         SetSeekBarColor(SaturationSeekBar, SRed, SGreen, SBlue);
         SetSeekBarColor(IntensitySeekBar, Red, Green, Blue);
+
         HuePreview.setBackgroundColor(GetColorInt(HRed, HGreen, HBlue));
         SaturationPreview.setBackgroundColor(GetColorInt(SRed, SGreen, SBlue));
         IntensityPreview.setBackgroundColor(GetColorInt(Red, Green, Blue));
