@@ -45,6 +45,7 @@
     <!-- Lights Settings -->
 
     <string name="settings_lights_positions">Light Positions</string>
+    <string name="settings_lights_colors">Light Colors</string>
 
     <string name="settings_lights_color_1">Light Color 1</string>
     <string name="settings_lights_color_2">Light Color 2</string>
@@ -71,4 +72,6 @@
     <string name="light_source_preference_color_hue">Hue</string>
     <string name="light_source_preference_color_saturation">Saturation</string>
     <string name="light_source_preference_intensity">Light Intensity</string>
+    <string name="light_source_preference_cancel_button">Cancel</string>
+    <string name="light_source_preference_ok_button">OK</string>
 </resources>

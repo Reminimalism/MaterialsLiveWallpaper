@@ -59,6 +59,11 @@
             app:entryValues="@array/settings_lights_position_values"
             app:useSimpleSummaryProvider="true" />
 
+        <Preference
+            app:key="light_colors"
+            app:title="@string/settings_lights_colors"
+            app:defaultValue="0.6,0.6,0.6" />
+
         <com.reminimalism.materialslivewallpaper.LightSourcePreference
             app:key="light_color_0"
             app:title="@string/settings_lights_color_1"
