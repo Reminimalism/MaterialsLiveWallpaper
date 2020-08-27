@@ -38,11 +38,9 @@ public class SettingsActivity extends AppCompatActivity
                 .beginTransaction()
                 .replace(R.id.settings, new SettingsFragment())
                 .commit();
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-        {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        ActionBar action_bar = getSupportActionBar();
+        if (action_bar != null)
+            action_bar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -67,6 +65,15 @@ public class SettingsActivity extends AppCompatActivity
                     intent.setType("application/zip");
                     intent = Intent.createChooser(intent, "Choose a zip file");
                     startActivityForResult(intent, 0);
+                    return true;
+                }
+            });
+
+            findPreference("light_colors").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference)
+                {
+                    startActivity(new Intent(getContext(), LightColorsActivity.class));
                     return true;
                 }
             });

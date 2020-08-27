@@ -3,7 +3,10 @@
     package="com.reminimalism.materialslivewallpaper">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -12,20 +15,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <activity android:name=".LightColorsActivity"
+            android:label="@string/title_activity_light_colors"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".SettingsActivity"
+            android:exported="true"
             android:label="@string/title_activity_settings"
-            android:theme="@style/SettingsTheme"
-            android:exported="true">
-        </activity>
+            android:theme="@style/SettingsTheme"></activity>
 
         <service
             android:name=".MaterialsWallpaperService"
@@ -39,7 +42,6 @@
                 android:name="android.service.wallpaper"
                 android:resource="@xml/materials_wallpaper" />
         </service>
-
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Materials Live Wallpaper</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_light_colors">Light Colors</string>
 
     <!-- MainActivity -->
 
@@ -46,6 +47,7 @@
 
     <string name="settings_lights_positions">Light Positions</string>
     <string name="settings_lights_colors">Light Colors</string>
+    <string name="settings_lights_colors_light">Light</string>
 
     <string name="settings_lights_color_1">Light Color 1</string>
     <string name="settings_lights_color_2">Light Color 2</string>

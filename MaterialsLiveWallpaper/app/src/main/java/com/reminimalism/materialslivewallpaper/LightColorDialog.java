@@ -2,6 +2,7 @@ package com.reminimalism.materialslivewallpaper;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -14,11 +15,13 @@ import android.widget.SeekBar;
 
 public class LightColorDialog extends Dialog
 {
+    private Context ActivityContext;
     private int LightIndex;
 
     public LightColorDialog(Activity activity, int LightIndex)
     {
         super(activity);
+        ActivityContext = activity;
         this.LightIndex = LightIndex;
     }
 
@@ -101,18 +104,17 @@ public class LightColorDialog extends Dialog
 
     // Preference Data
 
-    void Load()
+    private void Load()
     {
-        // For now
-        Decode("0.6,0.2,0.4");
+        Decode(LightColors.GetColor(ActivityContext, LightIndex));
         UpdateSeekBars();
         UpdateEditText();
         UpdateUIColors();
     }
 
-    void Save()
+    private void Save()
     {
-        //
+        LightColors.SetColor(ActivityContext, LightIndex, Encode());
     }
 
     // UI
@@ -296,9 +298,10 @@ public class LightColorDialog extends Dialog
         try
         {
             String[] values = Value.split(",");
-            Red   = Float.parseFloat(values[0]);
-            Green = Float.parseFloat(values[1]);
-            Blue  = Float.parseFloat(values[2]);
+            LightColor color = LightColors.Decode(Value);
+            Red   = color.R;
+            Green = color.G;
+            Blue  = color.B;
             UpdateBasedOnRGB();
         }
         catch (Exception ignored)
@@ -312,6 +315,6 @@ public class LightColorDialog extends Dialog
 
     private String Encode()
     {
-        return Red + "," + Green + "," + Blue;
+        return LightColors.Encode(Red, Green, Blue);
     }
 }
