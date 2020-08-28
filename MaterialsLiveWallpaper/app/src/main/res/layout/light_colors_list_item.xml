@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    android:focusable="true"
+    android:clickable="true"
+    android:background="?attr/selectableItemBackground"
     android:gravity="center_vertical"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:background="#000"
@@ -20,7 +23,7 @@
             android:layout_height="20dp" />
 
         <View
-            android:id="@+id/intensity"
+            android:id="@+id/intensity_preview"
             android:background="#000"
             android:layout_width="24dp"
             android:layout_height="4dp" />
@@ -29,6 +32,10 @@
 
     <TextView
         android:id="@+id/label"
+        android:textColor="#000"
+        android:textSize="16sp"
+        android:layout_marginVertical="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

@@ -4,10 +4,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class LightColorsActivity extends AppCompatActivity
 {
@@ -19,14 +20,7 @@ public class LightColorsActivity extends AppCompatActivity
         ActionBar action_bar = getSupportActionBar();
         if (action_bar != null)
             action_bar.setDisplayHomeAsUpEnabled(true);
-
-        ((ListView)findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-                new LightColorDialog(LightColorsActivity.this, position).show();
-            }
-        });
+        InitializeDynamicList();
     }
 
     @Override
@@ -35,5 +29,62 @@ public class LightColorsActivity extends AppCompatActivity
         if (item.getItemId() == android.R.id.home)
             onBackPressed();
         return super.onOptionsItemSelected(item);
+    }
+
+    private final int MAX_COLORS_COUNT = 10;
+
+    private LinearLayout DynamicListLayout = null;
+    private View[] ItemViews = new View[MAX_COLORS_COUNT];
+    private View[] SColorViews = new View[MAX_COLORS_COUNT];
+    private View[] IntensityViews = new View[MAX_COLORS_COUNT];
+
+    private LightColor[] Colors = {};
+
+    private void InitializeDynamicList()
+    {
+        if (DynamicListLayout != null)
+            return;
+        DynamicListLayout = findViewById(R.id.dynamic_list);
+        LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
+
+        for (int i = 0; i < MAX_COLORS_COUNT; i++)
+        {
+            ItemViews[i] = inflater.inflate(R.layout.light_colors_list_item, null);
+            DynamicListLayout.addView(ItemViews[i]);
+
+            SColorViews[i] = ItemViews[i].findViewById(R.id.color_preview);
+            IntensityViews[i] = ItemViews[i].findViewById(R.id.intensity_preview);
+            ((TextView)ItemViews[i].findViewById(R.id.label)).setText(
+                    String.format(getResources().getString(R.string.settings_lights_colors_light_color_n), i + 1)
+            );
+
+            final int Index = i;
+            ItemViews[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v)
+                {
+                    new LightColorDialog(LightColorsActivity.this, Index).show();
+                }
+            });
+        }
+
+        Update();
+    }
+
+    private void Update()
+    {
+        Colors = LightColors.Decode(LightColors.GetColors(this));
+
+        int len = Math.min(Colors.length, MAX_COLORS_COUNT);
+        for (int i = 0; i < len; i++)
+        {
+            ItemViews[i].setVisibility(View.VISIBLE);
+            SColorViews[i].setBackgroundColor(LightColors.GetSColorAsInt(Colors[i]));
+            IntensityViews[i].setBackgroundColor(LightColors.GetIntensityColorAsInt(Colors[i]));
+        }
+        for (int i = len; i < MAX_COLORS_COUNT; i++)
+        {
+            ItemViews[i].setVisibility(View.GONE);
+        }
     }
 }

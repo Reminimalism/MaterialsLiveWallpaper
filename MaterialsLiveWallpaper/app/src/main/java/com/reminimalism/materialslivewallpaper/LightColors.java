@@ -22,39 +22,64 @@ public class LightColors
     public static String[] GetColors(Context context)
     {
         Init(context);
-        return Preferences.getString(LIGHT_COLORS_KEY, DEFAULT_COLOR).split(";");
+        String[] result = Preferences.getString(LIGHT_COLORS_KEY, DEFAULT_COLOR).split(";");
+        if (result.length == 0 || (result.length == 1 && result[0].equals("")))
+            return new String[] { DEFAULT_COLOR };
+        return result;
     }
 
     public static int GetColorsCount(Context context)
     {
-        Init(context);
-        return Preferences.getString(LIGHT_COLORS_KEY, DEFAULT_COLOR).split(";").length;
+        return GetColors(context).length;
     }
 
     public static String GetColor(Context context, int Index)
     {
-        Init(context);
-        return Preferences.getString(LIGHT_COLORS_KEY, DEFAULT_COLOR).split(";")[Index];
+        return GetColors(context)[Index];
+    }
+
+    private static void Save(String NewValue)
+    {
+        SharedPreferences.Editor editor = Preferences.edit();
+        editor.putString(LIGHT_COLORS_KEY, NewValue);
+        editor.apply();
     }
 
     public static void SetColor(Context context, int Index, String Value)
     {
-        Init(context);
-        String[] arr = Preferences.getString(LIGHT_COLORS_KEY, DEFAULT_COLOR).split(";");
+        String[] arr = GetColors(context);
         arr[Index] = Value;
         StringBuilder result = new StringBuilder();
         result.append(arr[0]);
         for (int i = 1; i < arr.length; i++)
             result.append(";").append(arr[i]);
-        SharedPreferences.Editor editor = Preferences.edit();
-        editor.putString(LIGHT_COLORS_KEY, result.toString());
-        editor.apply();
+        Save(result.toString());
+    }
+
+    public static void Resize(Context context, int NewSize)
+    {
+        if (NewSize > 0)
+        {
+            String[] current = GetColors(context);
+            StringBuilder result = new StringBuilder();
+            result.append(current[0]);
+            int len = Math.min(current.length, NewSize);
+            for (int i = 1; i < len; i++)
+                result.append(";").append(current[i]);
+            for (int i = len; i < NewSize; i++)
+                result.append(";").append(DEFAULT_COLOR);
+            Save(result.toString());
+        }
     }
 
     public static int GetSColorAsInt(Context context, int Index)
     {
-        Init(context);
         LightColor color = Decode(GetColor(context, Index));
+        return GetSColorAsInt(color);
+    }
+
+    public static int GetSColorAsInt(LightColor color)
+    {
         float I = Math.max(color.R, Math.max(color.G, color.B));
         color.R /= I;
         color.G /= I;
@@ -68,8 +93,12 @@ public class LightColors
 
     public static int GetIntensityColorAsInt(Context context, int Index)
     {
-        Init(context);
         LightColor color = Decode(GetColor(context, Index));
+        return GetIntensityColorAsInt(color);
+    }
+
+    public static int GetIntensityColorAsInt(LightColor color)
+    {
         float I = Math.max(color.R, Math.max(color.G, color.B));
         return Color.rgb(
                 (int)(I * 255),
@@ -81,6 +110,14 @@ public class LightColors
     public static String Encode(float R, float G, float B)
     {
         return R + "," + G + "," + B;
+    }
+
+    public static LightColor[] Decode(String[] Values)
+    {
+        LightColor[] result = new LightColor[Values.length];
+        for (int i = 0; i < Values.length; i++)
+            result[i] = Decode(Values[i]);
+        return result;
     }
 
     public static LightColor Decode(String Value, float DefaultR, float DefaultG, float DefaultB)

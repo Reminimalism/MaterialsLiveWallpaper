@@ -47,7 +47,18 @@
 
     <string name="settings_lights_positions">Light Positions</string>
     <string name="settings_lights_colors">Light Colors</string>
-    <string name="settings_lights_colors_light">Light</string>
+    <string name="settings_lights_colors_load_sample">Load a sample</string>
+    <string name="settings_lights_colors_count">Colors Count</string>
+    <string name="settings_lights_colors_light_color_n">Light Color %1$d</string>
+
+    <string name="settings_lights_colors_sample_0_name">White</string>
+    <string name="settings_lights_colors_sample_0_value">0.6,0.6,0.6</string>
+
+    <string name="settings_lights_colors_sample_1_name">Colorful</string>
+    <string name="settings_lights_colors_sample_1_value">0.6,0.3,0.3;0.3,0.6,0.3;0.3,0.3,0.6</string>
+
+    <string name="settings_lights_colors_sample_2_name">Reminimalism</string>
+    <string name="settings_lights_colors_sample_2_value">0.6,0,0.234;0,0.516,0.468</string>
 
     <string name="settings_lights_color_1">Light Color 1</string>
     <string name="settings_lights_color_2">Light Color 2</string>
