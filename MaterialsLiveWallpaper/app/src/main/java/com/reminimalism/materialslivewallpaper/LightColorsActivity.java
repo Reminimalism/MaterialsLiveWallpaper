@@ -1,10 +1,13 @@
 package com.reminimalism.materialslivewallpaper;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -25,6 +28,7 @@ public class LightColorsActivity extends AppCompatActivity
 
         InitializeDynamicList();
 
+        // Update on preference changes
         Preferences = PreferenceManager.getDefaultSharedPreferences(this);
         PreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener()
         {
@@ -36,6 +40,48 @@ public class LightColorsActivity extends AppCompatActivity
             }
         };
         Preferences.registerOnSharedPreferenceChangeListener(PreferenceChangeListener);
+
+        // On Colors Count click
+        findViewById(R.id.count).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(LightColorsActivity.this);
+                builder.setTitle(R.string.settings_lights_colors_count);
+                String[] CountItems = new String[MAX_COLORS_COUNT];
+                for (int i = 0; i < MAX_COLORS_COUNT; i++)
+                    CountItems[i] = Integer.toString(i + 1);
+                builder.setItems(CountItems, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        LightColors.Resize(LightColorsActivity.this, which + 1);
+                    }
+                });
+                builder.create().show();
+            }
+        });
+
+        // On Load Sample click
+        findViewById(R.id.load_sample).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(LightColorsActivity.this);
+                builder.setTitle(R.string.settings_lights_colors_load_sample);
+                Resources resources = getResources();
+                final String[] Names = resources.getStringArray(R.array.settings_lights_colors_sample_names);
+                final String[] Values = resources.getStringArray(R.array.settings_lights_colors_sample_values);
+                builder.setItems(Names, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        LightColors.SetColors(Values[which]);
+                    }
+                });
+                builder.create().show();
+            }
+        });
     }
 
     @Override
@@ -46,6 +92,7 @@ public class LightColorsActivity extends AppCompatActivity
             Preferences.unregisterOnSharedPreferenceChangeListener(PreferenceChangeListener);
     }
 
+    // Makes the UI back button work
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {

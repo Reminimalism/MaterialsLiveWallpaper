@@ -23,7 +23,7 @@
 
             <TextView
                 android:text="@string/settings_lights_colors_load_sample"
-                android:textColor="#8000"
+                android:textColor="#000"
                 android:textSize="16sp"
                 android:layout_margin="16dp"
                 android:layout_width="match_parent"

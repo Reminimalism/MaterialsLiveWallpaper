@@ -43,7 +43,7 @@ public class LightColors
         return GetColors(context)[Index];
     }
 
-    private static void Save(String NewValue)
+    public static void SetColors(String NewValue)
     {
         SharedPreferences.Editor editor = Preferences.edit();
         editor.putString(LIGHT_COLORS_KEY, NewValue);
@@ -58,7 +58,7 @@ public class LightColors
         result.append(arr[0]);
         for (int i = 1; i < arr.length; i++)
             result.append(";").append(arr[i]);
-        Save(result.toString());
+        SetColors(result.toString());
     }
 
     public static void Resize(Context context, int NewSize)
@@ -73,7 +73,7 @@ public class LightColors
                 result.append(";").append(current[i]);
             for (int i = len; i < NewSize; i++)
                 result.append(";").append(DEFAULT_COLOR);
-            Save(result.toString());
+            SetColors(result.toString());
         }
     }
 

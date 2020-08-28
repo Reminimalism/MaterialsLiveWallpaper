@@ -88,4 +88,15 @@
         <item>0,-0.8944271909999159,0.4472135954999579</item>
         <item>0,0,-1</item>
     </string-array>
+
+    <string-array name="settings_lights_colors_sample_names">
+        <item>White</item>
+        <item>RGB</item>
+        <item>Reminimalism</item>
+    </string-array>
+    <string-array name="settings_lights_colors_sample_values">
+        <item>0.6,0.6,0.6</item>
+        <item>0.6,0.3,0.3;0.3,0.6,0.3;0.3,0.3,0.6</item>
+        <item>0.6,0,0.234;0,0.516,0.468</item>
+    </string-array>
 </resources>
