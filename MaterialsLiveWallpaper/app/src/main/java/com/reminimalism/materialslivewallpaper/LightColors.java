@@ -72,15 +72,9 @@ public class LightColors
         }
     }
 
-    public static int GetSColorAsInt(Context context, int Index)
-    {
-        LightColor color = Decode(GetColor(context, Index));
-        return GetSColorAsInt(color);
-    }
-
     public static int GetSColorAsInt(LightColor color)
     {
-        float I = Math.max(color.R, Math.max(color.G, color.B));
+        float I = GetIntensityOf(color);
         return Color.rgb(
                 (int)((color.R / I) * 255),
                 (int)((color.G / I) * 255),
@@ -88,20 +82,19 @@ public class LightColors
         );
     }
 
-    public static int GetIntensityColorAsInt(Context context, int Index)
-    {
-        LightColor color = Decode(GetColor(context, Index));
-        return GetIntensityColorAsInt(color);
-    }
-
     public static int GetIntensityColorAsInt(LightColor color)
     {
-        float I = Math.max(color.R, Math.max(color.G, color.B));
+        float I = GetIntensityOf(color);
         return Color.rgb(
                 (int)(I * 255),
                 (int)(I * 255),
                 (int)(I * 255)
         );
+    }
+
+    public static float GetIntensityOf(LightColor color)
+    {
+        return Math.max(color.R, Math.max(color.G, color.B));
     }
 
     public static String Encode(float R, float G, float B)
