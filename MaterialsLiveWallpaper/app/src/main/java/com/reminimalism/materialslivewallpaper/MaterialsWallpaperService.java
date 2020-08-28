@@ -325,16 +325,23 @@ public class MaterialsWallpaperService extends WallpaperService
                             count++;
                         }
 
+                        LightColor[] colors = com.reminimalism.materialslivewallpaper.LightColors.Decode(
+                                com.reminimalism.materialslivewallpaper
+                                        .LightColors
+                                        .GetColors(MaterialsWallpaperService.this)
+                        );
+                        int colors_index = 0;
                         LightColors = new float[count * 3];
                         for (int i = 0; i < count; i++)
                         {
-                            String str = Preferences.getString("light_color_" + i, DefaultLightColors[i]);
+                            colors_index += 1;
+                            if (colors_index >= colors.length)
+                                colors_index = 0;
                             try
                             {
-                                String[] color = str.split(",");
-                                LightColors[i * 3] = Float.parseFloat(color[0]);
-                                LightColors[i * 3 + 1] = Float.parseFloat(color[1]);
-                                LightColors[i * 3 + 2] = Float.parseFloat(color[2]);
+                                LightColors[i * 3] = colors[colors_index].R;
+                                LightColors[i * 3 + 1] = colors[colors_index].G;
+                                LightColors[i * 3 + 2] = colors[colors_index].B;
                             }
                             catch (Exception ignored)
                             {
