@@ -32,6 +32,8 @@ public class LightColorsActivity extends AppCompatActivity
     }
 
     private final int MAX_COLORS_COUNT = 10;
+    private final int MAX_INTENSITY_PREVIEW_WIDTH = 24;
+    private final int INTENSITY_PREVIEW_HEIGHT = 4;
 
     private LinearLayout DynamicListLayout = null;
     private View[] ItemViews = new View[MAX_COLORS_COUNT];
@@ -79,8 +81,13 @@ public class LightColorsActivity extends AppCompatActivity
         for (int i = 0; i < len; i++)
         {
             ItemViews[i].setVisibility(View.VISIBLE);
+
             SColorViews[i].setBackgroundColor(LightColors.GetSColorAsInt(Colors[i]));
-            IntensityViews[i].setBackgroundColor(LightColors.GetIntensityColorAsInt(Colors[i]));
+
+            int height_in_pixels = (int) (INTENSITY_PREVIEW_HEIGHT * getResources().getDisplayMetrics().density + 0.5f);
+            float width_in_dps = LightColors.GetIntensityOf(Colors[i]) * MAX_INTENSITY_PREVIEW_WIDTH;
+            int width_in_pixels = (int) (width_in_dps * getResources().getDisplayMetrics().density + 0.5f);
+            IntensityViews[i].setLayoutParams(new LinearLayout.LayoutParams(width_in_pixels, height_in_pixels));
         }
         for (int i = len; i < MAX_COLORS_COUNT; i++)
         {

@@ -22,11 +22,16 @@
             android:layout_width="24dp"
             android:layout_height="20dp" />
 
-        <View
-            android:id="@+id/intensity_preview"
+        <LinearLayout
             android:background="#000"
             android:layout_width="24dp"
-            android:layout_height="4dp" />
+            android:layout_height="4dp">
+            <View
+                android:id="@+id/intensity_preview"
+                android:background="#fff"
+                android:layout_width="12dp"
+                android:layout_height="4dp" />
+        </LinearLayout>
 
     </LinearLayout>
 
