@@ -19,6 +19,11 @@ public class LightColors
     private static final String LIGHT_COLORS_KEY = "light_colors";
     private static final String DEFAULT_COLOR = "0.6,0.6,0.6";
 
+    public static String GetLightColorsKey()
+    {
+        return LIGHT_COLORS_KEY;
+    }
+
     public static String[] GetColors(Context context)
     {
         Init(context);

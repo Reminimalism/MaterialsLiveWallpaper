@@ -2,7 +2,9 @@ package com.reminimalism.materialslivewallpaper;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -20,7 +22,28 @@ public class LightColorsActivity extends AppCompatActivity
         ActionBar action_bar = getSupportActionBar();
         if (action_bar != null)
             action_bar.setDisplayHomeAsUpEnabled(true);
+
         InitializeDynamicList();
+
+        Preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        PreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener()
+        {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
+            {
+                if (key.equals(LightColors.GetLightColorsKey()))
+                    Update();
+            }
+        };
+        Preferences.registerOnSharedPreferenceChangeListener(PreferenceChangeListener);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        if (Preferences != null && PreferenceChangeListener != null)
+            Preferences.unregisterOnSharedPreferenceChangeListener(PreferenceChangeListener);
     }
 
     @Override
@@ -34,6 +57,9 @@ public class LightColorsActivity extends AppCompatActivity
     private final int MAX_COLORS_COUNT = 10;
     private final int MAX_INTENSITY_PREVIEW_WIDTH = 24;
     private final int INTENSITY_PREVIEW_HEIGHT = 4;
+
+    private SharedPreferences Preferences = null;
+    private SharedPreferences.OnSharedPreferenceChangeListener PreferenceChangeListener = null;
 
     private LinearLayout DynamicListLayout = null;
     private View[] ItemViews = new View[MAX_COLORS_COUNT];
