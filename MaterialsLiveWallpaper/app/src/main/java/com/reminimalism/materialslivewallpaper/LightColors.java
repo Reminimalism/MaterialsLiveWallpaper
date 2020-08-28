@@ -81,13 +81,10 @@ public class LightColors
     public static int GetSColorAsInt(LightColor color)
     {
         float I = Math.max(color.R, Math.max(color.G, color.B));
-        color.R /= I;
-        color.G /= I;
-        color.B /= I;
         return Color.rgb(
-                (int)(color.R * 255),
-                (int)(color.G * 255),
-                (int)(color.B * 255)
+                (int)((color.R / I) * 255),
+                (int)((color.G / I) * 255),
+                (int)((color.B / I) * 255)
         );
     }
 
