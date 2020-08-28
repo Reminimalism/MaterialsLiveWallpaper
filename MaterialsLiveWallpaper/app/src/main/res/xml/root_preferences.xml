@@ -64,56 +64,6 @@
             app:title="@string/settings_lights_colors"
             app:defaultValue="0.6,0.6,0.6" />
 
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_0"
-            app:title="@string/settings_lights_color_1"
-            app:defaultValue="0.6,0.6,0.6" />
-
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_1"
-            app:title="@string/settings_lights_color_2"
-            app:defaultValue="0.6,0,0.234" />
-
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_2"
-            app:title="@string/settings_lights_color_3"
-            app:defaultValue="0.6,0.2,0.1" />
-
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_3"
-            app:title="@string/settings_lights_color_4"
-            app:defaultValue="0,0.516,0.468" />
-
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_4"
-            app:title="@string/settings_lights_color_5"
-            app:defaultValue="0.1,0.3,0.6" />
-
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_5"
-            app:title="@string/settings_lights_color_6"
-            app:defaultValue="0.6,0.6,0.6" />
-
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_6"
-            app:title="@string/settings_lights_color_7"
-            app:defaultValue="0.6,0.6,0.6" />
-
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_7"
-            app:title="@string/settings_lights_color_8"
-            app:defaultValue="0.6,0.6,0.6" />
-
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_8"
-            app:title="@string/settings_lights_color_9"
-            app:defaultValue="0.6,0.6,0.6" />
-
-        <com.reminimalism.materialslivewallpaper.LightSourcePreference
-            app:key="light_color_9"
-            app:title="@string/settings_lights_color_10"
-            app:defaultValue="0.6,0.6,0.6" />
-
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/settings_category_more">

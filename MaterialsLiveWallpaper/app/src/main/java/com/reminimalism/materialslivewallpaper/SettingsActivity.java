@@ -10,7 +10,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -112,18 +111,6 @@ public class SettingsActivity extends AppCompatActivity
             }
 
             findPreference("materials_version").setSummary(Config.GetLatestSupportedCustomMaterialTargetVersion());
-        }
-
-        @Override
-        public void onDisplayPreferenceDialog(Preference preference)
-        {
-            if (preference instanceof LightSourcePreference)
-            {
-                DialogFragment dialog = LightSourcePreferenceDialogFragmentCompat.newInstance(preference.getKey());
-                dialog.setTargetFragment(this, 0);
-                dialog.show(getParentFragmentManager(), "LightSourcePreference");
-            }
-            else super.onDisplayPreferenceDialog(preference);
         }
     }
 
