@@ -51,6 +51,9 @@
     <string name="settings_lights_colors_count">Colors Count</string>
     <string name="settings_lights_colors_light_color_n">Light Color %1$d</string>
     <!-- samples in arrays.xml -->
+    <string name="settings_lights_colors_intensity_notice">
+        It\'s recommended to keep the intensity below 0.6 for all lights.
+    </string>
 
     <!-- More -->
 

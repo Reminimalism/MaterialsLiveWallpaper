@@ -58,6 +58,12 @@
 
         </LinearLayout>
 
+        <TextView
+            android:text="@string/settings_lights_colors_intensity_notice"
+            android:layout_margin="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
 </ScrollView>
