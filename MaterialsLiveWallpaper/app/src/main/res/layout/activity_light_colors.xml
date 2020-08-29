@@ -33,6 +33,9 @@
 
         <LinearLayout
             android:id="@+id/count"
+            android:focusable="true"
+            android:clickable="true"
+            android:background="?attr/selectableItemBackground"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
