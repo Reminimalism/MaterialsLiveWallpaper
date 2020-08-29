@@ -1,0 +1,2 @@
+Materials Live Wallpaper renders different materials that reflect light based on device rotation.
+The materials can be any level of matte, shiny and brushed and can have different textures.
