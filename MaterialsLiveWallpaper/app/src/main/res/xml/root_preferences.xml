@@ -17,7 +17,7 @@
             app:entries="@array/settings_material_samples_entries"
             app:entryValues="@array/settings_material_samples_values"
             app:useSimpleSummaryProvider="true"
-            app:enabled="true"/>
+            app:enabled="true" />
 
         <Preference
             app:key="import_custom_material"
@@ -36,7 +36,7 @@
             app:entries="@array/settings_performance_fps_limit_entries"
             app:entryValues="@array/settings_performance_fps_limit_values"
             app:useSimpleSummaryProvider="true"
-            app:enabled="true"/>
+            app:enabled="true" />
 
         <ListPreference
             app:key="max_additional_layers"
@@ -45,7 +45,13 @@
             app:entries="@array/settings_performance_max_additional_layers_entries"
             app:entryValues="@array/settings_performance_max_additional_layers_values"
             app:useSimpleSummaryProvider="true"
-            app:enabled="true"/>
+            app:enabled="true" />
+
+        <SwitchPreference
+            app:key="enable_fps_counter"
+            app:title="@string/settings_performance_enable_fps_counter"
+            app:defaultValue="false"
+            app:enabled="true" />
 
     </PreferenceCategory>
 

@@ -214,6 +214,26 @@ public class MaterialsWallpaperService extends WallpaperService
                     int[] AllTextures = new int[30];
                     int AllTexturesCount = 0;
 
+                    // 0..n: left-to-right digits
+                    // positions:
+                    // 0  1  2
+                    // 3  4  5
+                    // 6  7  8
+                    // 9  10 11
+                    // 12 13 14
+                    FloatBuffer[][] FPSCounterTriangleStripPositionValues;
+                    int[][] FPSCounterNumbersToPositionIndexes;
+                    float[] FPSCounterColor = { 1, 1, 1 };
+                    class SolidTriangleProgram
+                    {
+                        public int Program;
+                        public int PositionAttribute;
+                        public int ColorUniform;
+                    }
+                    SolidTriangleProgram FPSCounter = null;
+
+                    float FPS = 0;
+
                     int GetTextureIDValue(int ID)
                     {
                         if (ID >= 0 && ID < 30)
@@ -249,6 +269,119 @@ public class MaterialsWallpaperService extends WallpaperService
                         TriangleFanPositionValues = ByteBuffer.allocateDirect(TriangleFanArray.length * 4)
                                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
                         TriangleFanPositionValues.put(TriangleFanArray).position(0);*/
+
+                        final float DIGITS_DISTANCE = 0.1f;
+                        final float DIGIT_FRAGMENT_SIZE = DIGITS_DISTANCE / 4;
+                        final float FIRST_DIGIT_POSITION_X = 0 - DIGITS_DISTANCE * (1 + 0.5f * 3 / 4); // Top-left pos
+                        final float FIRST_DIGIT_POSITION_Y = 0 + DIGITS_DISTANCE * (0.5f * 5 / 4); // Top-left pos
+                        FPSCounterTriangleStripPositionValues = new FloatBuffer[3][];
+                        for (int i = 0; i < 3; i++)
+                        {
+                            FPSCounterTriangleStripPositionValues[i] = new FloatBuffer[15];
+                            float pos_x = FIRST_DIGIT_POSITION_X + i * DIGITS_DISTANCE; // Top-left pos
+                            float pos_y = FIRST_DIGIT_POSITION_Y; // Top-left pos
+                            int counter = 0;
+                            for (int k = 0; k < 5; k++)
+                            {
+                                for (int j = 0; j < 3; j++)
+                                {
+                                    float min_x = pos_x + j * DIGIT_FRAGMENT_SIZE;
+                                    float max_x = pos_x + (j + 1) * DIGIT_FRAGMENT_SIZE;
+                                    float max_y = pos_y - k * DIGIT_FRAGMENT_SIZE;
+                                    float min_y = pos_y - (k + 1) * DIGIT_FRAGMENT_SIZE;
+                                    float[] arr = {
+                                            min_x, min_y, 0,
+                                            min_x, max_y, 0,
+                                            max_x, min_y, 0,
+                                            max_x, max_y, 0
+                                    };
+                                    FPSCounterTriangleStripPositionValues[i][counter] = ByteBuffer.allocateDirect(TriangleStripArray.length * 4)
+                                            .order(ByteOrder.nativeOrder()).asFloatBuffer();
+                                    FPSCounterTriangleStripPositionValues[i][counter].put(arr).position(0);
+                                    counter++;
+                                }
+                            }
+                        }
+                        FPSCounterNumbersToPositionIndexes = new int[10][];
+                        /*
+                        FPSCounterNumbersToPositionIndexes[TEMPLATE] = new int[] {
+                                0,  1,  2,
+                                3,  4,  5,
+                                6,  7,  8,
+                                9,  10, 11,
+                                12, 13, 14
+                        };
+                        */
+                        FPSCounterNumbersToPositionIndexes[0] = new int[] {
+                                0,  1,  2,
+                                3,      5,
+                                6,      8,
+                                9,      11,
+                                12, 13, 14
+                        };
+                        FPSCounterNumbersToPositionIndexes[1] = new int[] {
+                                0,  1,
+                                    4,
+                                    7,
+                                    10,
+                                12, 13, 14
+                        };
+                        FPSCounterNumbersToPositionIndexes[2] = new int[] {
+                                0,  1,  2,
+                                        5,
+                                6,  7,  8,
+                                9,
+                                12, 13, 14
+                        };
+                        FPSCounterNumbersToPositionIndexes[3] = new int[] {
+                                0,  1,  2,
+                                        5,
+                                6,  7,  8,
+                                        11,
+                                12, 13, 14
+                        };
+                        FPSCounterNumbersToPositionIndexes[4] = new int[] {
+                                0,      2,
+                                3,      5,
+                                6,  7,  8,
+                                        11,
+                                        14
+                        };
+                        FPSCounterNumbersToPositionIndexes[5] = new int[] {
+                                0,  1,  2,
+                                3,
+                                6,  7,  8,
+                                        11,
+                                12, 13, 14
+                        };
+                        FPSCounterNumbersToPositionIndexes[6] = new int[] {
+                                0,  1,  2,
+                                3,
+                                6,  7,  8,
+                                9,      11,
+                                12, 13, 14
+                        };
+                        FPSCounterNumbersToPositionIndexes[7] = new int[] {
+                                0,  1,  2,
+                                        5,
+                                    7,  8,
+                                    10,
+                                    13,
+                        };
+                        FPSCounterNumbersToPositionIndexes[8] = new int[] {
+                                0,  1,  2,
+                                3,      5,
+                                6,  7,  8,
+                                9,      11,
+                                12, 13, 14
+                        };
+                        FPSCounterNumbersToPositionIndexes[9] = new int[] {
+                                0,  1,  2,
+                                3,      5,
+                                6,  7,  8,
+                                        11,
+                                12, 13, 14
+                        };
 
                         Initialize();
                     }
@@ -345,24 +478,56 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         GLES20.glClearColor(0, 0, 0, 1);
 
+                        // FPSCounter program setup
+
+                        if (Preferences.getBoolean("enable_fps_counter", false))
+                        {
+                            FPSCounter = new SolidTriangleProgram();
+
+                            int VertexShader = CompileShader(
+                                    ReadRawTextResource(R.raw.solid_triangle_vertex_shader),
+                                    false,
+                                    "FPS Counter"
+                            );
+
+                            int FragmentShader = CompileShader(
+                                    ReadRawTextResource(R.raw.solid_triangle_fragment_shader),
+                                    true,
+                                    "FPS Counter"
+                            );
+
+                            FPSCounter.Program = GLES20.glCreateProgram();
+                            if (FPSCounter.Program != 0)
+                            {
+                                GLES20.glAttachShader(FPSCounter.Program, VertexShader);
+                                GLES20.glAttachShader(FPSCounter.Program, FragmentShader);
+
+                                GLES20.glBindAttribLocation(FPSCounter.Program, 0, "Position");
+
+                                GLES20.glLinkProgram(FPSCounter.Program);
+
+                                final int[] LinkStatus = new int[1];
+                                GLES20.glGetProgramiv(FPSCounter.Program, GLES20.GL_LINK_STATUS, LinkStatus, 0);
+
+                                if (LinkStatus[0] == 0)
+                                {
+                                    GLES20.glDeleteProgram(FPSCounter.Program);
+                                    throw new RuntimeException("FPS counter program link failed.");
+                                }
+                            }
+                            else throw new RuntimeException("FPS counter program creation failed.");
+
+                            FPSCounter.PositionAttribute = GLES20.glGetAttribLocation(FPSCounter.Program, "Position");
+                            FPSCounter.ColorUniform = GLES20.glGetUniformLocation(FPSCounter.Program, "Color");
+                        }
+
                         // Vertex shader setup
 
-                        int VertexShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
-                        if (VertexShader != 0)
-                        {
-                            GLES20.glShaderSource(VertexShader, ReadRawTextResource(R.raw.vertex_shader));
-                            GLES20.glCompileShader(VertexShader);
-
-                            int[] CompileStatus = new int[1];
-                            GLES20.glGetShaderiv(VertexShader, GLES20.GL_COMPILE_STATUS, CompileStatus, 0);
-                            if (CompileStatus[0] == 0)
-                            {
-                                String log = GLES20.glGetShaderInfoLog(VertexShader);
-                                GLES20.glDeleteShader(VertexShader);
-                                throw new RuntimeException("Vertex shader compilation failed. " + log);
-                            }
-                        }
-                        else throw new RuntimeException("Vertex shader creation failed.");
+                        int VertexShader = CompileShader(
+                                ReadRawTextResource(R.raw.wallpaper_vertex_shader),
+                                false,
+                                "Wallpaper"
+                        );
 
                         // Layers
 
@@ -492,35 +657,20 @@ public class MaterialsWallpaperService extends WallpaperService
 
                             // Fragment shader setup
 
-                            int FragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
-                            if (FragmentShader != 0)
-                            {
-                                GLES20.glShaderSource(
-                                        FragmentShader,
-                                        "#define LIGHTS_COUNT " + (LightDirections.length / 3) + "\n"
-                                                + (current_layer.EnableCircularBrush ? "#define ENABLE_CIRCULAR_BRUSH 1\n" : "")
-                                                + "#define ENABLE_NORMAL_NORMALIZATION " + (Config.NormalizeNormal ? "1\n" : "0\n")
-                                                + "#define ENABLE_BASE "            + (current_layer.EnableBase ? "1\n" : "0\n")
-                                                + "#define ENABLE_REFLECTIONS "     + (current_layer.EnableReflections ? "1\n" : "0\n")
-                                                + "#define ENABLE_NORMAL "          + (current_layer.EnableNormal ? "1\n" : "0\n")
-                                                + "#define ENABLE_SHININESS "       + (current_layer.EnableShininess ? "1\n" : "0\n")
-                                                + "#define ENABLE_BRUSH "           + (current_layer.EnableBrush ? "1\n" : "0\n")
-                                                + "#define ENABLE_BRUSH_INTENSITY " + (current_layer.EnableBrushIntensity ? "1\n" : "0\n")
-                                                + ReadRawTextResource(R.raw.fragment_shader)
-                                );
-                                GLES20.glCompileShader(FragmentShader);
-
-                                final int[] CompileStatus = new int[1];
-                                GLES20.glGetShaderiv(FragmentShader, GLES20.GL_COMPILE_STATUS, CompileStatus, 0);
-
-                                if (CompileStatus[0] == 0)
-                                {
-                                    String log = GLES20.glGetShaderInfoLog(FragmentShader);
-                                    GLES20.glDeleteShader(FragmentShader);
-                                    throw new RuntimeException("Fragment shader compilation failed. " + log);
-                                }
-                            }
-                            else throw new RuntimeException("Fragment shader creation failed.");
+                            int FragmentShader = CompileShader(
+                                    "#define LIGHTS_COUNT " + (LightDirections.length / 3) + "\n"
+                                            + (current_layer.EnableCircularBrush ? "#define ENABLE_CIRCULAR_BRUSH 1\n" : "")
+                                            + "#define ENABLE_NORMAL_NORMALIZATION " + (Config.NormalizeNormal ? "1\n" : "0\n")
+                                            + "#define ENABLE_BASE "            + (current_layer.EnableBase ? "1\n" : "0\n")
+                                            + "#define ENABLE_REFLECTIONS "     + (current_layer.EnableReflections ? "1\n" : "0\n")
+                                            + "#define ENABLE_NORMAL "          + (current_layer.EnableNormal ? "1\n" : "0\n")
+                                            + "#define ENABLE_SHININESS "       + (current_layer.EnableShininess ? "1\n" : "0\n")
+                                            + "#define ENABLE_BRUSH "           + (current_layer.EnableBrush ? "1\n" : "0\n")
+                                            + "#define ENABLE_BRUSH_INTENSITY " + (current_layer.EnableBrushIntensity ? "1\n" : "0\n")
+                                            + ReadRawTextResource(R.raw.wallpaper_fragment_shader),
+                                    true,
+                                    "Wallpaper"
+                            );
 
                             // Program setup
 
@@ -707,6 +857,11 @@ public class MaterialsWallpaperService extends WallpaperService
                         for (Layer layer : Layers)
                             GLES20.glDeleteProgram(layer.Program);
                         GLES20.glDeleteTextures(AllTexturesCount, AllTextures, 0);
+                        if (FPSCounter != null)
+                        {
+                            GLES20.glDeleteProgram(FPSCounter.Program);
+                            FPSCounter = null;
+                        }
                         Initialize();
                     }
 
@@ -734,9 +889,11 @@ public class MaterialsWallpaperService extends WallpaperService
                         if (SettingsChanged)
                             Reinitialize();
 
+                        int TimeDiff_ms = 0;
                         if (LimitFPS)
                         {
-                            int remaining = FrameMinDuration_ms - GetTimeDiff_ms();
+                            TimeDiff_ms = GetTimeDiff_ms();
+                            int remaining = FrameMinDuration_ms - TimeDiff_ms;
                             if (remaining > 0) try
                             {
                                 Thread.sleep(remaining);
@@ -745,8 +902,10 @@ public class MaterialsWallpaperService extends WallpaperService
                             {
                                 Thread.currentThread().interrupt();
                             }
-                            GetTimeDiff_ms(); // Update Time
+                            TimeDiff_ms += GetTimeDiff_ms(); // Update time too
                         }
+                        else if (FPSCounter != null)
+                            TimeDiff_ms = GetTimeDiff_ms();
 
                         // Calculations
 
@@ -860,6 +1019,51 @@ public class MaterialsWallpaperService extends WallpaperService
                             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
                             //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);
                         }
+
+                        if (FPSCounter != null)
+                        {
+                            float TimeDiff = (float)TimeDiff_ms / 1000;
+                            if (TimeDiff != 0)
+                                FPS = FPS + 0.1f * (1.0f / TimeDiff - FPS);
+
+                            int fps = (int)FPS;
+                            int[] digits = new int[FPSCounterTriangleStripPositionValues.length];
+                            Arrays.fill(digits, 0);
+                            int count = 0;
+                            while (fps > 0)
+                            {
+                                if (count < digits.length)
+                                    digits[digits.length - 1 - count] = fps % 10;
+                                fps /= 10;
+                                count++;
+                            }
+                            if (count > digits.length)
+                                Arrays.fill(digits, 9);
+
+                            for (int i = 0; i < digits.length; i++)
+                            {
+                                for (int j : FPSCounterNumbersToPositionIndexes[digits[i]])
+                                {
+                                    GLES20.glUseProgram(FPSCounter.Program);
+                                    GLES20.glVertexAttribPointer(
+                                            FPSCounter.PositionAttribute,
+                                            3,
+                                            GLES20.GL_FLOAT,
+                                            false,
+                                            0,
+                                            FPSCounterTriangleStripPositionValues[i][j]
+                                    );
+                                    GLES20.glEnableVertexAttribArray(FPSCounter.PositionAttribute);
+                                    GLES20.glUniform3fv(
+                                            FPSCounter.ColorUniform,
+                                            1,
+                                            FPSCounterColor,
+                                            0
+                                    );
+                                    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+                                }
+                            }
+                        }
                     }
 
                     int LoadTextureFromFile(String path, int default_texture_resource_id, boolean pixelated)
@@ -937,6 +1141,34 @@ public class MaterialsWallpaperService extends WallpaperService
                         if (texture[0] == 0)
                             throw new RuntimeException("Texture load failed.");
                         return texture[0];
+                    }
+
+                    int CompileShader(String Source, boolean IsFragmentShaderAndNotVertexShader, String Label)
+                    {
+                        int Shader = GLES20.glCreateShader(
+                                IsFragmentShaderAndNotVertexShader ? GLES20.GL_FRAGMENT_SHADER : GLES20.GL_VERTEX_SHADER
+                        );
+                        if (Shader != 0)
+                        {
+                            GLES20.glShaderSource(Shader, Source);
+                            GLES20.glCompileShader(Shader);
+
+                            final int[] CompileStatus = new int[1];
+                            GLES20.glGetShaderiv(Shader, GLES20.GL_COMPILE_STATUS, CompileStatus, 0);
+
+                            if (CompileStatus[0] == 0)
+                            {
+                                String log = GLES20.glGetShaderInfoLog(Shader);
+                                GLES20.glDeleteShader(Shader);
+                                throw new RuntimeException(Label
+                                        + (IsFragmentShaderAndNotVertexShader ? " fragment" : " vertex")
+                                        + " shader compilation failed. " + log);
+                            }
+                        }
+                        else throw new RuntimeException(Label
+                                + (IsFragmentShaderAndNotVertexShader ? " fragment" : " vertex")
+                                + " shader creation failed.");
+                        return Shader;
                     }
 
                     String ReadRawTextResource(int id)

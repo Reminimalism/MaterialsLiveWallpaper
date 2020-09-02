@@ -42,6 +42,7 @@
 
     <string name="settings_performance_fps_limit">Frame Rate Limit</string>
     <string name="settings_performance_max_additional_layers">Max Allowed Additional Layers</string>
+    <string name="settings_performance_enable_fps_counter">Enable FPS Counter</string>
 
     <!-- Lights Settings -->
 
