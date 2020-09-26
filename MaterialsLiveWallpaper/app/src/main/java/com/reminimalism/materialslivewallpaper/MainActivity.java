@@ -26,4 +26,9 @@ public class MainActivity extends AppCompatActivity
         );
         startActivity(intent);
     }
+
+    public void OnSettingsClick(View view)
+    {
+        startActivity(new Intent(this, SettingsActivity.class));
+    }
 }

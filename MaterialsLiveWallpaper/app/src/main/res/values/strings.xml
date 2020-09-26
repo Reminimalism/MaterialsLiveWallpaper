@@ -6,6 +6,7 @@
     <!-- MainActivity -->
 
     <string name="set_wallpaper_button">Set Wallpaper</string>
+    <string name="settings_button">Settings</string>
 
     <!-- Toasts -->
 
