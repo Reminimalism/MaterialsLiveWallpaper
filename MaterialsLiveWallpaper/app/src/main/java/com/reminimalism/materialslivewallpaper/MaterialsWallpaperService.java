@@ -1,6 +1,11 @@
 package com.reminimalism.materialslivewallpaper;
 
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -28,6 +33,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -210,9 +217,11 @@ public class MaterialsWallpaperService extends WallpaperService
                         public int[] Textures = null;
                     }
 
-                    Layer[] Layers;
+                    Layer[] Layers = null;
                     int[] AllTextures = new int[30];
                     int AllTexturesCount = 0;
+                    int[] AllShaders = new int[2 + SettingsActivity.MAX_POSSIBLE_ADDITIONAL_LAYERS];
+                    int AllShadersCount = 0;
 
                     // 0..n: left-to-right digits
                     // positions:
@@ -386,8 +395,33 @@ public class MaterialsWallpaperService extends WallpaperService
                         Initialize();
                     }
 
+                    boolean InitializationFailed = false;
+                    void ShaderCheck(int Shader)
+                    {
+                        if (Shader == 0)
+                            InitializationFailed = true;
+                        else
+                        {
+                            AllShaders[AllShadersCount] = Shader;
+                            AllShadersCount++;
+                        }
+                    }
+                    void ProgramCheck(int Program)
+                    {
+                        if (Program == 0)
+                            InitializationFailed = true;
+                    }
+                    void FinalCheck()
+                    {
+                        if (InitializationFailed)
+                            DeleteObjects();
+                    }
+
                     void Initialize()
                     {
+                        DeleteObjects();
+                        ResetReportId();
+
                         SettingsChanged = false;
 
                         boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
@@ -489,12 +523,14 @@ public class MaterialsWallpaperService extends WallpaperService
                                     false,
                                     "FPS Counter"
                             );
+                            ShaderCheck(VertexShader);
 
                             int FragmentShader = CompileShader(
                                     ReadRawTextResource(R.raw.solid_triangle_fragment_shader),
                                     true,
                                     "FPS Counter"
                             );
+                            ShaderCheck(FragmentShader);
 
                             FPSCounter.Program = GLES20.glCreateProgram();
                             if (FPSCounter.Program != 0)
@@ -512,13 +548,18 @@ public class MaterialsWallpaperService extends WallpaperService
                                 if (LinkStatus[0] == 0)
                                 {
                                     GLES20.glDeleteProgram(FPSCounter.Program);
-                                    throw new RuntimeException("FPS counter program link failed.");
+                                    FPSCounter.Program = 0;
+                                    ReportError("FPS counter program link failed.");
+                                }
+                                else
+                                {
+                                    FPSCounter.PositionAttribute = GLES20.glGetAttribLocation(FPSCounter.Program, "Position");
+                                    FPSCounter.ColorUniform = GLES20.glGetUniformLocation(FPSCounter.Program, "Color");
                                 }
                             }
-                            else throw new RuntimeException("FPS counter program creation failed.");
+                            else ReportError("FPS counter program creation failed.");
 
-                            FPSCounter.PositionAttribute = GLES20.glGetAttribLocation(FPSCounter.Program, "Position");
-                            FPSCounter.ColorUniform = GLES20.glGetUniformLocation(FPSCounter.Program, "Color");
+                            ProgramCheck(FPSCounter.Program);
                         }
 
                         // Vertex shader setup
@@ -528,6 +569,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                 false,
                                 "Wallpaper"
                         );
+                        ShaderCheck(VertexShader);
 
                         // Layers
 
@@ -537,12 +579,14 @@ public class MaterialsWallpaperService extends WallpaperService
                         else
                             layers_f = new LayerFilenames[0];
                         Layers = new Layer[1 + layers_f.length];
+                        Arrays.fill(Layers, null);
                         AllTexturesCount = 0;
                         for (int i = -1; i < layers_f.length; i++)
                         {
                             boolean load_from_resources = false;
                             LayerFilenames layer_f;
                             Layer current_layer = new Layer();
+                            current_layer.Program = 0;
 
                             if (i == -1)
                             {
@@ -671,6 +715,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                     true,
                                     "Wallpaper"
                             );
+                            ShaderCheck(FragmentShader);
 
                             // Program setup
 
@@ -690,49 +735,55 @@ public class MaterialsWallpaperService extends WallpaperService
                                 if (LinkStatus[0] == 0)
                                 {
                                     GLES20.glDeleteProgram(current_layer.Program);
-                                    throw new RuntimeException("Program link failed.");
+                                    current_layer.Program = 0;
+                                    ReportError("Program link failed.");
                                 }
                             }
-                            else throw new RuntimeException("Program creation failed.");
+                            else ReportError("Program creation failed.");
 
-                            current_layer.PositionAttribute = GLES20.glGetAttribLocation(current_layer.Program, "Position");
+                            ProgramCheck(current_layer.Program);
 
-                            current_layer.ScreenFrontDirectionUniform = GLES20.glGetUniformLocation(current_layer.Program, "ScreenFrontDirection");
-                            current_layer.ScreenUpDirectionUniform = GLES20.glGetUniformLocation(current_layer.Program, "ScreenUpDirection");
-                            current_layer.ScreenRightDirectionUniform = GLES20.glGetUniformLocation(current_layer.Program, "ScreenRightDirection");
-                            current_layer.FOVUniform = GLES20.glGetUniformLocation(current_layer.Program, "FOV");
-                            current_layer.UVScaleUniform = GLES20.glGetUniformLocation(current_layer.Program, "UVScale");
+                            if (current_layer.Program != 0)
+                            {
+                                current_layer.PositionAttribute = GLES20.glGetAttribLocation(current_layer.Program, "Position");
 
-                            current_layer.LightDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightDirections");
-                            current_layer.LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightReflectionDirections");
-                            current_layer.LightColorsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightColors");
+                                current_layer.ScreenFrontDirectionUniform = GLES20.glGetUniformLocation(current_layer.Program, "ScreenFrontDirection");
+                                current_layer.ScreenUpDirectionUniform = GLES20.glGetUniformLocation(current_layer.Program, "ScreenUpDirection");
+                                current_layer.ScreenRightDirectionUniform = GLES20.glGetUniformLocation(current_layer.Program, "ScreenRightDirection");
+                                current_layer.FOVUniform = GLES20.glGetUniformLocation(current_layer.Program, "FOV");
+                                current_layer.UVScaleUniform = GLES20.glGetUniformLocation(current_layer.Program, "UVScale");
 
-                            current_layer.SamplerUniforms = new int[current_layer_textures_count];
-                            int tex_arr_index = 0;
-                            if (current_layer.EnableBase)
-                                current_layer.SamplerUniforms[tex_arr_index++]
-                                        = current_layer.BaseUniform
-                                        = GLES20.glGetUniformLocation(current_layer.Program, "BaseColor");
-                            if (current_layer.EnableReflections)
-                                current_layer.SamplerUniforms[tex_arr_index++]
-                                        = current_layer.ReflectionsUniform
-                                        = GLES20.glGetUniformLocation(current_layer.Program, "ReflectionsColor");
-                            if (current_layer.EnableNormal)
-                                current_layer.SamplerUniforms[tex_arr_index++]
-                                        = current_layer.NormalUniform
-                                        = GLES20.glGetUniformLocation(current_layer.Program, "Normal");
-                            if (current_layer.EnableShininess)
-                                current_layer.SamplerUniforms[tex_arr_index++]
-                                        = current_layer.ShininessUniform
-                                        = GLES20.glGetUniformLocation(current_layer.Program, "Shininess");
-                            if (current_layer.EnableBrush)
-                                current_layer.SamplerUniforms[tex_arr_index++]
-                                        = current_layer.BrushUniform
-                                        = GLES20.glGetUniformLocation(current_layer.Program, "Brush");
-                            if (current_layer.EnableBrushIntensity)
-                                current_layer.SamplerUniforms[tex_arr_index++]
-                                        = current_layer.BrushIntensityUniform
-                                        = GLES20.glGetUniformLocation(current_layer.Program, "BrushIntensity");
+                                current_layer.LightDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightDirections");
+                                current_layer.LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightReflectionDirections");
+                                current_layer.LightColorsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightColors");
+
+                                current_layer.SamplerUniforms = new int[current_layer_textures_count];
+                                int tex_arr_index = 0;
+                                if (current_layer.EnableBase)
+                                    current_layer.SamplerUniforms[tex_arr_index++]
+                                            = current_layer.BaseUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "BaseColor");
+                                if (current_layer.EnableReflections)
+                                    current_layer.SamplerUniforms[tex_arr_index++]
+                                            = current_layer.ReflectionsUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "ReflectionsColor");
+                                if (current_layer.EnableNormal)
+                                    current_layer.SamplerUniforms[tex_arr_index++]
+                                            = current_layer.NormalUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "Normal");
+                                if (current_layer.EnableShininess)
+                                    current_layer.SamplerUniforms[tex_arr_index++]
+                                            = current_layer.ShininessUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "Shininess");
+                                if (current_layer.EnableBrush)
+                                    current_layer.SamplerUniforms[tex_arr_index++]
+                                            = current_layer.BrushUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "Brush");
+                                if (current_layer.EnableBrushIntensity)
+                                    current_layer.SamplerUniforms[tex_arr_index++]
+                                            = current_layer.BrushIntensityUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "BrushIntensity");
+                            }
 
                             // Textures
 
@@ -799,7 +850,7 @@ public class MaterialsWallpaperService extends WallpaperService
                             }
 
                             current_layer.Textures = new int[current_layer_textures_count];
-                            tex_arr_index = 0;
+                            int tex_arr_index = 0;
 
                             if (current_layer.EnableBase)
                             {
@@ -850,18 +901,35 @@ public class MaterialsWallpaperService extends WallpaperService
                         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE);
 
                         GetTimeDiff_ms(); // Update Time
+
+                        FinalCheck();
                     }
 
-                    void Reinitialize()
+                    void DeleteObjects()
                     {
-                        for (Layer layer : Layers)
-                            GLES20.glDeleteProgram(layer.Program);
+                        if (Layers != null)
+                            for (Layer layer : Layers)
+                                if (layer != null && layer.Program != 0)
+                                    GLES20.glDeleteProgram(layer.Program);
+                        Layers = null;
+
+                        for (int i = 0; i < AllShadersCount; i++)
+                            GLES20.glDeleteShader(AllShaders[i]);
+                        AllShadersCount = 0;
+
                         GLES20.glDeleteTextures(AllTexturesCount, AllTextures, 0);
+                        AllTexturesCount = 0;
+
                         if (FPSCounter != null)
                         {
                             GLES20.glDeleteProgram(FPSCounter.Program);
                             FPSCounter = null;
                         }
+                    }
+
+                    void Reinitialize()
+                    {
+                        //DeleteObjects(); Initialize() does this.
                         Initialize();
                     }
 
@@ -951,6 +1019,8 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
+                        if (Layers == null)
+                            return;
                         for (Layer layer : Layers)
                         {
                             GLES20.glUseProgram(layer.Program);
@@ -1160,15 +1230,53 @@ public class MaterialsWallpaperService extends WallpaperService
                             {
                                 String log = GLES20.glGetShaderInfoLog(Shader);
                                 GLES20.glDeleteShader(Shader);
-                                throw new RuntimeException(Label
+                                Shader = 0;
+                                ReportError(Label
                                         + (IsFragmentShaderAndNotVertexShader ? " fragment" : " vertex")
                                         + " shader compilation failed. " + log);
                             }
                         }
-                        else throw new RuntimeException(Label
+                        else ReportError(Label
                                 + (IsFragmentShaderAndNotVertexShader ? " fragment" : " vertex")
                                 + " shader creation failed.");
                         return Shader;
+                    }
+
+                    private int report_notif_id = 0;
+                    void ResetReportId()
+                    {
+                        report_notif_id = 0;
+                    }
+                    void ReportError(String Message)
+                    {
+                        StringWriter swriter = new StringWriter();
+                        PrintWriter pwriter = new PrintWriter(swriter);
+                        new Throwable().printStackTrace(pwriter);
+                        String StackTrace = swriter.toString();
+                        final String Text = Message + "\n\nStack Trace:\n" + StackTrace;
+
+                        NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+                        Notification.Builder notification_builder;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+                        {
+                            NotificationChannel channel = new NotificationChannel("errors", "Errors", NotificationManager.IMPORTANCE_HIGH);
+                            channel.setDescription("Errors are reported here.");
+                            nm.createNotificationChannel(channel);
+                            notification_builder = new Notification.Builder(MaterialsWallpaperService.this, "errors");
+                        }
+                        else
+                            notification_builder = new Notification.Builder(MaterialsWallpaperService.this);
+                        Notification notification = notification_builder
+                                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                                .setContentTitle(report_notif_id == 0 ? "First error (copied to clipboard)" : "Error")
+                                .setContentText(Text)
+                                .setStyle(new Notification.BigTextStyle())
+                                .build();
+                        nm.notify(report_notif_id++, notification);
+
+                        if (report_notif_id == 0)
+                            ((ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE))
+                                    .setPrimaryClip(ClipData.newPlainText("Error text", Text));
                     }
 
                     String ReadRawTextResource(int id)
