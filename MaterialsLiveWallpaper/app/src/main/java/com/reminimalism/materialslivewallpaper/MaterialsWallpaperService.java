@@ -118,13 +118,6 @@ public class MaterialsWallpaperService extends WallpaperService
                         @Override
                         public void onAccuracyChanged(Sensor sensor, int accuracy) {}
                     };
-
-                    Sensor RotationSensor = SensorManagerInstance.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-                    SensorManagerInstance.registerListener(
-                            RotationSensorEventListener,
-                            RotationSensor,
-                            SensorManager.SENSOR_DELAY_UI
-                    );
                 }
                 // else do nothing
 
@@ -423,6 +416,33 @@ public class MaterialsWallpaperService extends WallpaperService
                         ResetReportId();
 
                         SettingsChanged = false;
+
+                        String sensor_update_delay_str = Preferences.getString("sensor_update_delay", "ui");
+                        int sensor_update_delay;
+                        switch (sensor_update_delay_str)
+                        {
+                            case "normal": // 3
+                                sensor_update_delay = SensorManager.SENSOR_DELAY_NORMAL;
+                                break;
+                            case "ui": // 2
+                                sensor_update_delay = SensorManager.SENSOR_DELAY_UI;
+                                break;
+                            case "game": // 1
+                                sensor_update_delay = SensorManager.SENSOR_DELAY_GAME;
+                                break;
+                            case "fastest": // 0
+                                sensor_update_delay = SensorManager.SENSOR_DELAY_FASTEST;
+                                break;
+                            default:
+                                sensor_update_delay = SensorManager.SENSOR_DELAY_UI;
+                                break;
+                        }
+                        Sensor RotationSensor = SensorManagerInstance.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+                        SensorManagerInstance.registerListener(
+                                RotationSensorEventListener,
+                                RotationSensor,
+                                sensor_update_delay
+                        );
 
                         boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
 
@@ -929,7 +949,9 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     void Reinitialize()
                     {
-                        //DeleteObjects(); Initialize() does this.
+                        if (SensorManagerInstance != null && RotationSensorEventListener != null)
+                            SensorManagerInstance.unregisterListener(RotationSensorEventListener);
+                        //DeleteObjects(); // Initialize() does this.
                         Initialize();
                     }
 

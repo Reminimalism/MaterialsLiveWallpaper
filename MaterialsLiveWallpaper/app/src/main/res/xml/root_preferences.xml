@@ -47,6 +47,15 @@
             app:useSimpleSummaryProvider="true"
             app:enabled="true" />
 
+        <ListPreference
+            app:key="sensor_update_delay"
+            app:title="@string/settings_performance_rotation_sensor_update_delay"
+            app:defaultValue="ui"
+            app:entries="@array/settings_performance_rotation_sensor_update_delay_entries"
+            app:entryValues="@array/settings_performance_rotation_sensor_update_delay_values"
+            app:useSimpleSummaryProvider="true"
+            app:enabled="true" />
+
         <SwitchPreference
             app:key="enable_fps_counter"
             app:title="@string/settings_performance_enable_fps_counter"
