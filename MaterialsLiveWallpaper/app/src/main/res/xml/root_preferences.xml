@@ -48,12 +48,20 @@
             app:enabled="true" />
 
         <ListPreference
-            app:key="sensor_update_delay"
+            app:key="rotation_sensor_update_delay"
             app:title="@string/settings_performance_rotation_sensor_update_delay"
             app:defaultValue="ui"
             app:entries="@array/settings_performance_rotation_sensor_update_delay_entries"
             app:entryValues="@array/settings_performance_rotation_sensor_update_delay_values"
             app:useSimpleSummaryProvider="true"
+            app:enabled="true" />
+
+        <SwitchPreferenceCompat
+            app:key="smooth_out_rotation_sensor"
+            app:title="@string/settings_performance_rotation_sensor_smooth_out"
+            app:defaultValue="true"
+            app:summaryOn="@string/settings_performance_rotation_sensor_smooth_out_summary_on"
+            app:summaryOff="@string/settings_performance_rotation_sensor_smooth_out_summary_off"
             app:enabled="true" />
 
         <SwitchPreference

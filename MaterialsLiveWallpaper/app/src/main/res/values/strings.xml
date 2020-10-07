@@ -44,6 +44,13 @@
     <string name="settings_performance_fps_limit">Frame Rate Limit</string>
     <string name="settings_performance_max_additional_layers">Max Allowed Additional Layers</string>
     <string name="settings_performance_rotation_sensor_update_delay">Rotation Sensor Update Rate</string>
+    <string name="settings_performance_rotation_sensor_smooth_out">Smooth Out Rotation Sensor Data</string>
+    <string name="settings_performance_rotation_sensor_smooth_out_summary_on">
+        Smooths it out when it\'s not being updated but adds a little delay (not noticeable at all! delay time = sensor update interval).
+    </string>
+    <string name="settings_performance_rotation_sensor_smooth_out_summary_off">
+        Limited by sensor update rate but with no delay.
+    </string>
     <string name="settings_performance_enable_fps_counter">Enable FPS Counter</string>
 
     <!-- Lights Settings -->

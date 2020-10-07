@@ -80,6 +80,7 @@ public class MaterialsWallpaperService extends WallpaperService
         SensorManager SensorManagerInstance = null;
         SensorEventListener RotationSensorEventListener = null;
         float[] RotationVector = new float[4];
+        boolean RotationVectorChanged = false;
 
         WallpaperGLSurfaceView GLSurface = null;
         boolean SettingsChanged = false;
@@ -112,7 +113,10 @@ public class MaterialsWallpaperService extends WallpaperService
                         public void onSensorChanged(SensorEvent event)
                         {
                             if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
+                            {
                                 System.arraycopy(event.values, 0, RotationVector, 0, 4);
+                                RotationVectorChanged = true;
+                            }
                         }
 
                         @Override
@@ -235,6 +239,14 @@ public class MaterialsWallpaperService extends WallpaperService
                     SolidTriangleProgram FPSCounter = null;
 
                     float FPS = 0;
+
+                    boolean SmoothOutRotationMatrix = true;
+                    float[] DeviceRotationMatrixA = new float[9];
+                    float[] DeviceRotationMatrixB = new float[9];
+                    long DeviceRotationMatrixATime_ms = 0;
+                    long DeviceRotationMatrixBTime_ms = 0;
+                    long DeviceRotationMatrixCTime_ms = 1;
+                    long DeviceRotationMatrixABTimeDiff_ms = 1;
 
                     int GetTextureIDValue(int ID)
                     {
@@ -417,7 +429,9 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         SettingsChanged = false;
 
-                        String sensor_update_delay_str = Preferences.getString("sensor_update_delay", "ui");
+                        SmoothOutRotationMatrix = Preferences.getBoolean("smooth_out_rotation_sensor", true);
+
+                        String sensor_update_delay_str = Preferences.getString("rotation_sensor_update_delay", "ui");
                         int sensor_update_delay;
                         switch (sensor_update_delay_str)
                         {
@@ -999,7 +1013,47 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         // Calculations
 
-                        SensorManager.getRotationMatrixFromVector(DeviceRotationMatrix, RotationVector);
+                        if (SmoothOutRotationMatrix)
+                        {
+                            long current_time_ms = System.currentTimeMillis();
+                            if (current_time_ms > DeviceRotationMatrixCTime_ms)
+                            {
+                                System.arraycopy(DeviceRotationMatrixB, 0, DeviceRotationMatrix, 0, 9);
+                            }
+                            else
+                            {
+                                float t = (float)(current_time_ms - DeviceRotationMatrixBTime_ms) / (float)DeviceRotationMatrixABTimeDiff_ms;
+                                for (int i = 0; i < 9; i++)
+                                    DeviceRotationMatrix[i]
+                                            = DeviceRotationMatrixA[i]
+                                            + (DeviceRotationMatrixB[i] - DeviceRotationMatrixA[i])
+                                                * t;
+                                // No normalization should be fine
+                            }
+                            if (RotationVectorChanged)
+                            {
+                                System.arraycopy(DeviceRotationMatrix, 0, DeviceRotationMatrixA, 0, 9);
+                                SensorManager.getRotationMatrixFromVector(DeviceRotationMatrixB, RotationVector);
+                                DeviceRotationMatrixATime_ms = DeviceRotationMatrixBTime_ms;
+                                DeviceRotationMatrixBTime_ms = System.currentTimeMillis();
+                                DeviceRotationMatrixABTimeDiff_ms = DeviceRotationMatrixBTime_ms - DeviceRotationMatrixATime_ms;
+                                if (DeviceRotationMatrixABTimeDiff_ms <= 0) DeviceRotationMatrixABTimeDiff_ms = 1;
+                                if (DeviceRotationMatrixATime_ms == 0)
+                                {
+                                    System.arraycopy(DeviceRotationMatrixB, 0, DeviceRotationMatrixA, 0, 9);
+                                    System.arraycopy(DeviceRotationMatrixB, 0, DeviceRotationMatrix, 0, 9);
+                                    DeviceRotationMatrixABTimeDiff_ms = 1;
+                                }
+                                DeviceRotationMatrixCTime_ms = DeviceRotationMatrixBTime_ms + DeviceRotationMatrixATime_ms;
+                                RotationVectorChanged = false;
+                            }
+                        }
+                        else if (RotationVectorChanged)
+                        {
+                            SensorManager.getRotationMatrixFromVector(DeviceRotationMatrix, RotationVector);
+                            RotationVectorChanged = false;
+                        }
+
                         int rotation = ((WindowManager)getSystemService(Context.WINDOW_SERVICE))
                                 .getDefaultDisplay()
                                 .getRotation();
