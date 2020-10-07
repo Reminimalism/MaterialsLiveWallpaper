@@ -1047,7 +1047,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                     System.arraycopy(DeviceRotationMatrixB, 0, DeviceRotationMatrix, 0, 9);
                                     DeviceRotationMatrixABTimeDiff_ms = 1;
                                 }
-                                DeviceRotationMatrixCTime_ms = DeviceRotationMatrixBTime_ms + DeviceRotationMatrixATime_ms;
+                                DeviceRotationMatrixCTime_ms = DeviceRotationMatrixBTime_ms + DeviceRotationMatrixABTimeDiff_ms;
                                 RotationVectorChanged = false;
                             }
                         }
