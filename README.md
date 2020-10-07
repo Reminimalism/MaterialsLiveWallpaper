@@ -8,4 +8,4 @@ A live wallpaper that renders materials and uses phone's sensors to reflect ligh
 
 # Custom Materials
 
-See [Material Samples](https://github.com/Reminimalism/MaterialsLiveWallpaperMaterialSamples) for samples and instructions on making your own custom materials.
+See [Custom Materials](https://github.com/Reminimalism/MaterialsLiveWallpaperCustomMaterials) for samples and instructions on making your own custom materials.
