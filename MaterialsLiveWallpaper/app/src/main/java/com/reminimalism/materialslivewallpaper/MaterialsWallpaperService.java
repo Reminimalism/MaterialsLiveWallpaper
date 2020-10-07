@@ -430,6 +430,9 @@ public class MaterialsWallpaperService extends WallpaperService
                         SettingsChanged = false;
 
                         SmoothOutRotationMatrix = Preferences.getBoolean("smooth_out_rotation_sensor", true);
+                        Arrays.fill(DeviceRotationMatrix, 0);
+                        Arrays.fill(DeviceRotationMatrixA, 0);
+                        Arrays.fill(DeviceRotationMatrixB, 0);
 
                         String sensor_update_delay_str = Preferences.getString("rotation_sensor_update_delay", "ui");
                         int sensor_update_delay;
