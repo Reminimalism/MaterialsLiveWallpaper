@@ -95,7 +95,7 @@ public class SettingsActivity extends AppCompatActivity
                 {
                     startActivity(new Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("https://github.com/Reminimalism/MaterialsLiveWallpaperMaterialSamples")
+                            Uri.parse("https://github.com/Reminimalism/MaterialsLiveWallpaperCustomMaterials")
                     ));
                     return true;
                 }

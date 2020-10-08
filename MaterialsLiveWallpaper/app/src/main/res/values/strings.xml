@@ -57,7 +57,7 @@
 
     <string name="settings_lights_positions">Light Positions</string>
     <string name="settings_lights_colors">Light Colors</string>
-    <string name="settings_lights_colors_load_sample">Load a sample</string>
+    <string name="settings_lights_colors_load_sample">Load a Sample</string>
     <string name="settings_lights_colors_count">Colors Count</string>
     <string name="settings_lights_colors_light_color_n">Light Color %1$d</string>
     <!-- samples in arrays.xml -->
