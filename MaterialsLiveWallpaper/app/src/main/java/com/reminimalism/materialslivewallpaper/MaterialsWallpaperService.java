@@ -162,6 +162,8 @@ public class MaterialsWallpaperService extends WallpaperService
                     float[] LightReflectionDirections;
                     float[] LightColors;
 
+                    float Exposure;
+
                     final String[] DefaultLightDirections = {
                             "0,0,1",
                             "0.8944271909999159,0,0.4472135954999579",
@@ -202,6 +204,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         public int ShininessUniform;
                         public int BrushUniform;
                         public int BrushIntensityUniform;
+
+                        public int ExposureUniform;
 
                         public int BaseTexture;
                         public int ReflectionsTexture;
@@ -550,6 +554,41 @@ public class MaterialsWallpaperService extends WallpaperService
 
                         LightReflectionDirections = new float[LightDirections.length]; // Will be updated based on LightDirections & device rotation
 
+                        // Exposure
+
+                        if (Preferences.getBoolean("enable_auto_exposure", false))
+                        {
+                            float max_light = 0;
+                            for (int i = 0; i < count; i++)
+                            {
+                                float sum_r = LightColors[i * 3];
+                                float sum_g = LightColors[i * 3 + 1];
+                                float sum_b = LightColors[i * 3 + 2];
+                                for (int j = 0; j < count; j++) if (i != j)
+                                {
+                                    float dot = LightDirections[i * 3] * LightDirections[j * 3]
+                                            + LightDirections[i * 3 + 1] * LightDirections[j * 3 + 1]
+                                            + LightDirections[i * 3 + 2] * LightDirections[j * 3 + 2];
+                                    if (dot > 0)
+                                    {
+                                        sum_r += dot * LightColors[j * 3];
+                                        sum_g += dot * LightColors[j * 3 + 1];
+                                        sum_b += dot * LightColors[j * 3 + 2];
+                                    }
+                                }
+                                max_light = Math.max(max_light, Math.max(sum_r, Math.max(sum_g, sum_b)));
+                            }
+                            if (max_light > 1)
+                                Exposure = 1 / max_light;
+                            else
+                                Exposure = 1;
+                            Exposure += Exposure * ((float)Preferences.getInt("additional_exposure", 0) / 100f);
+                        }
+                        else
+                        {
+                            Exposure = ((float)Preferences.getInt("exposure", 100) / 100f);
+                        }
+
                         // GL setup
 
                         GLES20.glClearColor(0, 0, 0, 1);
@@ -825,6 +864,8 @@ public class MaterialsWallpaperService extends WallpaperService
                                     current_layer.SamplerUniforms[tex_arr_index++]
                                             = current_layer.BrushIntensityUniform
                                             = GLES20.glGetUniformLocation(current_layer.Program, "BrushIntensity");
+
+                                current_layer.ExposureUniform = GLES20.glGetUniformLocation(current_layer.Program, "Exposure");
                             }
 
                             // Textures
@@ -1169,6 +1210,8 @@ public class MaterialsWallpaperService extends WallpaperService
                                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, layer.Textures[i]);
                                 GLES20.glUniform1i(layer.SamplerUniforms[i], i);
                             }
+
+                            GLES20.glUniform1f(layer.ExposureUniform, Exposure);
 
                             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
                             //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, 6);

@@ -24,7 +24,7 @@
 
     <string name="settings_category_material">Material</string>
     <string name="settings_category_performance">Performance</string>
-    <string name="settings_category_lights">Light Sources</string>
+    <string name="settings_category_lights">Lights</string>
     <string name="settings_category_more">More</string>
 
     <!-- Materials Settings -->
@@ -62,8 +62,22 @@
     <string name="settings_lights_colors_light_color_n">Light Color %1$d</string>
     <!-- samples in arrays.xml -->
     <string name="settings_lights_colors_intensity_notice">
-        It\'s recommended to keep the intensity below 0.6 for all lights.
+        It\'s recommended to keep the intensity below 0.6 for all lights that are close together.
     </string>
+
+    <string name="settings_lights_auto_exposure">Automatically Set Exposure</string>
+    <string name="settings_lights_auto_exposure_summary_on">
+        Automatically sets exposure to guarantee no overexposure (with the right materials).
+        You may want to add some additional exposure with this enabled.
+    </string>
+    <string name="settings_lights_auto_exposure_summary_off">
+        The exposure can be set manually.
+    </string>
+    <string name="settings_lights_exposure">Exposure</string>
+    <string name="settings_lights_exposure_summary">
+        Manual exposure
+    </string>
+    <string name="settings_lights_additional_exposure">Additional Exposure</string>
 
     <!-- More -->
 

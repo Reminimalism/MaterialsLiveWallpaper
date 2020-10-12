@@ -27,6 +27,44 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/settings_category_lights">
+
+        <MultiSelectListPreference
+            app:key="light_directions"
+            app:title="@string/settings_lights_positions"
+            app:defaultValue="@array/settings_lights_position_default_values"
+            app:entries="@array/settings_lights_position_entries"
+            app:entryValues="@array/settings_lights_position_values"
+            app:useSimpleSummaryProvider="true" />
+
+        <Preference
+            app:key="light_colors"
+            app:title="@string/settings_lights_colors"
+            app:defaultValue="0.6,0.6,0.6" />
+
+        <SwitchPreference
+            app:key="enable_auto_exposure"
+            app:title="@string/settings_lights_auto_exposure"
+            app:summaryOn="@string/settings_lights_auto_exposure_summary_on"
+            app:summaryOff="@string/settings_lights_auto_exposure_summary_off"
+            app:defaultValue="false"
+            app:disableDependentsState="true"
+            app:enabled="true" />
+
+        <SeekBarPreference
+            app:key="exposure"
+            app:title="@string/settings_lights_exposure"
+            app:summary="@string/settings_lights_exposure_summary"
+            app:defaultValue="100"
+            app:dependency="enable_auto_exposure" />
+
+        <SeekBarPreference
+            app:key="additional_exposure"
+            app:title="@string/settings_lights_additional_exposure"
+            app:defaultValue="0" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/settings_category_performance">
 
         <ListPreference
@@ -69,23 +107,6 @@
             app:title="@string/settings_performance_enable_fps_counter"
             app:defaultValue="false"
             app:enabled="true" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="@string/settings_category_lights">
-
-        <MultiSelectListPreference
-            app:key="light_directions"
-            app:title="@string/settings_lights_positions"
-            app:defaultValue="@array/settings_lights_position_default_values"
-            app:entries="@array/settings_lights_position_entries"
-            app:entryValues="@array/settings_lights_position_values"
-            app:useSimpleSummaryProvider="true" />
-
-        <Preference
-            app:key="light_colors"
-            app:title="@string/settings_lights_colors"
-            app:defaultValue="0.6,0.6,0.6" />
 
     </PreferenceCategory>
 

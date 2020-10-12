@@ -68,6 +68,8 @@ uniform vec3 LightColors[LIGHTS_COUNT];
   uniform sampler2D BrushIntensity;
 #endif
 
+uniform float Exposure;
+
 varying vec2 UV;
 varying vec3 FOVNormal;
 
@@ -167,11 +169,11 @@ void main()
     }
 
 #if ENABLE_BASE && ENABLE_REFLECTIONS
-    gl_FragColor = vec4(base_color * lights + reflections_color * reflections, 1.0);
+    gl_FragColor = vec4((base_color * lights + reflections_color * reflections) * Exposure, 1.0);
 #elif ENABLE_BASE && !ENABLE_REFLECTIONS
-    gl_FragColor = vec4(base_color * lights, 1.0);
+    gl_FragColor = vec4((base_color * lights) * Exposure, 1.0);
 #elif !ENABLE_BASE && ENABLE_REFLECTIONS
-    gl_FragColor = vec4(reflections_color * reflections, 1.0);
+    gl_FragColor = vec4((reflections_color * reflections) * Exposure, 1.0);
 #else
     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 #endif
