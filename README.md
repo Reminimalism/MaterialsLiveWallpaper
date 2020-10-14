@@ -9,6 +9,8 @@ A live wallpaper that renders materials and uses device's sensors to reflect lig
   <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="90"/>
 </a>
 
+The F-Droid version gets the more recent updates.
+
 # Custom Materials
 
 See [Custom Materials](https://github.com/Reminimalism/MaterialsLiveWallpaperCustomMaterials) for samples and instructions on making your own custom materials.
