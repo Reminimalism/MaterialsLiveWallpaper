@@ -1,0 +1,4 @@
+Added rotation sensor data smooth out feature, so the wallpaper will be as smooth as the framerates can go.
+Added an option to change the rotation sensor update rate.
+Added settings button to the main activity.
+Changed Max Allowed Additional Layers default value to 2.
