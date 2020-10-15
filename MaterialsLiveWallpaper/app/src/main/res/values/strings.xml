@@ -67,7 +67,7 @@
 
     <string name="settings_lights_auto_exposure">Automatically Set Exposure</string>
     <string name="settings_lights_auto_exposure_summary_on">
-        Automatically sets exposure to guarantee no overexposure (with the right materials).
+        Automatically sets exposure based on light sources to guarantee no overexposure (with the right materials).
         You may want to add some additional exposure with this enabled.
     </string>
     <string name="settings_lights_auto_exposure_summary_off">
