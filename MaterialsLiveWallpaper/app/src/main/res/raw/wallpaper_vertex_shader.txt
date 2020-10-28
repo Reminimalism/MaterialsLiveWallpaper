@@ -1,9 +1,19 @@
-#ifndef ENABLE_PARALLAX
-  #define ENABLE_PARALLAX 0
+#ifndef ENABLE_DEPTH
+  #define ENABLE_DEPTH 0
+#endif
+
+#ifndef ENABLE_HEIGHT
+  #define ENABLE_HEIGHT 0
 #endif
 
 #ifndef ENABLE_VIEWER_FOR_REFLECTIONS
   #define ENABLE_VIEWER_FOR_REFLECTIONS 0
+#endif
+
+#ifndef ENABLE_DEPTH || ENABLE_HEIGHT
+  #define ENABLE_PARALLAX 1
+#else
+  #define ENABLE_PARALLAX 0
 #endif
 
 uniform vec3 ScreenFrontDirection;
