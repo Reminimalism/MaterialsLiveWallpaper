@@ -26,12 +26,30 @@
   #define ENABLE_BRUSH_INTENSITY 0
 #endif
 
+#ifndef ENABLE_DEPTH
+  #define ENABLE_DEPTH 0
+#endif
+
+#ifndef ENABLE_HEIGHT
+  #define ENABLE_HEIGHT 0
+#endif
+
 #ifndef ENABLE_CIRCULAR_BRUSH
   #define ENABLE_CIRCULAR_BRUSH 0
 #endif
 
 #ifndef LIGHTS_COUNT
   #define LIGHTS_COUNT 6
+#endif
+
+#ifndef ENABLE_VIEWER_FOR_REFLECTIONS
+  #define ENABLE_VIEWER_FOR_REFLECTIONS 0
+#endif
+
+#ifndef ENABLE_DEPTH || ENABLE_HEIGHT
+  #define ENABLE_PARALLAX 1
+#else
+  #define ENABLE_PARALLAX 0
 #endif
 
 precision highp float;
@@ -41,7 +59,9 @@ uniform highp vec3 ScreenUpDirection;
 uniform highp vec3 ScreenRightDirection;
 
 uniform vec3 LightDirections[LIGHTS_COUNT];
-uniform vec3 LightReflectionDirections[LIGHTS_COUNT]; // 2x closer to each other
+#if !ENABLE_VIEWER_FOR_REFLECTIONS
+  uniform vec3 LightReflectionDirections[LIGHTS_COUNT]; // 2x closer to each other
+#endif
 uniform vec3 LightColors[LIGHTS_COUNT];
 
 #if ENABLE_BASE
@@ -68,25 +88,58 @@ uniform vec3 LightColors[LIGHTS_COUNT];
   uniform sampler2D BrushIntensity;
 #endif
 
+#if ENABLE_DEPTH
+  uniform sampler2D Depth;
+  uniform float DepthIntensity;
+#endif
+
+#if ENABLE_HEIGHT
+  uniform sampler2D Height;
+  uniform float HeightIntensity;
+#endif
+
 uniform float Exposure;
 
 varying vec2 UV;
-varying vec3 FOVNormal;
+
+#if !ENABLE_VIEWER_FOR_REFLECTIONS
+  varying vec3 FOVNormal;
+#endif
+
+#if ENABLE_PARALLAX || ENABLE_VIEWER_FOR_REFLECTIONS
+  varying vec3 ViewerDirection; // From surface to viewer, requires normalization
+#endif
 
 void main()
 {
+    // parallax
+
+    vec2 uv = UV;
+#if ENABLE_PARALLAX || ENABLE_VIEWER_FOR_REFLECTIONS
+    vec3 view = normalize(ViewerDirection);
+#endif
+#if ENABLE_PARALLAX
+    vec2 parallax_offset = (view.xy / view.z);
+  #if ENABLE_DEPTH
+    uv -= parallax_offset * texture2D(Depth, uv).x * DepthIntensity;
+  #endif
+  #if ENABLE_HEIGHT
+    uv += parallax_offset * texture2D(Height, uv).x * HeightIntensity;
+  #endif
+#endif
+
     // tex values
 
 #if ENABLE_BASE
-    vec3 base_color = texture2D(BaseColor, UV).xyz;
+    vec3 base_color = texture2D(BaseColor, uv).xyz;
 #endif
 
 #if ENABLE_REFLECTIONS
-    vec3 reflections_color = texture2D(ReflectionsColor, UV).xyz;
+    vec3 reflections_color = texture2D(ReflectionsColor, uv).xyz;
 #endif
 
 #if ENABLE_NORMAL
-    vec3 normal = texture2D(Normal, UV).xyz * 2.0 - 1.0;
+    vec3 normal = texture2D(Normal, uv).xyz * 2.0 - 1.0;
     if (abs(normal.x) < 0.01) normal.x = 0.0;
     if (abs(normal.y) < 0.01) normal.y = 0.0;
     if (abs(normal.z) < 0.01) normal.z = 0.0;
@@ -97,11 +150,11 @@ void main()
 #endif
 
 #if ENABLE_SHININESS
-    float shininess = texture2D(Shininess, UV).x;
+    float shininess = texture2D(Shininess, uv).x;
 #endif
 
 #if ENABLE_BRUSH && !ENABLE_CIRCULAR_BRUSH
-    vec3 brush = texture2D(Brush, UV).xyz * 2.0 - 1.0;
+    vec3 brush = texture2D(Brush, uv).xyz * 2.0 - 1.0;
     // 128 => 0
     // 0   => less than -1
     // 255 => less than 1 // bound doesn't really matter for brush
@@ -112,12 +165,12 @@ void main()
 #endif
 
 #if ENABLE_CIRCULAR_BRUSH
-    vec2 c_uv = normalize(UV * vec2(2.0, -2.0) + vec2(-1.0, 1.0));
+    vec2 c_uv = normalize(uv * vec2(2.0, -2.0) + vec2(-1.0, 1.0));
     vec3 brush = vec3(vec2(c_uv.y, -c_uv.x) * 0.1, 0.0);
 #endif
 
 #if ENABLE_BRUSH_INTENSITY && (ENABLE_BRUSH || ENABLE_CIRCULAR_BRUSH)
-    brush *= texture2D(BrushIntensity, UV).x;
+    brush *= texture2D(BrushIntensity, uv).x;
 #endif
 
 #if ENABLE_BASE
@@ -132,16 +185,28 @@ void main()
     vec3 shared_xy_normal_map_diff = normal.x * ScreenRightDirection
                                    + normal.y * ScreenUpDirection;
     vec3 base_normal = ScreenFrontDirection * normal.z + shared_xy_normal_map_diff;
+  #if !ENABLE_VIEWER_FOR_REFLECTIONS
     vec3 reflection_normal = normalize(normalize(FOVNormal) * normal.z + shared_xy_normal_map_diff);
+  #endif
 #else
     vec3 base_normal = ScreenFrontDirection;
+  #if !ENABLE_VIEWER_FOR_REFLECTIONS
     vec3 reflection_normal = normalize(FOVNormal);
+  #endif
+#endif
+
+#if ENABLE_VIEWER_FOR_REFLECTIONS
+    vec3 reflection_normal = 2.0 * base_normal - view; // = base_normal - (view - base_normal)
 #endif
 
 #if ENABLE_BRUSH || ENABLE_CIRCULAR_BRUSH
     vec3 brush_reflection_direction = brush.x * ScreenRightDirection
                                     + brush.y * ScreenUpDirection
                                     + brush.z * ScreenFrontDirection;
+#endif
+
+#if ENABLE_VIEWER_FOR_REFLECTIONS
+  #define LightReflectionDirections LightDirections
 #endif
 
     for (int i = 0; i < LIGHTS_COUNT; i++)
@@ -159,7 +224,7 @@ void main()
   #if ENABLE_BRUSH || ENABLE_CIRCULAR_BRUSH
                 * brush_effect
   #endif
-            , 20.0
+            , 20.0 // TODO: Decide whether to reduce it to 0 #if ENABLE_VIEWER_FOR_REFLECTIONS
   #if ENABLE_SHININESS
                 + shininess * 10000.0
   #endif

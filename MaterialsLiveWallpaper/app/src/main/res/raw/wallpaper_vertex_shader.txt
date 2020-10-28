@@ -37,7 +37,7 @@ varying vec2 UV;
 #endif
 
 #if ENABLE_PARALLAX || ENABLE_VIEWER_FOR_REFLECTIONS
-  varying vec3 ViewingAngle; // From surface to viewer, requires normalization
+  varying vec3 ViewerDirection; // From surface to viewer, requires normalization
 #endif
 
 void main()
@@ -51,7 +51,7 @@ void main()
 #endif
 
 #if ENABLE_PARALLAX || ENABLE_VIEWER_FOR_REFLECTIONS
-    ViewingAngle = vec3(Viewer.xy - fov_offset, Viewer.z)
+    ViewerDirection = vec3(Viewer.xy - fov_offset, Viewer.z);
 #endif
 
     UV = (vec2(Position.x, -Position.y) * UVScale + vec2(1, 1)) * 0.5;
