@@ -51,15 +51,15 @@
     <string name="settings_performance_rotation_sensor_smooth_out_summary_off">
         Limited by sensor update rate but with no delay.
     </string>
-    <string name="settings_performance_advanced_viewing">Advanced Viewing</string>
-    <string name="settings_performance_advanced_viewing_summary_off">
-        Light positions will be moved for reflections. This looks more natural but is limited.
-    </string>
-    <string name="settings_performance_advanced_viewing_summary_on">
-        Viewing angle will be variable based on rotational differences.
-    </string>
     <string name="settings_performance_parallax">Parallax</string>
     <string name="settings_performance_parallax_summary">Requires a depth map.</string>
+    <string name="settings_performance_viewer_for_reflections">Virtual Viewer for Reflections</string>
+    <string name="settings_performance_viewer_for_reflections_summary_off">
+        Light positions will be moved for reflections. This looks more natural.
+    </string>
+    <string name="settings_performance_viewer_for_reflections_summary_on">
+        Viewing angle for reflections will be variable based on rotational differences, like parallax\'s changing viewing angle.
+    </string>
     <string name="settings_performance_enable_fps_counter">Enable FPS Counter</string>
 
     <!-- Lights Settings -->
