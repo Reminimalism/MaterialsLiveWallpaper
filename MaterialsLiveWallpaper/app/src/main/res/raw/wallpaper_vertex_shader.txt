@@ -1,22 +1,49 @@
+#ifndef ENABLE_PARALLAX
+  #define ENABLE_PARALLAX 0
+#endif
+
+#ifndef ENABLE_VIEWER_FOR_REFLECTIONS
+  #define ENABLE_VIEWER_FOR_REFLECTIONS 0
+#endif
+
 uniform vec3 ScreenFrontDirection;
 uniform vec3 ScreenUpDirection;
 uniform vec3 ScreenRightDirection;
 
 uniform vec2 FOV;
 
+#if ENABLE_PARALLAX || ENABLE_VIEWER_FOR_REFLECTIONS
+  uniform vec3 Viewer;
+#endif
+
 uniform vec2 UVScale;
 
 attribute vec4 Position;
 
 varying vec2 UV;
-varying vec3 FOVNormal;
+
+#if !ENABLE_VIEWER_FOR_REFLECTIONS
+  varying vec3 FOVNormal;
+#endif
+
+#if ENABLE_PARALLAX || ENABLE_VIEWER_FOR_REFLECTIONS
+  varying vec3 ViewingAngle; // From surface to viewer, requires normalization
+#endif
 
 void main()
 {
-    vec2 normal_diff = FOV * Position.xy;
+    vec2 fov_offset = FOV * Position.xy;
+
+#if !ENABLE_VIEWER_FOR_REFLECTIONS
     FOVNormal = ScreenFrontDirection
-              + normal_diff.x * ScreenRightDirection
-              + normal_diff.y * ScreenUpDirection;
+              + fov_offset.x * ScreenRightDirection
+              + fov_offset.y * ScreenUpDirection;
+#endif
+
+#if ENABLE_PARALLAX || ENABLE_VIEWER_FOR_REFLECTIONS
+    ViewingAngle = vec3(Viewer.xy - fov_offset, Viewer.z)
+#endif
+
     UV = (vec2(Position.x, -Position.y) * UVScale + vec2(1, 1)) * 0.5;
     gl_Position = Position;
 }
