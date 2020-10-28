@@ -94,13 +94,29 @@
             app:useSimpleSummaryProvider="true"
             app:enabled="true" />
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             app:key="smooth_out_rotation_sensor"
             app:title="@string/settings_performance_rotation_sensor_smooth_out"
             app:defaultValue="true"
             app:summaryOn="@string/settings_performance_rotation_sensor_smooth_out_summary_on"
             app:summaryOff="@string/settings_performance_rotation_sensor_smooth_out_summary_off"
             app:enabled="true" />
+
+        <SwitchPreference
+            app:key="enable_advanced_viewing"
+            app:title="@string/settings_performance_advanced_viewing"
+            app:defaultValue="false"
+            app:summaryOff="@string/settings_performance_advanced_viewing_summary_off"
+            app:summaryOn="@string/settings_performance_advanced_viewing_summary_on"
+            app:enabled="false" />
+
+        <SwitchPreference
+            app:key="enable_parallax"
+            app:title="@string/settings_performance_parallax"
+            app:defaultValue="true"
+            app:dependency="enable_advanced_viewing"
+            app:summary="@string/settings_performance_parallax_summary"
+            app:enabled="false" />
 
         <SwitchPreference
             app:key="enable_fps_counter"
