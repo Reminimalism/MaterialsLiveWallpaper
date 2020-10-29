@@ -18,6 +18,10 @@ public class Config
 
     public boolean NormalizeNormal = true;
 
+    // Adjust default values
+    public double DepthIntensity = 0.1;
+    public double HeightIntensity = 0.1;
+
     public Config()
     {
         InitializeSupportedTargetVersions();
@@ -48,6 +52,8 @@ public class Config
         try { PixelatedBrush          = json.getBoolean("PixelatedBrush");          } catch (JSONException ignored) {}
         try { PixelatedBrushIntensity = json.getBoolean("PixelatedBrushIntensity"); } catch (JSONException ignored) {}
         try { NormalizeNormal         = json.getBoolean("NormalizeNormal");         } catch (JSONException ignored) {}
+        try { DepthIntensity          = json.getDouble("DepthIntensity");           } catch (JSONException ignored) {}
+        try { HeightIntensity         = json.getDouble("HeightIntensity");          } catch (JSONException ignored) {}
     }
 
     public boolean IsTargetVersionSupported()

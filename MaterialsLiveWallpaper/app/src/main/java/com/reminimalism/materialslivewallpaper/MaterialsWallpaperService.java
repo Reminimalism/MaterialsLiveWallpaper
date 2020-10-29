@@ -184,6 +184,10 @@ public class MaterialsWallpaperService extends WallpaperService
                         public boolean EnableShininess = false;
                         public boolean EnableBrush = false;
                         public boolean EnableBrushIntensity = false;
+                        public boolean EnableDepth = false;
+                        public boolean EnableHeight = false;
+
+                        public boolean EnableParallax = false;
 
                         public boolean EnableCircularBrush = false;
 
@@ -197,6 +201,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         public int FOVUniform;
                         public int UVScaleUniform;
 
+                        public int ViewerUniform;
+
                         public int LightDirectionsUniform;
                         public int LightReflectionDirectionsUniform;
                         public int LightColorsUniform;
@@ -207,6 +213,11 @@ public class MaterialsWallpaperService extends WallpaperService
                         public int ShininessUniform;
                         public int BrushUniform;
                         public int BrushIntensityUniform;
+                        public int DepthUniform;
+                        public int HeightUniform;
+
+                        public int DepthIntensityUniform;
+                        public int HeightIntensityUniform;
 
                         public int ExposureUniform;
 
@@ -216,6 +227,11 @@ public class MaterialsWallpaperService extends WallpaperService
                         public int ShininessTexture;
                         public int BrushTexture;
                         public int BrushIntensityTexture;
+                        public int DepthTexture;
+                        public int HeightTexture;
+
+                        public float DepthIntensity;
+                        public float HeightIntensity;
 
                         public int[] SamplerUniforms = null;
                         public int[] Textures = null;
@@ -254,6 +270,9 @@ public class MaterialsWallpaperService extends WallpaperService
                     long DeviceRotationMatrixBTime_ms = 0;
                     long DeviceRotationMatrixCTime_ms = 1;
                     long DeviceRotationMatrixABTimeDiff_ms = 1;
+
+                    boolean UseViewerForReflections = false;
+                    boolean EnableParallax = true;
 
                     float[] ViewerPosition = { 0, 0, 1 };
 
@@ -447,6 +466,9 @@ public class MaterialsWallpaperService extends WallpaperService
                         DeviceRotationMatrix[8] = 1;
                         System.arraycopy(DeviceRotationMatrix, 0, DeviceRotationMatrixA, 0, 9);
                         System.arraycopy(DeviceRotationMatrix, 0, DeviceRotationMatrixB, 0, 9);
+
+                        UseViewerForReflections = Preferences.getBoolean("enable_viewer_for_reflections", false);
+                        EnableParallax = Preferences.getBoolean("enable_parallax", true);
 
                         String sensor_update_delay_str = Preferences.getString("rotation_sensor_update_delay", "ui");
                         int sensor_update_delay;
@@ -648,15 +670,6 @@ public class MaterialsWallpaperService extends WallpaperService
                             ProgramCheck(FPSCounter.Program);
                         }
 
-                        // Vertex shader setup
-
-                        int VertexShader = CompileShader(
-                                ReadRawTextResource(R.raw.wallpaper_vertex_shader),
-                                false,
-                                "Wallpaper"
-                        );
-                        ShaderCheck(VertexShader);
-
                         // Layers
 
                         LayerFilenames[] layers_f;
@@ -703,6 +716,14 @@ public class MaterialsWallpaperService extends WallpaperService
                                             MaterialsWallpaperService.this,
                                             SettingsActivity.CustomMaterialAssetType.BrushIntensity
                                     );
+                                    layer_f.Depth = SettingsActivity.GetCustomMaterialAssetFilename(
+                                            MaterialsWallpaperService.this,
+                                            SettingsActivity.CustomMaterialAssetType.Depth
+                                    );
+                                    layer_f.Height = SettingsActivity.GetCustomMaterialAssetFilename(
+                                            MaterialsWallpaperService.this,
+                                            SettingsActivity.CustomMaterialAssetType.Height
+                                    );
                                     current_layer.EnableBase =
                                             Behavior.DefaultBaseAndReflectionsToGray80 // Backward compatibility
                                             || layer_f.Base != null;
@@ -713,6 +734,8 @@ public class MaterialsWallpaperService extends WallpaperService
                                     current_layer.EnableShininess      = layer_f.Shininess      != null;
                                     current_layer.EnableBrush          = layer_f.Brush          != null;
                                     current_layer.EnableBrushIntensity = layer_f.BrushIntensity != null;
+                                    current_layer.EnableDepth          = layer_f.Depth          != null;
+                                    current_layer.EnableHeight         = layer_f.Height         != null;
                                 }
                                 else
                                 {
@@ -762,6 +785,8 @@ public class MaterialsWallpaperService extends WallpaperService
                                     current_layer.EnableShininess   = true;
                                     current_layer.EnableBrush       = true;
                                     current_layer.EnableBrushIntensity = false;
+                                    current_layer.EnableDepth = false;
+                                    current_layer.EnableHeight = false;
                                 }
                             }
                             else
@@ -773,9 +798,14 @@ public class MaterialsWallpaperService extends WallpaperService
                                 current_layer.EnableShininess      = layer_f.Shininess      != null;
                                 current_layer.EnableBrush          = layer_f.Brush          != null;
                                 current_layer.EnableBrushIntensity = layer_f.BrushIntensity != null;
+                                current_layer.EnableDepth          = layer_f.Depth          != null;
+                                current_layer.EnableHeight         = layer_f.Height         != null;
                             }
 
                             current_layer.EnableBrush = current_layer.EnableBrush && !current_layer.EnableCircularBrush;
+                            current_layer.EnableDepth = current_layer.EnableDepth && EnableParallax;
+                            current_layer.EnableHeight = current_layer.EnableHeight && EnableParallax;
+                            current_layer.EnableParallax = current_layer.EnableDepth || current_layer.EnableHeight;
 
                             int current_layer_textures_count = 0;
                             if (current_layer.EnableBase) current_layer_textures_count++;
@@ -784,19 +814,36 @@ public class MaterialsWallpaperService extends WallpaperService
                             if (current_layer.EnableShininess) current_layer_textures_count++;
                             if (current_layer.EnableBrush) current_layer_textures_count++;
                             if (current_layer.EnableBrushIntensity) current_layer_textures_count++;
+                            if (current_layer.EnableDepth) current_layer_textures_count++;
+                            if (current_layer.EnableHeight) current_layer_textures_count++;
+
+                            // Vertex shader setup
+
+                            int VertexShader = CompileShader(
+                                    "#define ENABLE_DEPTH " + (current_layer.EnableDepth ? "1\n" : "0\n")
+                                            + "#define ENABLE_HEIGHT "                 + (current_layer.EnableHeight ? "1\n" : "0\n")
+                                            + "#define ENABLE_VIEWER_FOR_REFLECTIONS " + (UseViewerForReflections ? "1\n" : "0\n")
+                                            + ReadRawTextResource(R.raw.wallpaper_vertex_shader),
+                                    false,
+                                    "Wallpaper"
+                            );
+                            ShaderCheck(VertexShader);
 
                             // Fragment shader setup
 
                             int FragmentShader = CompileShader(
                                     "#define LIGHTS_COUNT " + (LightDirections.length / 3) + "\n"
                                             + (current_layer.EnableCircularBrush ? "#define ENABLE_CIRCULAR_BRUSH 1\n" : "")
-                                            + "#define ENABLE_NORMAL_NORMALIZATION " + (Config.NormalizeNormal ? "1\n" : "0\n")
+                                            + "#define ENABLE_NORMAL_NORMALIZATION "   + (Config.NormalizeNormal ? "1\n" : "0\n")
+                                            + "#define ENABLE_VIEWER_FOR_REFLECTIONS " + (UseViewerForReflections ? "1\n" : "0\n")
                                             + "#define ENABLE_BASE "            + (current_layer.EnableBase ? "1\n" : "0\n")
                                             + "#define ENABLE_REFLECTIONS "     + (current_layer.EnableReflections ? "1\n" : "0\n")
                                             + "#define ENABLE_NORMAL "          + (current_layer.EnableNormal ? "1\n" : "0\n")
                                             + "#define ENABLE_SHININESS "       + (current_layer.EnableShininess ? "1\n" : "0\n")
                                             + "#define ENABLE_BRUSH "           + (current_layer.EnableBrush ? "1\n" : "0\n")
                                             + "#define ENABLE_BRUSH_INTENSITY " + (current_layer.EnableBrushIntensity ? "1\n" : "0\n")
+                                            + "#define ENABLE_DEPTH "           + (current_layer.EnableDepth ? "1\n" : "0\n")
+                                            + "#define ENABLE_HEIGHT "          + (current_layer.EnableHeight ? "1\n" : "0\n")
                                             + ReadRawTextResource(R.raw.wallpaper_fragment_shader),
                                     true,
                                     "Wallpaper"
@@ -839,8 +886,12 @@ public class MaterialsWallpaperService extends WallpaperService
                                 current_layer.FOVUniform = GLES20.glGetUniformLocation(current_layer.Program, "FOV");
                                 current_layer.UVScaleUniform = GLES20.glGetUniformLocation(current_layer.Program, "UVScale");
 
+                                if (UseViewerForReflections || current_layer.EnableParallax)
+                                    current_layer.ViewerUniform = GLES20.glGetUniformLocation(current_layer.Program, "Viewer");
+
                                 current_layer.LightDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightDirections");
-                                current_layer.LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightReflectionDirections");
+                                if (!UseViewerForReflections)
+                                    current_layer.LightReflectionDirectionsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightReflectionDirections");
                                 current_layer.LightColorsUniform = GLES20.glGetUniformLocation(current_layer.Program, "LightColors");
 
                                 current_layer.SamplerUniforms = new int[current_layer_textures_count];
@@ -869,6 +920,24 @@ public class MaterialsWallpaperService extends WallpaperService
                                     current_layer.SamplerUniforms[tex_arr_index++]
                                             = current_layer.BrushIntensityUniform
                                             = GLES20.glGetUniformLocation(current_layer.Program, "BrushIntensity");
+                                if (current_layer.EnableDepth)
+                                {
+                                    current_layer.SamplerUniforms[tex_arr_index++]
+                                            = current_layer.DepthUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "Depth");
+                                    current_layer.DepthIntensityUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "DepthIntensity");
+                                    current_layer.DepthIntensity = (float)Config.DepthIntensity;
+                                }
+                                if (current_layer.EnableHeight)
+                                {
+                                    current_layer.SamplerUniforms[tex_arr_index++]
+                                            = current_layer.HeightUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "Height");
+                                    current_layer.HeightIntensityUniform
+                                            = GLES20.glGetUniformLocation(current_layer.Program, "HeightIntensity");
+                                    current_layer.HeightIntensity = (float)Config.HeightIntensity;
+                                }
 
                                 current_layer.ExposureUniform = GLES20.glGetUniformLocation(current_layer.Program, "Exposure");
                             }
@@ -889,6 +958,10 @@ public class MaterialsWallpaperService extends WallpaperService
                                     current_layer.BrushTexture = LoadTextureFromResource(Integer.parseInt(layer_f.Brush), false);
                                 if (current_layer.EnableBrushIntensity)
                                     current_layer.BrushIntensityTexture = LoadTextureFromResource(Integer.parseInt(layer_f.BrushIntensity), false);
+                                if (current_layer.EnableDepth)
+                                    current_layer.DepthTexture = LoadTextureFromResource(Integer.parseInt(layer_f.Depth), false);
+                                if (current_layer.EnableHeight)
+                                    current_layer.HeightTexture = LoadTextureFromResource(Integer.parseInt(layer_f.Height), false);
                             }
                             else
                             {
@@ -934,6 +1007,18 @@ public class MaterialsWallpaperService extends WallpaperService
                                             layer_f.BrushIntensity,
                                             R.drawable.white_16x16,
                                             BrushIntensityPixelated
+                                    );
+                                if (current_layer.EnableDepth)
+                                    current_layer.DepthTexture = LoadTextureFromFile(
+                                            layer_f.Depth,
+                                            R.drawable.black_16x16,
+                                            false
+                                    );
+                                if (current_layer.EnableHeight)
+                                    current_layer.HeightTexture = LoadTextureFromFile(
+                                            layer_f.Height,
+                                            R.drawable.black_16x16,
+                                            false
                                     );
                             }
 
@@ -982,7 +1067,31 @@ public class MaterialsWallpaperService extends WallpaperService
                                 AllTexturesCount++;
                             }
 
+                            if (current_layer.EnableDepth)
+                            {
+                                current_layer.Textures[tex_arr_index++] = current_layer.DepthTexture;
+                                AllTextures[AllTexturesCount] = current_layer.DepthTexture;
+                                AllTexturesCount++;
+                            }
+
+                            if (current_layer.EnableHeight)
+                            {
+                                current_layer.Textures[tex_arr_index++] = current_layer.HeightTexture;
+                                AllTextures[AllTexturesCount] = current_layer.HeightTexture;
+                                AllTexturesCount++;
+                            }
+
                             Layers[i + 1] = current_layer; // i starts from -1
+                        }
+
+                        if (EnableParallax)
+                        {
+                            EnableParallax = false;
+                            for (Layer layer : Layers) if (layer.EnableParallax)
+                            {
+                                EnableParallax = true;
+                                break;
+                            }
                         }
 
                         GLES20.glEnable(GLES20.GL_BLEND);
@@ -1127,67 +1236,76 @@ public class MaterialsWallpaperService extends WallpaperService
                         ScreenRightDirection[1] = DeviceRotationMatrix[3 + RightIndexOffset] * RightFinalCoefficient;
                         ScreenRightDirection[2] = DeviceRotationMatrix[6 + RightIndexOffset] * RightFinalCoefficient;
 
-                        float ViewerRelativeX = ViewerPosition[0] * ScreenRightDirection[0]
-                                              + ViewerPosition[1] * ScreenRightDirection[1]
-                                              + ViewerPosition[2] * ScreenRightDirection[2];
-                        float ViewerRelativeY = ViewerPosition[0] * ScreenUpDirection[0]
-                                              + ViewerPosition[1] * ScreenUpDirection[1]
-                                              + ViewerPosition[2] * ScreenUpDirection[2];
-                        float ViewerRelativeZ = ViewerPosition[0] * ScreenFrontDirection[0]
-                                              + ViewerPosition[1] * ScreenFrontDirection[1]
-                                              + ViewerPosition[2] * ScreenFrontDirection[2];
-                        if (ViewerRelativeZ < 0.707106781F) // Needs correction
+                        float ViewerRelativeX = 0;
+                        float ViewerRelativeY = 0;
+                        float ViewerRelativeZ = 1;
+                        if (UseViewerForReflections || EnableParallax)
                         {
-                            // Correct
-                            // ViewerPosition correction: Z: 0.707106781, magnitude(X,Y): 0.707106781 (= 1 / sqrt(2))
-                            ViewerRelativeZ = 0.707106781F;
-                            if (ViewerRelativeX == 0 && ViewerRelativeY == 0)
+                            ViewerRelativeX = ViewerPosition[0] * ScreenRightDirection[0]
+                                            + ViewerPosition[1] * ScreenRightDirection[1]
+                                            + ViewerPosition[2] * ScreenRightDirection[2];
+                            ViewerRelativeY = ViewerPosition[0] * ScreenUpDirection[0]
+                                            + ViewerPosition[1] * ScreenUpDirection[1]
+                                            + ViewerPosition[2] * ScreenUpDirection[2];
+                            ViewerRelativeZ = ViewerPosition[0] * ScreenFrontDirection[0]
+                                            + ViewerPosition[1] * ScreenFrontDirection[1]
+                                            + ViewerPosition[2] * ScreenFrontDirection[2];
+                            if (ViewerRelativeZ < 0.707106781F) // Needs correction
                             {
-                                ViewerRelativeX = 1;
-                                ViewerRelativeY = 1;
-                            }
-                            float xy_mag = (float)Math.sqrt(ViewerRelativeX * ViewerRelativeX + ViewerRelativeY * ViewerRelativeY);
-                            float xy_correction = 0.707106781F / xy_mag;
-                            ViewerRelativeX *= xy_correction;
-                            ViewerRelativeY *= xy_correction;
+                                // Correct
+                                // ViewerPosition correction: Z: 0.707106781, magnitude(X,Y): 0.707106781 (= 1 / sqrt(2))
+                                ViewerRelativeZ = 0.707106781F;
+                                if (ViewerRelativeX == 0 && ViewerRelativeY == 0)
+                                {
+                                    ViewerRelativeX = 1;
+                                    ViewerRelativeY = 1;
+                                }
+                                float xy_mag = (float)Math.sqrt(ViewerRelativeX * ViewerRelativeX + ViewerRelativeY * ViewerRelativeY);
+                                float xy_correction = 0.707106781F / xy_mag;
+                                ViewerRelativeX *= xy_correction;
+                                ViewerRelativeY *= xy_correction;
 
-                            // Update the non-relative vector
-                            ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[0]
-                                              + ViewerRelativeY * ScreenUpDirection[0]
-                                              + ViewerRelativeZ * ScreenUpDirection[0];
-                            ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[1]
-                                              + ViewerRelativeY * ScreenUpDirection[1]
-                                              + ViewerRelativeZ * ScreenUpDirection[1];
-                            ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[2]
-                                              + ViewerRelativeY * ScreenUpDirection[2]
-                                              + ViewerRelativeZ * ScreenUpDirection[2];
+                                // Update the non-relative vector
+                                ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[0]
+                                                  + ViewerRelativeY * ScreenUpDirection[0]
+                                                  + ViewerRelativeZ * ScreenUpDirection[0];
+                                ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[1]
+                                                  + ViewerRelativeY * ScreenUpDirection[1]
+                                                  + ViewerRelativeZ * ScreenUpDirection[1];
+                                ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[2]
+                                                  + ViewerRelativeY * ScreenUpDirection[2]
+                                                  + ViewerRelativeZ * ScreenUpDirection[2];
+                            }
                         }
 
                         float UVScaleX, UVSCaleY;
                         if (AspectRatio < 1) { UVScaleX = AspectRatio; UVSCaleY = 1; }
                         else { UVSCaleY = 1 / AspectRatio; UVScaleX = 1; }
 
-                        // Make lights 2x closer to ScreenFrontDirection
-                        for (int i = 0; i < LightDirections.length; i++)
+                        if (!UseViewerForReflections)
                         {
-                            LightReflectionDirections[i]
-                                    = (
-                                    ScreenFrontDirection[i % 3]
-                                            + LightDirections[i]
-                            ) / 2.0f;
-                        }
-                        // Normalize
-                        for (int i = 0; i < LightReflectionDirections.length; i += 3)
-                        {
-                            float l = LightReflectionDirections[i] * LightReflectionDirections[i];
-                            l += LightReflectionDirections[i + 1] * LightReflectionDirections[i + 1];
-                            l += LightReflectionDirections[i + 2] * LightReflectionDirections[i + 2];
-                            l = (float) Math.sqrt(l);
-                            if (l != 0)
+                            // Make lights 2x closer to ScreenFrontDirection
+                            for (int i = 0; i < LightDirections.length; i++)
                             {
-                                LightReflectionDirections[i] /= l;
-                                LightReflectionDirections[i + 1] /= l;
-                                LightReflectionDirections[i + 2] /= l;
+                                LightReflectionDirections[i]
+                                        = (
+                                        ScreenFrontDirection[i % 3]
+                                                + LightDirections[i]
+                                ) / 2.0f;
+                            }
+                            // Normalize
+                            for (int i = 0; i < LightReflectionDirections.length; i += 3)
+                            {
+                                float l = LightReflectionDirections[i] * LightReflectionDirections[i];
+                                l += LightReflectionDirections[i + 1] * LightReflectionDirections[i + 1];
+                                l += LightReflectionDirections[i + 2] * LightReflectionDirections[i + 2];
+                                l = (float) Math.sqrt(l);
+                                if (l != 0)
+                                {
+                                    LightReflectionDirections[i] /= l;
+                                    LightReflectionDirections[i + 1] /= l;
+                                    LightReflectionDirections[i + 2] /= l;
+                                }
                             }
                         }
 
@@ -1231,6 +1349,14 @@ public class MaterialsWallpaperService extends WallpaperService
                                     ScreenRightDirection[2]
                             );
 
+                            if (UseViewerForReflections || layer.EnableParallax)
+                                GLES20.glUniform3f(
+                                        layer.ViewerUniform,
+                                        ViewerRelativeX,
+                                        ViewerRelativeY,
+                                        ViewerRelativeZ
+                                );
+
                             GLES20.glUniform2f(layer.FOVUniform, 0.1f * AspectRatio, 0.1f);
 
                             GLES20.glUniform2f(layer.UVScaleUniform, UVScaleX, UVSCaleY);
@@ -1241,12 +1367,13 @@ public class MaterialsWallpaperService extends WallpaperService
                                     LightDirections,
                                     0
                             );
-                            GLES20.glUniform3fv(
-                                    layer.LightReflectionDirectionsUniform,
-                                    LightReflectionDirections.length / 3,
-                                    LightReflectionDirections,
-                                    0
-                            );
+                            if (!UseViewerForReflections)
+                                GLES20.glUniform3fv(
+                                        layer.LightReflectionDirectionsUniform,
+                                        LightReflectionDirections.length / 3,
+                                        LightReflectionDirections,
+                                        0
+                                );
                             GLES20.glUniform3fv(
                                     layer.LightColorsUniform,
                                     LightColors.length / 3,
@@ -1261,6 +1388,11 @@ public class MaterialsWallpaperService extends WallpaperService
                                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, layer.Textures[i]);
                                 GLES20.glUniform1i(layer.SamplerUniforms[i], i);
                             }
+
+                            if (layer.EnableDepth)
+                                GLES20.glUniform1f(layer.DepthIntensityUniform, layer.DepthIntensity);
+                            if (layer.EnableHeight)
+                                GLES20.glUniform1f(layer.HeightIntensityUniform, layer.HeightIntensity);
 
                             GLES20.glUniform1f(layer.ExposureUniform, Exposure);
 

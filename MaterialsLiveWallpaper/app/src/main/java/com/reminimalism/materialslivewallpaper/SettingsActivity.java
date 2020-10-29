@@ -127,6 +127,8 @@ public class SettingsActivity extends AppCompatActivity
         Normal,
         Brush,
         BrushIntensity,
+        Depth,
+        Height,
         Config
     }
 
@@ -153,6 +155,12 @@ public class SettingsActivity extends AppCompatActivity
                 break;
             case BrushIntensity:
                 name = "brush_intensity";
+                break;
+            case Depth:
+                name = "depth";
+                break;
+            case Height:
+                name = "height";
                 break;
             case Config:
                 return path + "config.json";
@@ -254,6 +262,22 @@ public class SettingsActivity extends AppCompatActivity
                     if (next.BrushIntensity == null)
                         next.BrushIntensity = path + name + i + extension;
                 }
+                name = "depth";
+                if (new File(path + name + i + extension).exists())
+                {
+                    if (next == null)
+                        next = new LayerFilenames();
+                    if (next.Depth == null)
+                        next.Depth = path + name + i + extension;
+                }
+                name = "height";
+                if (new File(path + name + i + extension).exists())
+                {
+                    if (next == null)
+                        next = new LayerFilenames();
+                    if (next.Height == null)
+                        next.Height = path + name + i + extension;
+                }
             }
 
             if (next != null)
@@ -347,7 +371,9 @@ public class SettingsActivity extends AppCompatActivity
             "shininess",
             "normal",
             "brush",
-            "brush_intensity"
+            "brush_intensity",
+            "depth",
+            "height"
     };
 
     static final String[] SupportedImageExtensions = {

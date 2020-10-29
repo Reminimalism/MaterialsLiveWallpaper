@@ -107,7 +107,7 @@
             app:title="@string/settings_performance_parallax"
             app:defaultValue="true"
             app:summary="@string/settings_performance_parallax_summary"
-            app:enabled="false" />
+            app:enabled="true" />
 
         <SwitchPreference
             app:key="enable_viewer_for_reflections"
@@ -115,7 +115,7 @@
             app:defaultValue="false"
             app:summaryOff="@string/settings_performance_viewer_for_reflections_summary_off"
             app:summaryOn="@string/settings_performance_viewer_for_reflections_summary_on"
-            app:enabled="false" />
+            app:enabled="true" />
 
         <SwitchPreference
             app:key="enable_fps_counter"

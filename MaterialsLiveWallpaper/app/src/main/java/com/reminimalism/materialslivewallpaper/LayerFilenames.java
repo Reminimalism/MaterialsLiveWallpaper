@@ -8,4 +8,6 @@ public class LayerFilenames
     public String Shininess = null;
     public String Brush = null;
     public String BrushIntensity = null;
+    public String Depth = null;
+    public String Height = null;
 }
