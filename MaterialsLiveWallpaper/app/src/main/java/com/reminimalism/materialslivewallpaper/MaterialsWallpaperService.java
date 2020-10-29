@@ -152,6 +152,9 @@ public class MaterialsWallpaperService extends WallpaperService
                     //FloatBuffer TriangleFanPositionValues;
 
                     float[] DeviceRotationMatrix = new float[9];
+                    float[] ScreenFrontDirection = new float[3];
+                    float[] ScreenUpDirection = new float[3];
+                    float[] ScreenRightDirection = new float[3];
                     float AspectRatio = 1;
 
                     boolean LimitFPS = false;
@@ -251,6 +254,8 @@ public class MaterialsWallpaperService extends WallpaperService
                     long DeviceRotationMatrixBTime_ms = 0;
                     long DeviceRotationMatrixCTime_ms = 1;
                     long DeviceRotationMatrixABTimeDiff_ms = 1;
+
+                    float[] ViewerPosition = { 0, 0, 1 };
 
                     int GetTextureIDValue(int ID)
                     {
@@ -1112,6 +1117,52 @@ public class MaterialsWallpaperService extends WallpaperService
                         float UpFinalCoefficient = rotation == Surface.ROTATION_270 || rotation == Surface.ROTATION_180 ? -1 : 1;
                         float RightFinalCoefficient = rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_180 ? -1 : 1;
 
+                        ScreenFrontDirection[0] = DeviceRotationMatrix[2];
+                        ScreenFrontDirection[1] = DeviceRotationMatrix[5];
+                        ScreenFrontDirection[2] = DeviceRotationMatrix[8];
+                        ScreenUpDirection[0] = DeviceRotationMatrix[UpIndexOffset] * UpFinalCoefficient;
+                        ScreenUpDirection[1] = DeviceRotationMatrix[3 + UpIndexOffset] * UpFinalCoefficient;
+                        ScreenUpDirection[2] = DeviceRotationMatrix[6 + UpIndexOffset] * UpFinalCoefficient;
+                        ScreenRightDirection[0] = DeviceRotationMatrix[RightIndexOffset] * RightFinalCoefficient;
+                        ScreenRightDirection[1] = DeviceRotationMatrix[3 + RightIndexOffset] * RightFinalCoefficient;
+                        ScreenRightDirection[2] = DeviceRotationMatrix[6 + RightIndexOffset] * RightFinalCoefficient;
+
+                        float ViewerRelativeX = ViewerPosition[0] * ScreenRightDirection[0]
+                                              + ViewerPosition[1] * ScreenRightDirection[1]
+                                              + ViewerPosition[2] * ScreenRightDirection[2];
+                        float ViewerRelativeY = ViewerPosition[0] * ScreenUpDirection[0]
+                                              + ViewerPosition[1] * ScreenUpDirection[1]
+                                              + ViewerPosition[2] * ScreenUpDirection[2];
+                        float ViewerRelativeZ = ViewerPosition[0] * ScreenFrontDirection[0]
+                                              + ViewerPosition[1] * ScreenFrontDirection[1]
+                                              + ViewerPosition[2] * ScreenFrontDirection[2];
+                        if (ViewerRelativeZ < 0.707106781F) // Needs correction
+                        {
+                            // Correct
+                            // ViewerPosition correction: Z: 0.707106781, magnitude(X,Y): 0.707106781 (= 1 / sqrt(2))
+                            ViewerRelativeZ = 0.707106781F;
+                            if (ViewerRelativeX == 0 && ViewerRelativeY == 0)
+                            {
+                                ViewerRelativeX = 1;
+                                ViewerRelativeY = 1;
+                            }
+                            float xy_mag = (float)Math.sqrt(ViewerRelativeX * ViewerRelativeX + ViewerRelativeY * ViewerRelativeY);
+                            float xy_correction = 0.707106781F / xy_mag;
+                            ViewerRelativeX *= xy_correction;
+                            ViewerRelativeY *= xy_correction;
+
+                            // Update the non-relative vector
+                            ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[0]
+                                              + ViewerRelativeY * ScreenUpDirection[0]
+                                              + ViewerRelativeZ * ScreenUpDirection[0];
+                            ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[1]
+                                              + ViewerRelativeY * ScreenUpDirection[1]
+                                              + ViewerRelativeZ * ScreenUpDirection[1];
+                            ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[2]
+                                              + ViewerRelativeY * ScreenUpDirection[2]
+                                              + ViewerRelativeZ * ScreenUpDirection[2];
+                        }
+
                         float UVScaleX, UVSCaleY;
                         if (AspectRatio < 1) { UVScaleX = AspectRatio; UVSCaleY = 1; }
                         else { UVSCaleY = 1 / AspectRatio; UVScaleX = 1; }
@@ -1121,7 +1172,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         {
                             LightReflectionDirections[i]
                                     = (
-                                    DeviceRotationMatrix[(i % 3) * 3 + 2]
+                                    ScreenFrontDirection[i % 3]
                                             + LightDirections[i]
                             ) / 2.0f;
                         }
@@ -1163,21 +1214,21 @@ public class MaterialsWallpaperService extends WallpaperService
 
                             GLES20.glUniform3f(
                                     layer.ScreenFrontDirectionUniform,
-                                    DeviceRotationMatrix[2],
-                                    DeviceRotationMatrix[5],
-                                    DeviceRotationMatrix[8]
+                                    ScreenFrontDirection[0],
+                                    ScreenFrontDirection[1],
+                                    ScreenFrontDirection[2]
                             );
                             GLES20.glUniform3f(
                                     layer.ScreenUpDirectionUniform,
-                                    DeviceRotationMatrix[UpIndexOffset] * UpFinalCoefficient,
-                                    DeviceRotationMatrix[3 + UpIndexOffset] * UpFinalCoefficient,
-                                    DeviceRotationMatrix[6 + UpIndexOffset] * UpFinalCoefficient
+                                    ScreenUpDirection[0],
+                                    ScreenUpDirection[1],
+                                    ScreenUpDirection[2]
                             );
                             GLES20.glUniform3f(
                                     layer.ScreenRightDirectionUniform,
-                                    DeviceRotationMatrix[RightIndexOffset] * RightFinalCoefficient,
-                                    DeviceRotationMatrix[3 + RightIndexOffset] * RightFinalCoefficient,
-                                    DeviceRotationMatrix[6 + RightIndexOffset] * RightFinalCoefficient
+                                    ScreenRightDirection[0],
+                                    ScreenRightDirection[1],
+                                    ScreenRightDirection[2]
                             );
 
                             GLES20.glUniform2f(layer.FOVUniform, 0.1f * AspectRatio, 0.1f);
