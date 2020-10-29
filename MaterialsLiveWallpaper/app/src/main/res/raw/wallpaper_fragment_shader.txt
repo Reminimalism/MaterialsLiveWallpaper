@@ -196,7 +196,8 @@ void main()
 #endif
 
 #if ENABLE_VIEWER_FOR_REFLECTIONS
-    vec3 reflection_normal = 2.0 * base_normal - view; // = base_normal - (view - base_normal)
+    vec3 reflection_normal = 2.0 * dot(base_normal, view) * base_normal - view;
+      // = dot(base_normal, view) * base_normal - (view - dot(base_normal, view) * base_normal)
 #endif
 
 #if ENABLE_BRUSH || ENABLE_CIRCULAR_BRUSH
@@ -224,7 +225,12 @@ void main()
   #if ENABLE_BRUSH || ENABLE_CIRCULAR_BRUSH
                 * brush_effect
   #endif
-            , 20.0 // TODO: Decide whether to reduce it to 0 #if ENABLE_VIEWER_FOR_REFLECTIONS
+            ,
+  #if ENABLE_VIEWER_FOR_REFLECTIONS
+                2.0
+  #else
+                20.0
+  #endif
   #if ENABLE_SHININESS
                 + shininess * 10000.0
   #endif
