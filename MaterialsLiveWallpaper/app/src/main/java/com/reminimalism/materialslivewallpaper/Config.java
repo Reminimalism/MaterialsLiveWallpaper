@@ -18,7 +18,7 @@ public class Config
 
     public boolean NormalizeNormal = true;
 
-    // Adjust default values
+    // TODO: Adjust default values
     public double DepthIntensity = 0.1;
     public double HeightIntensity = 0.1;
 
