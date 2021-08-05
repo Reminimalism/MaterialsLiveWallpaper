@@ -18,9 +18,10 @@ public class Config
 
     public boolean NormalizeNormal = true;
 
-    // TODO: Adjust default values
-    public double DepthIntensity = 0.1;
-    public double HeightIntensity = 0.1;
+    public double DepthIntensity = 0.05;
+    public double HeightIntensity = 0.05;
+    public double FrameWithParallaxEnabled = 0.9;
+    public double FrameWithParallaxDisabled = 1;
 
     public Config()
     {
@@ -44,16 +45,18 @@ public class Config
 
     private void ReadJSON(JSONObject json)
     {
-        try { TargetVersion           = json.getString("TargetVersion");            } catch (JSONException ignored) {}
-        try { PixelatedBase           = json.getBoolean("PixelatedBase");           } catch (JSONException ignored) {}
-        try { PixelatedReflections    = json.getBoolean("PixelatedReflections");    } catch (JSONException ignored) {}
-        try { PixelatedNormal         = json.getBoolean("PixelatedNormal");         } catch (JSONException ignored) {}
-        try { PixelatedShininess      = json.getBoolean("PixelatedShininess");      } catch (JSONException ignored) {}
-        try { PixelatedBrush          = json.getBoolean("PixelatedBrush");          } catch (JSONException ignored) {}
-        try { PixelatedBrushIntensity = json.getBoolean("PixelatedBrushIntensity"); } catch (JSONException ignored) {}
-        try { NormalizeNormal         = json.getBoolean("NormalizeNormal");         } catch (JSONException ignored) {}
-        try { DepthIntensity          = json.getDouble("DepthIntensity");           } catch (JSONException ignored) {}
-        try { HeightIntensity         = json.getDouble("HeightIntensity");          } catch (JSONException ignored) {}
+        try { TargetVersion             = json.getString("TargetVersion");             } catch (JSONException ignored) {}
+        try { PixelatedBase             = json.getBoolean("PixelatedBase");            } catch (JSONException ignored) {}
+        try { PixelatedReflections      = json.getBoolean("PixelatedReflections");     } catch (JSONException ignored) {}
+        try { PixelatedNormal           = json.getBoolean("PixelatedNormal");          } catch (JSONException ignored) {}
+        try { PixelatedShininess        = json.getBoolean("PixelatedShininess");       } catch (JSONException ignored) {}
+        try { PixelatedBrush            = json.getBoolean("PixelatedBrush");           } catch (JSONException ignored) {}
+        try { PixelatedBrushIntensity   = json.getBoolean("PixelatedBrushIntensity");  } catch (JSONException ignored) {}
+        try { NormalizeNormal           = json.getBoolean("NormalizeNormal");          } catch (JSONException ignored) {}
+        try { DepthIntensity            = json.getDouble("DepthIntensity");            } catch (JSONException ignored) {}
+        try { HeightIntensity           = json.getDouble("HeightIntensity");           } catch (JSONException ignored) {}
+        try { FrameWithParallaxEnabled  = json.getDouble("FrameWithParallaxEnabled");  } catch (JSONException ignored) {}
+        try { FrameWithParallaxDisabled = json.getDouble("FrameWithParallaxDisabled"); } catch (JSONException ignored) {}
     }
 
     public boolean IsTargetVersionSupported()

@@ -156,6 +156,7 @@ public class MaterialsWallpaperService extends WallpaperService
                     float[] ScreenUpDirection = new float[3];
                     float[] ScreenRightDirection = new float[3];
                     float AspectRatio = 1;
+                    float UVPostScale = 1;
 
                     boolean LimitFPS = false;
                     int FrameMinDuration_ms;
@@ -337,7 +338,7 @@ public class MaterialsWallpaperService extends WallpaperService
                                             max_x, min_y, 0,
                                             max_x, max_y, 0
                                     };
-                                    FPSCounterTriangleStripPositionValues[i][counter] = ByteBuffer.allocateDirect(TriangleStripArray.length * 4)
+                                    FPSCounterTriangleStripPositionValues[i][counter] = ByteBuffer.allocateDirect(arr.length * 4)
                                             .order(ByteOrder.nativeOrder()).asFloatBuffer();
                                     FPSCounterTriangleStripPositionValues[i][counter].put(arr).position(0);
                                     counter++;
@@ -743,6 +744,14 @@ public class MaterialsWallpaperService extends WallpaperService
                                     current_layer.EnableCircularBrush = MaterialSample.equals("circular_brush");
 
                                     load_from_resources = true;
+                                    current_layer.EnableBase        = true;
+                                    current_layer.EnableReflections = true;
+                                    current_layer.EnableNormal      = true;
+                                    current_layer.EnableShininess   = true;
+                                    current_layer.EnableBrush       = true;
+                                    current_layer.EnableBrushIntensity = false;
+                                    current_layer.EnableDepth          = false;
+                                    current_layer.EnableHeight         = false;
                                     int BaseR        = R.drawable.gray_80_128_16x16;
                                     int ReflectionsR = R.drawable.gray_80_128_16x16;
                                     int NormalR      = R.drawable.flat_normal_16x16;
@@ -771,6 +780,8 @@ public class MaterialsWallpaperService extends WallpaperService
                                             NormalR = R.drawable.poly_normal;
                                             ShininessR = R.drawable.poly_shininess;
                                             BrushR = R.drawable.poly_brush;
+                                            current_layer.EnableDepth = true;
+                                            layer_f.Depth = Integer.toString(R.drawable.poly_depth);
                                             break;
                                     }
 
@@ -779,14 +790,6 @@ public class MaterialsWallpaperService extends WallpaperService
                                     layer_f.Normal      = Integer.toString(NormalR);
                                     layer_f.Shininess   = Integer.toString(ShininessR);
                                     layer_f.Brush       = Integer.toString(BrushR);
-                                    current_layer.EnableBase        = true;
-                                    current_layer.EnableReflections = true;
-                                    current_layer.EnableNormal      = true;
-                                    current_layer.EnableShininess   = true;
-                                    current_layer.EnableBrush       = true;
-                                    current_layer.EnableBrushIntensity = false;
-                                    current_layer.EnableDepth = false;
-                                    current_layer.EnableHeight = false;
                                 }
                             }
                             else
@@ -1094,6 +1097,12 @@ public class MaterialsWallpaperService extends WallpaperService
                             }
                         }
 
+                        UVPostScale = 1;
+                        if (EnableParallax && Config.FrameWithParallaxEnabled != 0)
+                            UVPostScale = (float)Config.FrameWithParallaxEnabled;
+                        else if (!EnableParallax && Config.FrameWithParallaxDisabled != 0)
+                            UVPostScale = (float)Config.FrameWithParallaxDisabled;
+
                         GLES20.glEnable(GLES20.GL_BLEND);
                         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE);
 
@@ -1279,8 +1288,8 @@ public class MaterialsWallpaperService extends WallpaperService
                         }
 
                         float UVScaleX, UVSCaleY;
-                        if (AspectRatio < 1) { UVScaleX = AspectRatio; UVSCaleY = 1; }
-                        else { UVSCaleY = 1 / AspectRatio; UVScaleX = 1; }
+                        if (AspectRatio < 1) { UVScaleX = UVPostScale * AspectRatio; UVSCaleY = UVPostScale; }
+                        else { UVSCaleY = UVPostScale / AspectRatio; UVScaleX = UVPostScale; }
 
                         if (!UseViewerForReflections)
                         {
