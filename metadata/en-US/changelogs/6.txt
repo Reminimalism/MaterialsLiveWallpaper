@@ -1,0 +1,2 @@
+Added parallax support and virtual viewer option for reflections.
+Changed the default rotation sensor update rate to fast.
