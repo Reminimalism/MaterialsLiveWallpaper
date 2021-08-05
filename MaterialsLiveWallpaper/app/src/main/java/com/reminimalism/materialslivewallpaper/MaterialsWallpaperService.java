@@ -1268,13 +1268,13 @@ public class MaterialsWallpaperService extends WallpaperService
                                 // Update the non-relative vector
                                 ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[0]
                                                   + ViewerRelativeY * ScreenUpDirection[0]
-                                                  + ViewerRelativeZ * ScreenUpDirection[0];
-                                ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[1]
+                                                  + ViewerRelativeZ * ScreenFrontDirection[0];
+                                ViewerPosition[1] = ViewerRelativeX * ScreenRightDirection[1]
                                                   + ViewerRelativeY * ScreenUpDirection[1]
-                                                  + ViewerRelativeZ * ScreenUpDirection[1];
-                                ViewerPosition[0] = ViewerRelativeX * ScreenRightDirection[2]
+                                                  + ViewerRelativeZ * ScreenFrontDirection[1];
+                                ViewerPosition[2] = ViewerRelativeX * ScreenRightDirection[2]
                                                   + ViewerRelativeY * ScreenUpDirection[2]
-                                                  + ViewerRelativeZ * ScreenUpDirection[2];
+                                                  + ViewerRelativeZ * ScreenFrontDirection[2];
                             }
                         }
 
