@@ -120,6 +120,7 @@ void main()
 #endif
 #if ENABLE_PARALLAX
     vec2 parallax_offset = (view.xy / view.z);
+    parallax_offset.y = -parallax_offset.y;
   #if ENABLE_DEPTH
     uv -= parallax_offset * texture2D(Depth, uv).x * DepthIntensity;
   #endif
