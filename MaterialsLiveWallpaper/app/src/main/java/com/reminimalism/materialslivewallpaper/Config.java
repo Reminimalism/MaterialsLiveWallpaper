@@ -84,7 +84,7 @@ public class Config
 
     public static String GetLatestSupportedCustomMaterialTargetVersion()
     {
-        return "0.2"; // Shouldn't be updated until the material file format gets an update.
+        return "1.0"; // Shouldn't be updated until the material file format gets an update.
     }
 
     // Version name => Version code
@@ -96,5 +96,6 @@ public class Config
         SupportedTargetVersions = new Hashtable<>();
         SupportedTargetVersions.put("0.1", 1);
         SupportedTargetVersions.put("0.2", 2);
+        SupportedTargetVersions.put("1.0", 3);
     }
 }
