@@ -239,7 +239,8 @@ public class MaterialsWallpaperService extends WallpaperService
                     }
 
                     Layer[] Layers = null;
-                    int[] AllTextures = new int[5 * 8]; // 5 Layers * 8 Textures
+                    // 8 main layer textures + 8 * each additional layer
+                    int[] AllTextures = new int[8 + 8 * SettingsActivity.MAX_POSSIBLE_ADDITIONAL_LAYERS];
                     int AllTexturesCount = 0;
                     // 2 FPS Counter shaders + 2 main layer shaders + 2 * each additional layer
                     int[] AllShaders = new int[2 + 2 + 2 * SettingsActivity.MAX_POSSIBLE_ADDITIONAL_LAYERS];
