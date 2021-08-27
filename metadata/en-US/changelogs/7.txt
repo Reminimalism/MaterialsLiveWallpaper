@@ -1,0 +1,1 @@
+Fixed app crashes when using more layers or the FPS counter.
