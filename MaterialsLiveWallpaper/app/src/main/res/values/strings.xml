@@ -110,7 +110,7 @@
     <string name="more_materials_button">More Materials</string>
     <string name="app_version_title">App Version</string>
     <string name="app_version_loading">Getting version name…</string>
-    <string name="materials_version_title">Supported Custom Material Version</string>
+    <string name="materials_version_title">Latest Supported Custom Material Version</string>
     <string name="materials_version_loading">Getting version name…</string>
 
     <!-- Light Source Preference -->
