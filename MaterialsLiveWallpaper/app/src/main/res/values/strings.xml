@@ -5,6 +5,12 @@
 
     <!-- MainActivity -->
 
+    <string name="tips">
+        Tips:
+        \n- In settings, scroll down and tap on More Materials to download more materials or learn to create new ones.
+        \n- Change Frame Rate Limit to save battery and fix system UI lags if there is any.
+    </string>
+
     <string name="set_wallpaper_button">Set Wallpaper</string>
     <string name="settings_button">Settings</string>
 
@@ -31,13 +37,20 @@
 
     <string name="settings_material_use_custom">Use Custom Material</string>
     <string name="settings_material_use_custom_summary_on">
-        Use custom textures as material
+        Use the imported custom material.
+        Use Import Custom Material to import one.
     </string>
     <string name="settings_material_use_custom_summary_off">
-        Use one of the samples as material
+        Use one of the samples as material.
+        These samples use lightweight vector-art images just to show the possibilities.
+        Custom materials are recommended.
     </string>
     <string name="settings_material_choose_sample">Choose Material Sample</string>
     <string name="settings_material_import_custom">Import Custom Material</string>
+    <string name="settings_material_import_custom_summary">
+        Import a custom material zip.
+        For more info and some custom materials to download, scroll down and tap on More Materials.
+    </string>
 
     <!-- Performance Settings -->
 
@@ -52,12 +65,15 @@
         Limited by sensor update rate but with no delay.
     </string>
     <string name="settings_performance_parallax">Parallax</string>
-    <string name="settings_performance_parallax_summary">Requires a depth map.</string>
+    <string name="settings_performance_parallax_summary">
+        Requires a depth or a height map defined in the material.
+    </string>
     <string name="settings_performance_viewer_for_reflections">Virtual Viewer for Reflections</string>
     <string name="settings_performance_viewer_for_reflections_summary_off">
-        Light positions will be moved for reflections. This looks more natural.
+        Light positions will be moved for reflections. This looks more natural and is recommended.
     </string>
     <string name="settings_performance_viewer_for_reflections_summary_on">
+        This is not recommended.
         Viewing angle for reflections will be variable based on rotational differences, like parallax\'s changing viewing angle.
     </string>
     <string name="settings_performance_enable_fps_counter">Enable FPS Counter</string>
@@ -80,7 +96,7 @@
         You may want to add some additional exposure with this enabled.
     </string>
     <string name="settings_lights_auto_exposure_summary_off">
-        The exposure can be set manually.
+        The exposure can be set manually using the Exposure slider.
     </string>
     <string name="settings_lights_exposure">Exposure</string>
     <string name="settings_lights_exposure_summary">

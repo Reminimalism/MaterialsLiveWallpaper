@@ -105,7 +105,7 @@
     <string-array name="settings_lights_colors_sample_names">
         <item>White</item>
         <item>RGB</item>
-        <item>Reminimalism</item>
+        <item>App Theme</item>
     </string-array>
     <string-array name="settings_lights_colors_sample_values">
         <item>0.6,0.6,0.6</item>

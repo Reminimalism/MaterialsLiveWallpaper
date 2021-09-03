@@ -22,6 +22,7 @@
         <Preference
             app:key="import_custom_material"
             app:title="@string/settings_material_import_custom"
+            app:summary="@string/settings_material_import_custom_summary"
             app:defaultValue="0"
             app:enabled="true" />
 
