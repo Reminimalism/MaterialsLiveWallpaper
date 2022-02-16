@@ -14,3 +14,11 @@ The F-Droid version gets the more recent updates.
 # Custom Materials
 
 See [Custom Materials](https://github.com/Reminimalism/MaterialsLiveWallpaperCustomMaterials) for samples and instructions on making your own custom materials.
+
+# About the software design
+
+The code is not intended to be beautiful
+to make the development process faster
+as I couldn't allocate a lot of time to it
+and it's not a large project either.
+I may or may not decide to improve it in the future.
