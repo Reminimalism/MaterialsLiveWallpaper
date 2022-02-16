@@ -17,7 +17,7 @@ See [Custom Materials](https://github.com/Reminimalism/MaterialsLiveWallpaperCus
 
 # About the software design
 
-The code is not intended to be beautiful
+The code is not intended to be beautiful,
 to make the development process faster
 as I couldn't allocate a lot of time to it
 and it's not a large project either.
