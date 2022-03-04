@@ -29,19 +29,19 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#00dcc8"
+                android:textColor="@color/colorAccent"
                 android:textSize="32sp"
                 android:text="Materials" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#ff0064"
+                android:textColor="@color/colorPrimary"
                 android:textSize="32sp"
                 android:text="Live" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#666666"
+                android:textColor="@color/grayTextColor"
                 android:textSize="32sp"
                 android:text="Wallpaper" />
 
