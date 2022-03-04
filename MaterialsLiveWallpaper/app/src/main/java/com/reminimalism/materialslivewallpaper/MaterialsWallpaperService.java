@@ -85,6 +85,44 @@ public class MaterialsWallpaperService extends WallpaperService
         WallpaperGLSurfaceView GLSurface = null;
         boolean SettingsChanged = false;
 
+        void RegisterRotationSensorListener()
+        {
+            String sensor_update_delay_str = "game";
+            if (Preferences != null)
+                sensor_update_delay_str = Preferences.getString("rotation_sensor_update_delay", "game");
+            int sensor_update_delay;
+            switch (sensor_update_delay_str)
+            {
+                case "normal": // 3
+                    sensor_update_delay = SensorManager.SENSOR_DELAY_NORMAL;
+                    break;
+                case "ui": // 2
+                    sensor_update_delay = SensorManager.SENSOR_DELAY_UI;
+                    break;
+                case "game": // 1
+                    sensor_update_delay = SensorManager.SENSOR_DELAY_GAME;
+                    break;
+                case "fastest": // 0
+                    sensor_update_delay = SensorManager.SENSOR_DELAY_FASTEST;
+                    break;
+                default:
+                    sensor_update_delay = SensorManager.SENSOR_DELAY_UI;
+                    break;
+            }
+            Sensor RotationSensor = SensorManagerInstance.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            SensorManagerInstance.registerListener(
+                    RotationSensorEventListener,
+                    RotationSensor,
+                    sensor_update_delay
+            );
+        }
+
+        void UnregisterRotationSensorListener()
+        {
+            if (SensorManagerInstance != null && RotationSensorEventListener != null)
+                SensorManagerInstance.unregisterListener(RotationSensorEventListener);
+        }
+
         @Override
         public void onCreate(final SurfaceHolder surface_holder)
         {
@@ -473,32 +511,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         UseViewerForReflections = Preferences.getBoolean("enable_viewer_for_reflections", false);
                         EnableParallax = Preferences.getBoolean("enable_parallax", true);
 
-                        String sensor_update_delay_str = Preferences.getString("rotation_sensor_update_delay", "ui");
-                        int sensor_update_delay;
-                        switch (sensor_update_delay_str)
-                        {
-                            case "normal": // 3
-                                sensor_update_delay = SensorManager.SENSOR_DELAY_NORMAL;
-                                break;
-                            case "ui": // 2
-                                sensor_update_delay = SensorManager.SENSOR_DELAY_UI;
-                                break;
-                            case "game": // 1
-                                sensor_update_delay = SensorManager.SENSOR_DELAY_GAME;
-                                break;
-                            case "fastest": // 0
-                                sensor_update_delay = SensorManager.SENSOR_DELAY_FASTEST;
-                                break;
-                            default:
-                                sensor_update_delay = SensorManager.SENSOR_DELAY_UI;
-                                break;
-                        }
-                        Sensor RotationSensor = SensorManagerInstance.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-                        SensorManagerInstance.registerListener(
-                                RotationSensorEventListener,
-                                RotationSensor,
-                                sensor_update_delay
-                        );
+                        RegisterRotationSensorListener();
 
                         boolean UseCustomMaterial = Preferences.getBoolean("use_custom_material", false);
 
@@ -1137,8 +1150,7 @@ public class MaterialsWallpaperService extends WallpaperService
 
                     void Reinitialize()
                     {
-                        if (SensorManagerInstance != null && RotationSensorEventListener != null)
-                            SensorManagerInstance.unregisterListener(RotationSensorEventListener);
+                        UnregisterRotationSensorListener();
                         //DeleteObjects(); // Initialize() does this.
                         Initialize();
                     }
@@ -1645,9 +1657,15 @@ public class MaterialsWallpaperService extends WallpaperService
             super.onVisibilityChanged(visible);
             if (GLSurface != null)
                 if (visible)
+                {
                     GLSurface.onResume();
+                    RegisterRotationSensorListener();
+                }
                 else
+                {
                     GLSurface.onPause();
+                    UnregisterRotationSensorListener();
+                }
         }
 
         @Override
@@ -1656,8 +1674,7 @@ public class MaterialsWallpaperService extends WallpaperService
             super.onDestroy();
             if (GLSurface != null)
                 GLSurface.onDestroy();
-            if (SensorManagerInstance != null && RotationSensorEventListener != null)
-                SensorManagerInstance.unregisterListener(RotationSensorEventListener);
+            UnregisterRotationSensorListener();
             if (Preferences != null && PreferenceChangeListener != null)
                 Preferences.unregisterOnSharedPreferenceChangeListener(PreferenceChangeListener);
         }
