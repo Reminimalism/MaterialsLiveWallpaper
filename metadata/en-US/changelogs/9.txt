@@ -1,0 +1,2 @@
+Added dark mode support.
+Optimized sensor listening.
