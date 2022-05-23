@@ -150,6 +150,11 @@
             app:summary="@string/app_version_loading"
             app:enabled="true" />
 
+        <Preference
+            app:key="privacy_policy_button"
+            app:title="@string/privacy_policy_button"
+            app:enabled="true" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

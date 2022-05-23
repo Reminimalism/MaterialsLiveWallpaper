@@ -56,6 +56,7 @@ public class SettingsActivity extends AppCompatActivity
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey)
         {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+
             findPreference("import_custom_material").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference)
@@ -96,6 +97,18 @@ public class SettingsActivity extends AppCompatActivity
                     startActivity(new Intent(
                             Intent.ACTION_VIEW,
                             Uri.parse("https://github.com/Reminimalism/MaterialsLiveWallpaperCustomMaterials")
+                    ));
+                    return true;
+                }
+            });
+
+            findPreference("privacy_policy_button").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference)
+                {
+                    startActivity(new Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.reminimalism.com/materialslivewallpaper/privacypolicy")
                     ));
                     return true;
                 }
