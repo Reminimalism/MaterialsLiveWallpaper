@@ -589,9 +589,9 @@ public class MaterialsWallpaperService extends WallpaperService
                             }
                             catch (Exception ignored)
                             {
-                                LightDirections[i * 3] = 0.6f;
-                                LightDirections[i * 3 + 1] = 0.6f;
-                                LightDirections[i * 3 + 2] = 0.6f;
+                                LightColors[i * 3] = 0.6f;
+                                LightColors[i * 3 + 1] = 0.6f;
+                                LightColors[i * 3 + 2] = 0.6f;
                             }
                         }
 
