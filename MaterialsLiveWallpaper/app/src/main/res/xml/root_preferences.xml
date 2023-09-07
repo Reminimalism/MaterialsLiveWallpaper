@@ -44,6 +44,26 @@
             app:defaultValue="0.6,0.6,0.6" />
 
         <SwitchPreference
+            app:key="enable_light_sensor"
+            app:title="@string/settings_lights_light_sensor"
+            app:defaultValue="false"
+            app:enabled="true" />
+
+        <SeekBarPreference
+            app:key="light_sensor_max_light"
+            app:title="@string/settings_lights_light_sensor_max_light"
+            app:summary="@string/settings_lights_light_sensor_max_light_summary"
+            app:defaultValue="10"
+            app:dependency="enable_light_sensor" />
+
+        <SeekBarPreference
+            app:key="light_sensor_min_brightness"
+            app:title="@string/settings_lights_light_sensor_min_brightness"
+            app:summary="@string/settings_lights_light_sensor_min_brightness_summary"
+            app:defaultValue="10"
+            app:dependency="enable_light_sensor" />
+
+        <SwitchPreference
             app:key="enable_auto_exposure"
             app:title="@string/settings_lights_auto_exposure"
             app:summaryOn="@string/settings_lights_auto_exposure_summary_on"

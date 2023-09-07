@@ -79,8 +79,14 @@ public class MaterialsWallpaperService extends WallpaperService
 
         SensorManager SensorManagerInstance = null;
         SensorEventListener RotationSensorEventListener = null;
+        boolean RotationSensorListenerRegistered = false;
         float[] RotationVector = new float[4];
         boolean RotationVectorChanged = false;
+
+        SensorEventListener LightSensorEventListener = null;
+        boolean LightSensorListenerRegistered = false;
+        final float MaxLightAmount = 500;
+        float LightAmount = MaxLightAmount;
 
         WallpaperGLSurfaceView GLSurface = null;
         boolean SettingsChanged = false;
@@ -115,12 +121,36 @@ public class MaterialsWallpaperService extends WallpaperService
                     RotationSensor,
                     sensor_update_delay
             );
+            RotationSensorListenerRegistered = true;
+        }
+
+        void RegisterLightSensorListener()
+        {
+            Sensor LightSensor = SensorManagerInstance.getDefaultSensor(Sensor.TYPE_LIGHT);
+            SensorManagerInstance.registerListener(
+                    LightSensorEventListener,
+                    LightSensor,
+                    SensorManager.SENSOR_DELAY_GAME
+            );
+            LightSensorListenerRegistered = true;
         }
 
         void UnregisterRotationSensorListener()
         {
+            if (!RotationSensorListenerRegistered)
+                return;
             if (SensorManagerInstance != null && RotationSensorEventListener != null)
                 SensorManagerInstance.unregisterListener(RotationSensorEventListener);
+            RotationSensorListenerRegistered = false;
+        }
+
+        void UnregisterLightSensorListener()
+        {
+            if (!LightSensorListenerRegistered)
+                return;
+            if (SensorManagerInstance != null && LightSensorEventListener != null)
+                SensorManagerInstance.unregisterListener(LightSensorEventListener);
+            LightSensorListenerRegistered = false;
         }
 
         @Override
@@ -154,6 +184,20 @@ public class MaterialsWallpaperService extends WallpaperService
                             {
                                 System.arraycopy(event.values, 0, RotationVector, 0, 4);
                                 RotationVectorChanged = true;
+                            }
+                        }
+
+                        @Override
+                        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+                    };
+                    LightSensorEventListener = new SensorEventListener()
+                    {
+                        @Override
+                        public void onSensorChanged(SensorEvent event)
+                        {
+                            if (event.sensor.getType() == Sensor.TYPE_LIGHT)
+                            {
+                                LightAmount = event.values[0];
                             }
                         }
 
@@ -203,6 +247,12 @@ public class MaterialsWallpaperService extends WallpaperService
                     float[] LightDirections;
                     float[] LightReflectionDirections;
                     float[] LightColors;
+
+                    boolean IsLightSensorEnabled = false;
+                    float UserMaxLightAmount = MaxLightAmount;
+                    float MinLightBrightness = 0;
+                    float LightsBrightness = 1;
+                    float[] FinalLightColors;
 
                     float Exposure;
 
@@ -576,6 +626,7 @@ public class MaterialsWallpaperService extends WallpaperService
                         );
                         int colors_index = 0;
                         LightColors = new float[count * 3];
+                        FinalLightColors = new float[count * 3];
                         for (int i = 0; i < count; i++)
                         {
                             colors_index += 1;
@@ -594,8 +645,18 @@ public class MaterialsWallpaperService extends WallpaperService
                                 LightColors[i * 3 + 2] = 0.6f;
                             }
                         }
+                        System.arraycopy(LightColors, 0, FinalLightColors, 0, LightColors.length);
 
                         LightReflectionDirections = new float[LightDirections.length]; // Will be updated based on LightDirections & device rotation
+
+                        LightsBrightness = 1;
+                        IsLightSensorEnabled = Preferences.getBoolean("enable_light_sensor", false);
+                        UserMaxLightAmount =
+                                ((((float)Preferences.getInt("light_sensor_max_light", 10)) + 1) / 101f)
+                                        * MaxLightAmount;
+                        MinLightBrightness = ((float)Preferences.getInt("light_sensor_min_brightness", 10)) / 100f;
+                        if (IsLightSensorEnabled)
+                            RegisterLightSensorListener();
 
                         // Exposure
 
@@ -1151,6 +1212,7 @@ public class MaterialsWallpaperService extends WallpaperService
                     void Reinitialize()
                     {
                         UnregisterRotationSensorListener();
+                        UnregisterLightSensorListener();
                         //DeleteObjects(); // Initialize() does this.
                         Initialize();
                     }
@@ -1332,6 +1394,19 @@ public class MaterialsWallpaperService extends WallpaperService
                             }
                         }
 
+                        if (IsLightSensorEnabled)
+                        {
+                            float LightsBrightnessTarget = MinLightBrightness + (1 - MinLightBrightness) * (LightAmount / UserMaxLightAmount);
+                            LightsBrightness += (LightsBrightnessTarget - LightsBrightness) * 0.25f;
+                            if (LightsBrightness > 1)
+                                LightsBrightness = 1;
+
+                            for (int i = 0; i < LightColors.length; i++)
+                            {
+                                FinalLightColors[i] = LightColors[i] * LightsBrightness;
+                            }
+                        }
+
                         // GL
 
                         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
@@ -1399,8 +1474,8 @@ public class MaterialsWallpaperService extends WallpaperService
                                 );
                             GLES20.glUniform3fv(
                                     layer.LightColorsUniform,
-                                    LightColors.length / 3,
-                                    LightColors,
+                                    FinalLightColors.length / 3,
+                                    FinalLightColors,
                                     0
                             );
 
@@ -1660,11 +1735,14 @@ public class MaterialsWallpaperService extends WallpaperService
                 {
                     GLSurface.onResume();
                     RegisterRotationSensorListener();
+                    if (Preferences.getBoolean("enable_light_sensor", false))
+                        RegisterLightSensorListener();
                 }
                 else
                 {
                     GLSurface.onPause();
                     UnregisterRotationSensorListener();
+                    UnregisterLightSensorListener();
                 }
         }
 
@@ -1675,6 +1753,7 @@ public class MaterialsWallpaperService extends WallpaperService
             if (GLSurface != null)
                 GLSurface.onDestroy();
             UnregisterRotationSensorListener();
+            UnregisterLightSensorListener();
             if (Preferences != null && PreferenceChangeListener != null)
                 Preferences.unregisterOnSharedPreferenceChangeListener(PreferenceChangeListener);
         }

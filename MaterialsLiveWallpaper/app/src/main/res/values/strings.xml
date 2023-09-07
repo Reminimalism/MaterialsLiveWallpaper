@@ -90,6 +90,16 @@
         It\'s recommended to keep the intensity below 0.6 for all lights that are close together.
     </string>
 
+    <string name="settings_lights_light_sensor">Use light sensor</string>
+    <string name="settings_lights_light_sensor_max_light">Light sensor maximum light range</string>
+    <string name="settings_lights_light_sensor_max_light_summary">
+        Higher values result in less sensitive light adjustment.
+    </string>
+    <string name="settings_lights_light_sensor_min_brightness">Light sensor minimum brightness</string>
+    <string name="settings_lights_light_sensor_min_brightness_summary">
+        The minimum amount of brightness in the darkest environment.
+    </string>
+
     <string name="settings_lights_auto_exposure">Automatically Set Exposure</string>
     <string name="settings_lights_auto_exposure_summary_on">
         Automatically sets exposure based on light sources to guarantee no overexposure (with the right materials).
