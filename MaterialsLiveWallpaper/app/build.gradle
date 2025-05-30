@@ -1,14 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 34
+    namespace = "com.reminimalism.materialslivewallpaper"
+    compileSdkVersion 35
 
     defaultConfig {
         applicationId "com.reminimalism.materialslivewallpaper"
         minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 12
-        versionName "1.6"
+        targetSdkVersion 35
+        versionCode 13
+        versionName "1.7"
         // Also update Config.InitializeSupportedTargetVersions and Config.GetLatestSupportedTargetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
