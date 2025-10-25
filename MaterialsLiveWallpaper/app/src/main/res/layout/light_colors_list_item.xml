@@ -9,7 +9,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:background="@color/primaryTextColor"
+        android:background="#000"
         android:layout_margin="16dp"
         android:padding="1dp"
         android:orientation="vertical"
@@ -18,17 +18,17 @@
 
         <View
             android:id="@+id/color_preview"
-            android:background="@color/primaryBackgroundColor"
+            android:background="#fff"
             android:layout_width="24dp"
             android:layout_height="20dp" />
 
         <LinearLayout
-            android:background="@color/primaryTextColor"
+            android:background="#000"
             android:layout_width="24dp"
             android:layout_height="4dp">
             <View
                 android:id="@+id/intensity_preview"
-                android:background="@color/primaryBackgroundColor"
+                android:background="#fff"
                 android:layout_width="12dp"
                 android:layout_height="4dp" />
         </LinearLayout>
