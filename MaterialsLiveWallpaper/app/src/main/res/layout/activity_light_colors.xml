@@ -23,7 +23,7 @@
 
             <TextView
                 android:text="@string/settings_lights_colors_load_sample"
-                android:textColor="#000"
+                android:textColor="@color/primaryTextColor"
                 android:textSize="16sp"
                 android:layout_margin="16dp"
                 android:layout_width="match_parent"
@@ -42,7 +42,7 @@
 
             <TextView
                 android:text="@string/settings_lights_colors_count"
-                android:textColor="#000"
+                android:textColor="@color/primaryTextColor"
                 android:textSize="16sp"
                 android:layout_margin="16dp"
                 android:layout_width="match_parent"
