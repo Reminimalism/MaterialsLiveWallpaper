@@ -1,0 +1,1 @@
+Fixed unreadable text in Light Colors activity when in dark mode, contributed by GoodKnightRestDev.
