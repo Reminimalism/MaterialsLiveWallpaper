@@ -8,8 +8,8 @@ android {
         applicationId "com.reminimalism.materialslivewallpaper"
         minSdkVersion 21
         targetSdkVersion 36
-        versionCode 14
-        versionName "1.8"
+        versionCode 15
+        versionName "1.9"
         // Also update Config.InitializeSupportedTargetVersions and Config.GetLatestSupportedTargetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
