@@ -52,6 +52,20 @@
         For more info and some custom materials to download, scroll down and tap on More Materials.
     </string>
 
+    <string name="settings_material_supports_dark_text">Dark Text Support</string>
+    <string name="settings_material_supports_dark_text_summary_on">
+        Signals the launcher that this wallpaper
+        supports dark text (i.e., app labels and status bar)
+        on Android 12 and later.
+        Recommended to enable on bright wallpaper materials.
+    </string>
+    <string name="settings_material_supports_dark_text_summary_off">
+        Signals the launcher that this wallpaper
+        does not support dark text (i.e., app labels and status bar)
+        on Android 12 and later.
+        Recommended to enable on bright wallpaper materials.
+    </string>
+
     <!-- Performance Settings -->
 
     <string name="settings_performance_fps_limit">Frame Rate Limit</string>

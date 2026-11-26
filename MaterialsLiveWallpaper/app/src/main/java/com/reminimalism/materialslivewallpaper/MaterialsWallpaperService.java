@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.WallpaperColors;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.hardware.Sensor;
@@ -20,6 +22,7 @@ import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
+import android.os.Build;
 import android.service.wallpaper.WallpaperService;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -154,6 +157,22 @@ public class MaterialsWallpaperService extends WallpaperService
         }
 
         @Override
+        public WallpaperColors onComputeColors()
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            {
+                // API 31, Android 12 (supports hints)
+                if (Preferences == null)
+                    Preferences = PreferenceManager.getDefaultSharedPreferences(MaterialsWallpaperService.this);
+                Color primary = Color.valueOf(0xAA808080);
+                int hints = Preferences.getBoolean("supports_dark_text", false) ?
+                        WallpaperColors.HINT_SUPPORTS_DARK_TEXT : 0;
+                return new WallpaperColors(primary, null, null, hints);
+            }
+            return null;
+        }
+
+        @Override
         public void onCreate(final SurfaceHolder surface_holder)
         {
             super.onCreate(surface_holder);
@@ -216,6 +235,10 @@ public class MaterialsWallpaperService extends WallpaperService
                     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
                     {
                         SettingsChanged = true;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1)
+                        {
+                            notifyColorsChanged();
+                        }
                     }
                 };
                 Preferences.registerOnSharedPreferenceChangeListener(PreferenceChangeListener);

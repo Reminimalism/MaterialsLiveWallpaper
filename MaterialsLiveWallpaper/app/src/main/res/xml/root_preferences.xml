@@ -26,6 +26,13 @@
             app:defaultValue="0"
             app:enabled="true" />
 
+        <SwitchPreferenceCompat
+            app:key="supports_dark_text"
+            app:title="@string/settings_material_supports_dark_text"
+            app:summaryOn="@string/settings_material_supports_dark_text_summary_on"
+            app:summaryOff="@string/settings_material_supports_dark_text_summary_off"
+            app:enabled="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/settings_category_lights">
