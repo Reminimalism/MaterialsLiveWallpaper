@@ -19,4 +19,3 @@ The code is not intended to be beautiful,
 to make the development process faster
 as I couldn't allocate a lot of time to it
 and it's not a large project either.
-I may or may not decide to improve it in the future.
