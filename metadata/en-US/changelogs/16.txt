@@ -1,0 +1,1 @@
+Added Dark Text Support option.
