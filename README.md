@@ -9,6 +9,16 @@ A live wallpaper that renders materials and uses device's sensors to reflect lig
   <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="90"/>
 </a>
 
+## Screenshots
+
+<p>
+  <img src="metadata/en-US/images/phoneScreenshots/1.png" width="18%" />
+  <img src="metadata/en-US/images/phoneScreenshots/2.png" width="18%" />
+  <img src="metadata/en-US/images/phoneScreenshots/3.png" width="18%" />
+  <img src="metadata/en-US/images/phoneScreenshots/4.png" width="18%" />
+  <img src="metadata/en-US/images/phoneScreenshots/5.png" width="18%" />
+</p>
+
 # Custom Materials
 
 See [Custom Materials](https://github.com/Reminimalism/MaterialsLiveWallpaperCustomMaterials) for samples and instructions on making your own custom materials.
