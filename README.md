@@ -1,5 +1,7 @@
 # Materials Live Wallpaper
 
+<img src="metadata/en-US/images/featureGraphic.png" />
+
 A live wallpaper that renders materials and uses device's sensors to reflect lights from different directions on them.
 
 <a href="https://f-droid.org/en/packages/com.reminimalism.materialslivewallpaper/" target="_blank">
