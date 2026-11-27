@@ -14,11 +14,10 @@ A live wallpaper that renders materials and uses device's sensors to reflect lig
 ## Screenshots
 
 <p>
-  <img src="metadata/en-US/images/phoneScreenshots/1.png" width="18%" />
-  <img src="metadata/en-US/images/phoneScreenshots/2.png" width="18%" />
-  <img src="metadata/en-US/images/phoneScreenshots/3.png" width="18%" />
-  <img src="metadata/en-US/images/phoneScreenshots/4.png" width="18%" />
-  <img src="metadata/en-US/images/phoneScreenshots/5.png" width="18%" />
+  <img src="metadata/en-US/images/phoneScreenshots/1.png" width="20%" />
+  <img src="metadata/en-US/images/phoneScreenshots/2.png" width="20%" />
+  <img src="metadata/en-US/images/phoneScreenshots/4.png" width="20%" />
+  <img src="metadata/en-US/images/phoneScreenshots/5.png" width="20%" />
 </p>
 
 # Custom Materials
